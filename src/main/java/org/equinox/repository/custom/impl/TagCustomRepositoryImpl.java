@@ -28,7 +28,6 @@ public class TagCustomRepositoryImpl implements TagCustomRepository {
         CriteriaQuery<Tag> criteriaQuery = criteriaBuilder.createQuery(Tag.class);
         Root<Tag> root = criteriaQuery.from(Tag.class);
         EntityManager entityManager = entityManagerFactory.createEntityManager();
-        Session session = (Session) entityManager.getDelegate();
 
         criteriaQuery.where(criteriaBuilder.equal(root.get("name"), tag.getName()));
         List<Tag> tags = entityManager.createQuery(criteriaQuery).getResultList();
