@@ -14,7 +14,7 @@ import java.util.Collection;
 
 @Aspect
 @Component
-public class ValidateCollectionSizeArgumentAspect {
+public class ValidateCollectionSizeAspect {
 
     @Around("@annotation(validateCollectionSize)")
     public Object validateCollectionSize(ProceedingJoinPoint proceedingJoinPoint,
