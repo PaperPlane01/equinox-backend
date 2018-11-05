@@ -1,7 +1,7 @@
 package org.equinox.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.equinox.model.domain.CommentsDisplayMode;
+import org.equinox.model.CommentsDisplayMode;
 import org.equinox.model.dto.BlogPostDTO;
 import org.equinox.model.dto.BlogPostLikeDTO;
 import org.equinox.model.dto.CommentDTO;

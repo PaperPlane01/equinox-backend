@@ -5,7 +5,7 @@ import org.equinox.mapper.CommentToCommentDTOMapper;
 import org.equinox.mapper.CreateCommentDTOToCommentMapper;
 import org.equinox.model.domain.BlogPost;
 import org.equinox.model.domain.Comment;
-import org.equinox.model.domain.CommentsDisplayMode;
+import org.equinox.model.CommentsDisplayMode;
 import org.equinox.model.dto.CommentDTO;
 import org.equinox.model.dto.CreateCommentDTO;
 import org.equinox.model.dto.UpdateCommentDTO;
@@ -196,7 +196,7 @@ public class CommentServiceImpl implements CommentService {
     private List<Comment> findRootCommentsByBlogPostSortById(BlogPost blogPost, int page, int pageSize,
                                                              String sortingDirection) {
         Sort.Direction direction = SortingDirectionUtils.convertFromString(sortingDirection);
-        PageRequest pageRequest = PageRequest.of(page, pageSize, direction);
+        PageRequest pageRequest = PageRequest.of(page, pageSize, direction, "id");
         return commentRepository.findByBlogPostAndRoot(blogPost, true, pageRequest);
     }
 

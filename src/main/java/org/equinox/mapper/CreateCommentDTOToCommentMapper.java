@@ -40,6 +40,9 @@ public abstract class CreateCommentDTOToCommentMapper {
                         "with given id " + createCommentDTO.getBlogPostId())));
         if (createCommentDTO.getRootCommentId() != null) {
             comment.setRootComment(findCommentById(createCommentDTO.getRootCommentId()));
+            comment.setRoot(false);
+        } else {
+            comment.setRoot(true);
         }
 
         if (createCommentDTO.getReferredCommentId() != null) {

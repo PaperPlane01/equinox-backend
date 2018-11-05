@@ -2,7 +2,7 @@ package org.equinox.service;
 
 import org.equinox.exception.BlogPostNotFoundException;
 import org.equinox.exception.CommentNotFoundException;
-import org.equinox.model.domain.CommentsDisplayMode;
+import org.equinox.model.CommentsDisplayMode;
 import org.equinox.model.dto.CommentDTO;
 import org.equinox.model.dto.CreateCommentDTO;
 import org.equinox.model.dto.UpdateCommentDTO;

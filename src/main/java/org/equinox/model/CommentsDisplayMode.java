@@ -1,4 +1,4 @@
-package org.equinox.model.domain;
+package org.equinox.model;
 
 import org.equinox.exception.InvalidCommentsDisplayModeException;
 
