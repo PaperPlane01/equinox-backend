@@ -3,9 +3,11 @@ package org.equinox.aspect;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.equinox.async.executor.AsyncExecutor;
+import org.equinox.model.dto.BlogBlockingDTO;
 import org.equinox.model.dto.BlogPostDTO;
 import org.equinox.model.dto.CommentDTO;
 import org.equinox.model.dto.CommentLikeDTO;
+import org.equinox.model.dto.GlobalBlockingDTO;
 import org.equinox.service.NotificationService;
 import org.equinox.annotation.NotifySubscribers;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +40,13 @@ public class SubscribersNotificationAspect {
                     notificationService.save(((CommentDTO) notificationCreator).getId(),
                             notificationType);
                     break;
+                case GLOBAL_BLOCKING:
+                    notificationService.save(((GlobalBlockingDTO) notificationCreator).getId(),
+                            notificationType);
+                    break;
+                case BLOG_BLOCKING:
+                    notificationService.save(((BlogBlockingDTO) notificationCreator).getId(),
+                            notificationType);
                 default:
                     break;
             }

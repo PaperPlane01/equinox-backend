@@ -1,10 +1,15 @@
 package org.equinox.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.equinox.annotation.NotifySubscribers;
+import org.equinox.annotation.Page;
+import org.equinox.annotation.PageSize;
+import org.equinox.annotation.ValidatePaginationParameters;
 import org.equinox.exception.BlogBlockingNotFoundException;
 import org.equinox.exception.UserNotFoundException;
 import org.equinox.mapper.BlogBlockingToBlogBlockingDTOMapper;
 import org.equinox.mapper.CreateBlogBlockingDTOToBlogBlockingMapper;
+import org.equinox.model.domain.NotificationType;
 import org.equinox.model.domain.User;
 import org.equinox.model.dto.BlogBlockingDTO;
 import org.equinox.model.dto.CreateBlogBlockingDTO;
@@ -16,6 +21,8 @@ import org.equinox.model.domain.BlogBlocking;
 import org.equinox.repository.BlogBlockingRepository;
 import org.equinox.repository.BlogRepository;
 import org.equinox.repository.UserRepository;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,6 +50,7 @@ public class BlogBlockingServiceImpl implements BlogBlockingService {
         return blogBlockingRepository.findById(id).orElseThrow(BlogBlockingNotFoundException::new);
     }
 
+    @NotifySubscribers(type = NotificationType.BLOG_BLOCKING)
     @Override
     public BlogBlockingDTO save(CreateBlogBlockingDTO createBlogBlockingDTO) throws BlogNotFoundException, UserNotFoundException {
         BlogBlocking blogBlocking = createBlogBlockingDTOToBlogBlockingMapper.map(createBlogBlockingDTO);
@@ -62,7 +70,7 @@ public class BlogBlockingServiceImpl implements BlogBlockingService {
     }
 
     @Override
-    public List<BlogBlockingDTO> findNotEndedByUser(Long userId) {
+    public List<BlogBlockingDTO> findNotEndedByBlockedUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User with given id "
                         + userId + " could not be found."));
@@ -85,6 +93,58 @@ public class BlogBlockingServiceImpl implements BlogBlockingService {
 
         return blogBlockingRepository.findAllByBlockedUserAndBlogAndEndDateGreaterThan(user, blog,
                 Date.from(Instant.now())).isEmpty();
+    }
+
+    @ValidatePaginationParameters
+    @Override
+    public List<BlogBlockingDTO> findByBlog(Long blogId,
+                                            @Page int page,
+                                            @PageSize(max = 50) int pageSize) throws BlogNotFoundException {
+        Blog blog = findBlogById(blogId);
+        PageRequest pageRequest = PageRequest.of(page, pageSize, Sort.Direction.DESC, "id");
+
+        return blogBlockingRepository.findByBlog(blog, pageRequest)
+                .stream()
+                .map(blogBlockingToBlogBlockingDTOMapper::map)
+                .collect(Collectors.toList());
+    }
+
+    @ValidatePaginationParameters
+    @Override
+    public List<BlogBlockingDTO> findNotEndedByBlog(Long blogId,
+                                                    @Page int page,
+                                                    @PageSize(max = 50) int pageSize) throws BlogNotFoundException {
+        Blog blog = findBlogById(blogId);
+        PageRequest pageRequest = PageRequest.of(page, pageSize, Sort.Direction.DESC, "id");
+
+        return blogBlockingRepository.findByBlogAndEndDateGreaterThan(blog, Date.from(Instant.now()), pageRequest)
+                .stream()
+                .map(blogBlockingToBlogBlockingDTOMapper::map)
+                .collect(Collectors.toList());
+    }
+
+    @ValidatePaginationParameters
+    @Override
+    public List<BlogBlockingDTO> findByBlogAndBlockedUserDisplayedUsernameContains(Long blogId, String username,
+                                                                                   @Page int page,
+                                                                                   @PageSize(max = 50) int pageSize) throws BlogNotFoundException {
+        Blog blog = findBlogById(blogId);
+        PageRequest pageRequest = PageRequest.of(page, pageSize, Sort.Direction.DESC, "id");
+
+        return blogBlockingRepository.findByBlogAndBlockedUserDisplayedNameContains(blog, username, pageRequest)
+                .stream()
+                .map(blogBlockingToBlogBlockingDTOMapper::map)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<BlogBlockingDTO> findNotEndedByBlogAndBlockedUserDisplayedUsernameContains(Long blogId, String username, int page, int pageSize) throws BlogNotFoundException {
+        Blog blog = findBlogById(blogId);
+        PageRequest pageRequest = PageRequest.of(page, pageSize, Sort.Direction.DESC, "id");
+
+        return blogBlockingRepository.findByBlogAndBlockedUserDisplayedNameContainsAndEndDateGreaterThan(
+                blog, username, Date.from(Instant.now()), pageRequest
+        ).stream().map(blogBlockingToBlogBlockingDTOMapper::map).collect(Collectors.toList());
     }
 
     private User findUserById(Long id) {

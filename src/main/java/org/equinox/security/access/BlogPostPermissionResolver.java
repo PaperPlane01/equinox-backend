@@ -1,22 +1,20 @@
-package org.equinox.security.permissionresolver;
+package org.equinox.security.access;
 
+import lombok.RequiredArgsConstructor;
 import org.equinox.model.domain.BlogRole;
 import org.equinox.model.dto.BlogPostDTO;
 import org.equinox.model.dto.CurrentUserDTO;
 import org.equinox.service.BlogPostService;
 import org.equinox.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
 
 @Component
+@RequiredArgsConstructor
 public class BlogPostPermissionResolver {
-    @Autowired
-    private BlogPostService blogPostService;
-
-    @Autowired
-    private UserService userService;
+    private final BlogPostService blogPostService;
+    private final UserService userService;
 
     public boolean canSaveBlogPost(Long blogId) {
         CurrentUserDTO currentUser = userService.getCurrentUser();

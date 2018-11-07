@@ -1,5 +1,6 @@
-package org.equinox.security.permissionresolver;
+package org.equinox.security.access;
 
+import lombok.RequiredArgsConstructor;
 import org.equinox.model.dto.BlogDTO;
 import org.equinox.model.dto.CurrentUserDTO;
 import org.equinox.model.dto.RestoreOrDeleteBlogDTO;
@@ -12,15 +13,10 @@ import org.springframework.stereotype.Component;
 import java.util.Objects;
 
 @Component
+@RequiredArgsConstructor
 public class BlogPermissionResolver {
-    private BlogService blogService;
-    private UserService userService;
-
-    @Autowired
-    public BlogPermissionResolver(BlogService blogService, UserService userService) {
-        this.blogService = blogService;
-        this.userService = userService;
-    }
+    private final BlogService blogService;
+    private final UserService userService;
 
     public boolean canUpdateBlog(Long id) {
         CurrentUserDTO currentUser = userService.getCurrentUser();

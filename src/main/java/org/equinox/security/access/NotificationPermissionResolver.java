@@ -1,22 +1,20 @@
-package org.equinox.security.permissionresolver;
+package org.equinox.security.access;
 
+import lombok.RequiredArgsConstructor;
 import org.equinox.model.dto.CurrentUserDTO;
 import org.equinox.model.dto.NotificationDTO;
 import org.equinox.service.NotificationService;
 import org.equinox.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Objects;
 
 @Component
+@RequiredArgsConstructor
 public class NotificationPermissionResolver {
-    @Autowired
-    private NotificationService notificationService;
-
-    @Autowired
-    private UserService userService;
+    private final NotificationService notificationService;
+    private final UserService userService;
 
     public boolean canUpdateNotification(Long notificationId) {
         NotificationDTO notificationDTO = notificationService.findById(notificationId);

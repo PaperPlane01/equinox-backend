@@ -1,31 +1,23 @@
-package org.equinox.security.permissionresolver;
+package org.equinox.security.access;
 
+import lombok.RequiredArgsConstructor;
 import org.equinox.model.domain.BlogRole;
 import org.equinox.model.dto.BlogBlockingDTO;
 import org.equinox.model.dto.BlogDTO;
 import org.equinox.model.dto.CurrentUserDTO;
 import org.equinox.service.BlogBlockingService;
-import org.equinox.service.BlogManagerService;
 import org.equinox.service.BlogService;
 import org.equinox.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
 
 @Component
+@RequiredArgsConstructor
 public class BlogBlockingPermissionResolver {
-    @Autowired
-    private BlogBlockingService blogBlockingService;
-
-    @Autowired
-    private BlogService blogService;
-
-    @Autowired
-    private BlogManagerService blogManagerService;
-
-    @Autowired
-    private UserService userService;
+    private final BlogBlockingService blogBlockingService;
+    private final BlogService blogService;
+    private final UserService userService;
 
     public boolean canBlockUsersInBlog(Long blogId) {
         CurrentUserDTO currentUser = userService.getCurrentUser();
@@ -46,5 +38,13 @@ public class BlogBlockingPermissionResolver {
     public boolean canUpdateBlocking(Long blogBlockingId) {
         BlogBlockingDTO blogBlockingDTO = blogBlockingService.findById(blogBlockingId);
         return canBlockUsersInBlog(blogBlockingDTO.getBlogId());
+    }
+
+    public boolean canViewBlogBlockingsInBlog(Long blogId) {
+        CurrentUserDTO currentUser = userService.getCurrentUser();
+
+        return currentUser.getOwnedBlogs().stream().anyMatch(id -> Objects.equals(id, blogId))
+                || currentUser.getManagedBlogs().stream()
+                .anyMatch(managedBlog -> Objects.equals(managedBlog.getBlogId(), blogId));
     }
 }

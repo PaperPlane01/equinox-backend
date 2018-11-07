@@ -1,4 +1,4 @@
-package org.equinox.security.permissionresolver;
+package org.equinox.security.access;
 
 import lombok.RequiredArgsConstructor;
 import org.equinox.model.dto.BlogDTO;

@@ -3,6 +3,7 @@ package org.equinox.repository;
 import org.equinox.model.domain.Blog;
 import org.equinox.model.domain.BlogBlocking;
 import org.equinox.model.domain.User;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Date;
@@ -16,4 +17,10 @@ public interface BlogBlockingRepository extends JpaRepository<BlogBlocking, Long
     Optional<BlogBlocking> findById(Long id);
     List<BlogBlocking> findAllByBlockedUserAndBlogAndEndDateGreaterThan(User blockedUser, Blog blog, Date date);
     List<BlogBlocking> findAllByBlockedUserAndEndDateGreaterThan(User blockedUser, Date date);
+    List<BlogBlocking> findByBlog(Blog blog, Pageable pageable);
+    List<BlogBlocking> findByBlogAndEndDateGreaterThan(Blog blog, Date date, Pageable pageable);
+    List<BlogBlocking> findByBlogAndBlockedUserDisplayedNameContains(Blog blog, String string, Pageable pageable);
+    List<BlogBlocking> findByBlogAndBlockedUserDisplayedNameContainsAndEndDateGreaterThan(
+            Blog blog, String string, Date date, Pageable pageable
+    );
 }

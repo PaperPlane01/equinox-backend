@@ -1,6 +1,7 @@
 package org.equinox.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.equinox.annotation.NotifySubscribers;
 import org.equinox.exception.UserNotFoundException;
 import org.equinox.annotation.Page;
 import org.equinox.annotation.PageSize;
@@ -11,6 +12,7 @@ import org.equinox.exception.GlobalBlockingNotFoundException;
 import org.equinox.mapper.CreateGlobalBlockingDTOToGlobalBlockingMapper;
 import org.equinox.mapper.GlobalBlockingToGlobalBlockingDTOMapper;
 import org.equinox.model.domain.GlobalBlocking;
+import org.equinox.model.domain.NotificationType;
 import org.equinox.model.domain.User;
 import org.equinox.model.dto.CreateGlobalBlockingDTO;
 import org.equinox.model.dto.GlobalBlockingDTO;
@@ -41,6 +43,7 @@ public class GlobalBlockingServiceImpl implements GlobalBlockingService {
     private final CreateGlobalBlockingDTOToGlobalBlockingMapper
             createGlobalBlockingDTOToGlobalBlockingMapper;
 
+    @NotifySubscribers(type = NotificationType.GLOBAL_BLOCKING)
     @Override
     public GlobalBlockingDTO save(CreateGlobalBlockingDTO createGlobalBlockingDTO) {
         GlobalBlocking globalBlocking = createGlobalBlockingDTOToGlobalBlockingMapper

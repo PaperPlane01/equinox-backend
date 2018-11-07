@@ -1,22 +1,20 @@
-package org.equinox.security.permissionresolver;
+package org.equinox.security.access;
 
+import lombok.RequiredArgsConstructor;
 import org.equinox.model.domain.BlogRole;
 import org.equinox.model.dto.CurrentUserDTO;
 import org.equinox.model.dto.SubscriptionDTO;
 import org.equinox.service.SubscriptionService;
 import org.equinox.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
 
 @Component
+@RequiredArgsConstructor
 public class SubscriptionPermissionResolver {
-    @Autowired
-    private SubscriptionService subscriptionService;
-
-    @Autowired
-    private UserService userService;
+    private final SubscriptionService subscriptionService;
+    private final UserService userService;
 
     public boolean canSaveSubscription(Long blogId) {
         CurrentUserDTO currentUser = userService.getCurrentUser();

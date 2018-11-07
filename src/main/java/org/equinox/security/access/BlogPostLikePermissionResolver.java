@@ -1,24 +1,20 @@
-package org.equinox.security.permissionresolver;
+package org.equinox.security.access;
 
+import lombok.RequiredArgsConstructor;
 import org.equinox.model.dto.BlogPostDTO;
 import org.equinox.model.dto.BlogPostLikeDTO;
 import org.equinox.model.dto.CurrentUserDTO;
 import org.equinox.service.BlogPostLikeService;
 import org.equinox.service.BlogPostService;
 import org.equinox.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class BlogPostLikePermissionResolver {
-    @Autowired
-    private BlogPostLikeService blogPostLikeService;
-
-    @Autowired
-    private BlogPostService blogPostService;
-
-    @Autowired
-    private UserService userService;
+    private final BlogPostLikeService blogPostLikeService;
+    private final BlogPostService blogPostService;
+    private final UserService userService;
 
     public boolean canSaveBlogPostLike(Long blogPostId) {
         BlogPostDTO blogPostDTO = blogPostService.findById(blogPostId);

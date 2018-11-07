@@ -47,7 +47,7 @@ public interface BlogBlockingService {
      * @return Not ended blog blockings of user with given id.
      * @throws UserNotFoundException Thrown if there is no user with such id.
      */
-    List<BlogBlockingDTO> findNotEndedByUser(Long userId) throws UserNotFoundException;
+    List<BlogBlockingDTO> findNotEndedByBlockedUser(Long userId) throws UserNotFoundException;
 
     /**
      * Deletes blog blocking with specified id.
@@ -66,4 +66,43 @@ public interface BlogBlockingService {
      * @throws BlogNotFoundException Thrown if there is no blog with such id.
      */
     boolean isUserBlockedInBlog(Long userId, Long blogId) throws UserNotFoundException, BlogNotFoundException;
+
+    /**
+     * Returns list of blog blockings belonging to a blog with the specified id.
+     * @param blogId Id of blog.
+     * @param page Page number.
+     * @param pageSize Page size.
+     * @return List of blog blockings belonging to a blog with the specified id.
+     * @throws BlogNotFoundException Thrown if there is no blog with such id.
+     */
+    List<BlogBlockingDTO> findByBlog(Long blogId, int page, int pageSize) throws BlogNotFoundException;
+
+    /**
+     * Returns list of not ended blog blockings belonging to a blog with the specified id.
+     * @param blogId Id of blog.
+     * @param page Page number.
+     * @param pageSize Page size.
+     * @return List of not ended blog blockings belonging to a blog with the specified id.
+     * @throws BlogNotFoundException Thrown if there is no blog with such id.
+     */
+    List<BlogBlockingDTO> findNotEndedByBlog(Long blogId, int page, int pageSize) throws BlogNotFoundException;
+
+    /**
+     * Returns list of blog blockings belonging to a blog with the specified id and blocked user's
+     * displayed username containing specified string.
+     * @param blogId Id of blog.
+     * @param username Page number.
+     * @param page Page.
+     * @param pageSize Page size.
+     * @return List of blog blockings belonging to a blog with the specified id and blocked user's
+     * displayed username containing specified string.
+     * @throws BlogNotFoundException Thrown if there is no blog with such id.
+     */
+    List<BlogBlockingDTO> findByBlogAndBlockedUserDisplayedUsernameContains(Long blogId, String username,
+                                                                            int page, int pageSize)
+            throws BlogNotFoundException;
+
+    List<BlogBlockingDTO> findNotEndedByBlogAndBlockedUserDisplayedUsernameContains(Long blogId, String username,
+                                                                                    int page, int pageSize)
+            throws BlogNotFoundException;
 }

@@ -47,6 +47,8 @@ public abstract class CreateCommentDTOToCommentMapper {
 
         if (createCommentDTO.getReferredCommentId() != null) {
             comment.setReferredComment(findCommentById(createCommentDTO.getReferredCommentId()));
+        } else {
+            comment.setReferredComment(null);
         }
 
         comment.setAuthor(authenticationFacade.getCurrentUser());

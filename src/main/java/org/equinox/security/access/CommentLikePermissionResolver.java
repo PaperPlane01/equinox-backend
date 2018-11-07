@@ -1,26 +1,22 @@
-package org.equinox.security.permissionresolver;
+package org.equinox.security.access;
 
+import lombok.RequiredArgsConstructor;
 import org.equinox.model.dto.CommentDTO;
 import org.equinox.model.dto.CommentLikeDTO;
 import org.equinox.model.dto.CurrentUserDTO;
 import org.equinox.service.CommentLikeService;
 import org.equinox.service.CommentService;
 import org.equinox.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
 
 @Component
+@RequiredArgsConstructor
 public class CommentLikePermissionResolver {
-    @Autowired
-    private CommentService commentService;
-
-    @Autowired
-    private CommentLikeService commentLikeService;
-
-    @Autowired
-    private UserService userService;
+    private final CommentService commentService;
+    private final CommentLikeService commentLikeService;
+    private final UserService userService;
 
     public boolean canSaveCommentLike(Long commentId) {
         CommentDTO comment = commentService.findById(commentId);

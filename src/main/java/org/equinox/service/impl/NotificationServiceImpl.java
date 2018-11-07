@@ -1,7 +1,9 @@
 package org.equinox.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.equinox.exception.BlogBlockingNotFoundException;
 import org.equinox.exception.CommentLikeNotFoundException;
+import org.equinox.exception.GlobalBlockingNotFoundException;
 import org.equinox.exception.NotificationNotFoundException;
 import org.equinox.annotation.CollectionArgument;
 import org.equinox.annotation.Page;
@@ -14,18 +16,22 @@ import org.equinox.exception.BlogPostNotFoundException;
 import org.equinox.exception.CommentNotFoundException;
 import org.equinox.exception.EntityNotFoundException;
 import org.equinox.mapper.NotificationToNotificationDTOMapper;
+import org.equinox.model.domain.BlogBlocking;
 import org.equinox.model.domain.BlogPost;
 import org.equinox.model.domain.Comment;
 import org.equinox.model.domain.CommentLike;
+import org.equinox.model.domain.GlobalBlocking;
 import org.equinox.model.domain.Notification;
 import org.equinox.model.domain.NotificationType;
 import org.equinox.model.domain.Subscription;
 import org.equinox.model.domain.User;
 import org.equinox.model.dto.NotificationDTO;
 import org.equinox.model.dto.UpdateNotificationDTO;
+import org.equinox.repository.BlogBlockingRepository;
 import org.equinox.repository.BlogPostRepository;
 import org.equinox.repository.CommentLikeRepository;
 import org.equinox.repository.CommentRepository;
+import org.equinox.repository.GlobalBlockingRepository;
 import org.equinox.repository.NotificationRepository;
 import org.equinox.security.AuthenticationFacade;
 import org.equinox.service.NotificationService;
@@ -49,6 +55,8 @@ public class NotificationServiceImpl implements NotificationService {
     private final BlogPostRepository blogPostRepository;
     private final CommentRepository commentRepository;
     private final CommentLikeRepository commentLikeRepository;
+    private final BlogBlockingRepository blogBlockingRepository;
+    private final GlobalBlockingRepository globalBlockingRepository;
     private final NotificationToNotificationDTOMapper notificationToNotificationDTOMapper;
     private final AuthenticationFacade authenticationFacade;
 
@@ -69,6 +77,12 @@ public class NotificationServiceImpl implements NotificationService {
                     break;
                 case NEW_COMMENT_LIKE:
                     createNewCommentLikeNotification(findCommentLikeById(notificationGeneratorId));
+                    break;
+                case BLOG_BLOCKING:
+                    createBlogBlockingNotification(findBlogBlockingById(notificationGeneratorId));
+                    break;
+                case GLOBAL_BLOCKING:
+                    createGlobalBlockingNotification(findGlobalBlockingById(notificationGeneratorId));
                     break;
             }
         } catch (EntityNotFoundException e) {
@@ -234,6 +248,30 @@ public class NotificationServiceImpl implements NotificationService {
         save(notification);
     }
 
+    private void createBlogBlockingNotification(BlogBlocking blogBlocking) {
+        Notification notification = new Notification();
+
+        notification.setCreatedAt(Date.from(Instant.now()));
+        notification.setNotificationType(NotificationType.BLOG_BLOCKING);
+        notification.setRead(false);
+        notification.setNotificationGeneratorId(blogBlocking.getId());
+        notification.setRecipient(blogBlocking.getBlockedUser());
+
+        save(notification);
+    }
+
+    private void createGlobalBlockingNotification(GlobalBlocking globalBlocking) {
+        Notification notification = new Notification();
+
+        notification.setCreatedAt(Date.from(Instant.now()));
+        notification.setNotificationType(NotificationType.GLOBAL_BLOCKING);
+        notification.setRead(false);
+        notification.setNotificationGeneratorId(globalBlocking.getId());
+        notification.setRecipient(globalBlocking.getBlockedUser());
+
+        save(notification);
+    }
+
     private BlogPost findBlogPostById(Long id) {
         return blogPostRepository.findById(id).filter(blogPost -> !blogPost.isDeleted())
                 .orElseThrow(BlogPostNotFoundException::new);
@@ -247,5 +285,15 @@ public class NotificationServiceImpl implements NotificationService {
     private CommentLike findCommentLikeById(Long id) {
         return commentLikeRepository.findById(id)
                 .orElseThrow(CommentLikeNotFoundException::new);
+    }
+
+    private GlobalBlocking findGlobalBlockingById(Long id) {
+        return globalBlockingRepository.findById(id)
+                .orElseThrow(GlobalBlockingNotFoundException::new);
+    }
+
+    private BlogBlocking findBlogBlockingById(Long id) {
+        return blogBlockingRepository.findById(id)
+                .orElseThrow(BlogBlockingNotFoundException::new);
     }
 }

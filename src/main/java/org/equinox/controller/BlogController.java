@@ -1,6 +1,7 @@
 package org.equinox.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.equinox.model.dto.BlogBlockingDTO;
 import org.equinox.model.dto.BlogDTO;
 import org.equinox.model.dto.BlogPostDTO;
 import org.equinox.model.dto.BlogPostMinifiedDTO;
@@ -14,6 +15,7 @@ import org.equinox.model.dto.UpdateBlogDTO;
 import org.equinox.model.dto.UpdateBlogManagerDTO;
 import org.equinox.model.dto.UserDTO;
 import org.equinox.model.dto.UserMinifiedDTO;
+import org.equinox.service.BlogBlockingService;
 import org.equinox.service.BlogManagerService;
 import org.equinox.service.BlogPostService;
 import org.equinox.service.BlogService;
@@ -45,6 +47,7 @@ public class BlogController {
     private final BlogPostService blogPostService;
     private final SubscriptionService subscriptionService;
     private final BlogManagerService blogManagerService;
+    private final BlogBlockingService blogBlockingService;
 
     @PreAuthorize("hasRole('USER') and @blogPermissionResolver.canCreateBlog()")
     @PostMapping
@@ -178,5 +181,48 @@ public class BlogController {
         } else {
             return ResponseEntity.ok(blogService.restore(id));
         }
+    }
+
+    @PreAuthorize("hasRole('USER') && @blogBlockingPermissionResolver.canViewBlogBlockingsInBlog(#id)")
+    @GetMapping("/{id}/blockings")
+    public List<BlogBlockingDTO> findBlogBlockingsByBlog(@PathVariable("id") Long id,
+                                                         @RequestParam("page") Optional<Integer> page,
+                                                         @RequestParam("pageSize") Optional<Integer> pageSize) {
+        return blogBlockingService.findByBlog(id, page.orElse(0), pageSize.orElse(20));
+    }
+
+    @PreAuthorize("hasRole('USER') && blogBlockingPermissionResolver.canViewBlogBlockingsInBlog(#id)")
+    @GetMapping("/{id}/blockings/not-ended")
+    public List<BlogBlockingDTO> findNotEndedBlogBlockingsByBlog(@PathVariable("id") Long id,
+                                                                 @RequestParam("page") Optional<Integer> page,
+                                                                 @RequestParam("pageSize")
+                                                                         Optional<Integer> pageSize) {
+        return blogBlockingService.findNotEndedByBlog(id, page.orElse(0), pageSize.orElse(20));
+    }
+
+    @PreAuthorize("hasRole('USER') && @blogBlockingPermissionResolver.canViewBlogBlockingsInBlog(#id)")
+    @GetMapping(value = "/{id}/blockings", params = {"blockedUserDisplayedUsername"})
+    public List<BlogBlockingDTO> findBlogBlockinsByBlogAndBlockedUserDisplayedUsername(
+            @PathVariable("id") Long id,
+            @RequestParam("blockedUserDisplayedUsername") String blockedUserDisplayedUsername,
+            Optional<Integer> page,
+            Optional<Integer> pageSize
+    ) {
+        return blogBlockingService.findByBlogAndBlockedUserDisplayedUsernameContains(
+                id, blockedUserDisplayedUsername, page.orElse(0), pageSize.orElse(20)
+        );
+    }
+
+    @PreAuthorize("hasRole('USER') && @blogBlockingPermissionResolver.canViewBlogBlockingsInBlog(#id)")
+    @GetMapping(value = "/{id}/blockings/not-ended", params = {"blockedUserDisplayedUsername"})
+    public List<BlogBlockingDTO> findNotEndedBlogBlockingsByBlogAndBlockedUserDisplayedUsername(
+            @PathVariable("id") Long id,
+            @RequestParam("blockedUserDisplayedUsername") String blockedUserDisplayedUsername,
+            Optional<Integer> page,
+            Optional<Integer> pageSize
+    ) {
+        return blogBlockingService.findNotEndedByBlogAndBlockedUserDisplayedUsernameContains(
+                id, blockedUserDisplayedUsername, page.orElse(0), pageSize.orElse(20)
+        );
     }
 }
