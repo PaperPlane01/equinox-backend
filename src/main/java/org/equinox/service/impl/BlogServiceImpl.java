@@ -4,11 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.equinox.exception.UserNotFoundException;
 import org.equinox.exception.BlogNotFoundException;
 import org.equinox.mapper.BlogToBlogDTOMapper;
+import org.equinox.mapper.BlogToBlogMinifiedDTOMapper;
 import org.equinox.mapper.CreateBlogDTOToBlogMapper;
 import org.equinox.mapper.UserToUserDTOMapper;
 import org.equinox.model.domain.Blog;
 import org.equinox.model.domain.User;
 import org.equinox.model.dto.BlogDTO;
+import org.equinox.model.dto.BlogMinifiedDTO;
 import org.equinox.model.dto.CreateBlogDTO;
 import org.equinox.model.dto.UpdateBlogDTO;
 import org.equinox.model.dto.UserDTO;
@@ -28,12 +30,18 @@ public class BlogServiceImpl implements BlogService {
     private final BlogRepository blogRepository;
     private final UserRepository userRepository;
     private final BlogToBlogDTOMapper blogToBlogDTOMapper;
+    private final BlogToBlogMinifiedDTOMapper blogToBlogMinifiedDTOMapper;
     private final CreateBlogDTOToBlogMapper createBlogDTOToBlogMapper;
     private final UserToUserDTOMapper userToUserDTOMapper;
 
     @Override
     public BlogDTO findById(Long id) {
         return blogToBlogDTOMapper.map(findBlogById(id));
+    }
+
+    @Override
+    public BlogMinifiedDTO findMinifiedById(Long id) {
+        return blogToBlogMinifiedDTOMapper.map(findBlogById(id));
     }
 
     private Blog findBlogById(Long id) {

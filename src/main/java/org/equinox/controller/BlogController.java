@@ -3,6 +3,7 @@ package org.equinox.controller;
 import lombok.RequiredArgsConstructor;
 import org.equinox.model.dto.BlogBlockingDTO;
 import org.equinox.model.dto.BlogDTO;
+import org.equinox.model.dto.BlogMinifiedDTO;
 import org.equinox.model.dto.BlogPostDTO;
 import org.equinox.model.dto.BlogPostMinifiedDTO;
 import org.equinox.model.dto.CreateBlogDTO;
@@ -202,7 +203,7 @@ public class BlogController {
 
     @PreAuthorize("hasRole('USER') && @blogBlockingPermissionResolver.canViewBlogBlockingsInBlog(#id)")
     @GetMapping(value = "/{id}/blockings", params = {"blockedUserDisplayedUsername"})
-    public List<BlogBlockingDTO> findBlogBlockinsByBlogAndBlockedUserDisplayedUsername(
+    public List<BlogBlockingDTO> findBlogBlockingsByBlogAndBlockedUserDisplayedUsername(
             @PathVariable("id") Long id,
             @RequestParam("blockedUserDisplayedUsername") String blockedUserDisplayedUsername,
             Optional<Integer> page,
@@ -224,5 +225,10 @@ public class BlogController {
         return blogBlockingService.findNotEndedByBlogAndBlockedUserDisplayedUsernameContains(
                 id, blockedUserDisplayedUsername, page.orElse(0), pageSize.orElse(20)
         );
+    }
+
+    @GetMapping("/{id}/minified")
+    public BlogMinifiedDTO findMinifiedById(@PathVariable("id") Long id) {
+        return blogService.findMinifiedById(id);
     }
 }

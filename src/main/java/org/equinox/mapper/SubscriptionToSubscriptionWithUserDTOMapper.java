@@ -10,5 +10,6 @@ import org.equinox.model.dto.SubscriptionWithUserDTO;
 public interface SubscriptionToSubscriptionWithUserDTOMapper {
     @BeanMapping(resultType = SubscriptionWithUserDTO.class)
     @Mapping(source = "date", target = "subscriptionDate")
+    @Mapping(source = "blog.id", target = "blogId")
     SubscriptionWithUserDTO map(Subscription subscription);
 }

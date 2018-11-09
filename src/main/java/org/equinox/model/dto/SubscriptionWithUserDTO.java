@@ -13,6 +13,7 @@ import java.util.Date;
 public class SubscriptionWithUserDTO {
     private Long id;
     private UserMinifiedDTO user;
+    private Long blogId;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-mm-YYYY hh:MM:ss")
     private Date subscriptionDate;
