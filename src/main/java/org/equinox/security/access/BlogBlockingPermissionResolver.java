@@ -32,12 +32,12 @@ public class BlogBlockingPermissionResolver {
 
     public boolean canUnblockUser(Long blogBlockingId) {
         BlogBlockingDTO blogBlocking = blogBlockingService.findById(blogBlockingId);
-        return canBlockUsersInBlog(blogBlocking.getBlogId());
+        return canBlockUsersInBlog(blogBlocking.getBlog().getId());
     }
 
     public boolean canUpdateBlocking(Long blogBlockingId) {
         BlogBlockingDTO blogBlockingDTO = blogBlockingService.findById(blogBlockingId);
-        return canBlockUsersInBlog(blogBlockingDTO.getBlogId());
+        return canBlockUsersInBlog(blogBlockingDTO.getBlog().getId());
     }
 
     public boolean canViewBlogBlockingsInBlog(Long blogId) {

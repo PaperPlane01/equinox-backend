@@ -13,7 +13,7 @@ public class BlogBlockingDTO {
     private Long id;
     private UserDTO blockedUser;
     private UserDTO blockedBy;
-    private Long blogId;
+    private BlogMinifiedDTO blog;
     private String reason;
     private Date startDate;
     private Date endDate;
