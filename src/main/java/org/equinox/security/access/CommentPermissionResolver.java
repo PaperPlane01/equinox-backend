@@ -48,10 +48,9 @@ public class CommentPermissionResolver {
         CommentDTO comment = commentService.findById(commentId);
         CurrentUserDTO currentUser = userService.getCurrentUser();
 
-        return currentUser.getAuthorities().stream().anyMatch(authority -> authority.getName().equalsIgnoreCase("admin"))
+        return currentUser.getAuthorities().stream().anyMatch(authority -> authority.getName().equalsIgnoreCase("role_admin"))
                 || currentUser.getOwnedBlogs().stream().anyMatch(blogId -> Objects.equals(blogId, comment.getBlogId()))
-                || currentUser.getManagedBlogs().stream().anyMatch(managedBlog -> Objects.equals(managedBlog.getBlogId(), comment.getBlogId())
-                && managedBlog.getBlogRole().equals(BlogRole.MODERATOR))
+                || currentUser.getManagedBlogs().stream().anyMatch(managedBlog -> Objects.equals(managedBlog.getBlogId(), comment.getBlogId()))
                 || !currentUser.isBlockedGlobally()
                 && currentUser.getBlockedInBlogs().stream().noneMatch(blogId -> Objects.equals(blogId, comment.getBlogId()))
                 && Objects.equals(currentUser.getId(), comment.getAuthor().getId());
