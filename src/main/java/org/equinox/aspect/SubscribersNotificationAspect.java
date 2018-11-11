@@ -2,14 +2,14 @@ package org.equinox.aspect;
 
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
+import org.equinox.annotation.NotifySubscribers;
 import org.equinox.async.executor.AsyncExecutor;
 import org.equinox.model.dto.BlogBlockingDTO;
 import org.equinox.model.dto.BlogPostDTO;
 import org.equinox.model.dto.CommentDTO;
-import org.equinox.model.dto.CommentLikeDTO;
 import org.equinox.model.dto.GlobalBlockingDTO;
+import org.equinox.model.dto.UpdatedNumberOfCommentLikesDTO;
 import org.equinox.service.NotificationService;
-import org.equinox.annotation.NotifySubscribers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -29,7 +29,8 @@ public class SubscribersNotificationAspect {
         asyncExecutor.execute(() -> Arrays.stream(notifySubscribers.type()).forEach(notificationType -> {
             switch (notificationType) {
                 case NEW_COMMENT_LIKE:
-                    notificationService.save(((CommentLikeDTO) notificationCreator).getId(),
+                    notificationService.save(((UpdatedNumberOfCommentLikesDTO) notificationCreator)
+                                    .getCommentLikeId(),
                             notificationType);
                     break;
                 case NEW_BLOG_POST:
