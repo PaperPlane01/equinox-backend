@@ -12,6 +12,7 @@ import java.util.Date;
 public class CommentMinifiedDTO {
     private Long id;
     private UserDTO author;
+    private Long blogPostId;
     private Date createdAt;
     private String content;
 }
