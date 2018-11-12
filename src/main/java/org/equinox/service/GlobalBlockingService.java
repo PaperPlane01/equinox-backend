@@ -12,8 +12,10 @@ public interface GlobalBlockingService {
     GlobalBlockingDTO update(Long id, UpdateGlobalBlockingDTO updateGlobalBlockingDTO);
     void delete(Long id);
     GlobalBlockingDTO findById(Long id);
-    List<GlobalBlockingDTO> findAllByUser(Long userId, int page, int pageSize, String sortingDirection, String sortBy);
-    List<GlobalBlockingDTO> findNonExpiredByUser(Long userId);
+    List<GlobalBlockingDTO> findAllByBlockedUser(Long userId, int page, int pageSize, String sortingDirection, String sortBy);
+    List<GlobalBlockingDTO> findNotEndedByBlockedUser(Long userId);
+    List<GlobalBlockingDTO> findAllCreatedByUser(Long userId, int page, int pageSize, String sortingDirection, String sortBy);
+    List<GlobalBlockingDTO> findNotEndedAndCreatedByUser(Long userId);
     boolean isUserBlockedGlobally(Long userId);
     boolean isUserBlockedGlobally(User user);
 }

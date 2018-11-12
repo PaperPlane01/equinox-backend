@@ -44,23 +44,25 @@ public class GlobalBlockingController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable("id") Long id) {
         globalBlockingService.delete(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping(params = {"userId", "nonExpired=true"})
-    public List<GlobalBlockingDTO> findNonExpiredByUser(@RequestParam("userId") Long userId) {
-        return globalBlockingService.findNonExpiredByUser(userId);
+    @PreAuthorize("hasRole('ADMIN') " +
+            "|| @globalBlockingPermissionResolver.canViewGlobalBlockingsOfBlockedUser(#userId)")
+    @GetMapping(params = {"blockedUserId", "notEnded=true"})
+    public List<GlobalBlockingDTO> findNonExpiredByUser(@RequestParam("blockedUserId") Long userId) {
+        return globalBlockingService.findNotEndedByBlockedUser(userId);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping(params = {"userId", "nonExpired=false"})
+    @PreAuthorize("hasRole('ADMIN') " +
+            "|| @globalBlockingPermissionResolver.canViewGlobalBlockingsOfBlockedUser(#userId)")
+    @GetMapping(params = {"blockedUserId", "notEnded=false"})
     public List<GlobalBlockingDTO> findAllByUser(@RequestParam("userId") Long userId,
                                                  @RequestParam("page") Optional<Integer> page,
                                                  @RequestParam("pageSize") Optional<Integer> pageSize,
                                                  @RequestParam("sortingDirection") Optional<String> sortingDirection,
                                                  @RequestParam("sortBy") Optional<String> sortBy) {
-        return globalBlockingService.findAllByUser(userId, page.orElse(0), pageSize.orElse(100),
+        return globalBlockingService.findAllByBlockedUser(userId, page.orElse(0), pageSize.orElse(100),
                 sortingDirection.orElse("desc"), sortBy.orElse("id"));
     }
 }

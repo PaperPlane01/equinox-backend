@@ -31,8 +31,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-;
-
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -81,7 +79,7 @@ public class GlobalBlockingServiceImpl implements GlobalBlockingService {
 
     @Override
     @ValidatePaginationParameters
-    public List<GlobalBlockingDTO> findAllByUser(Long userId,
+    public List<GlobalBlockingDTO> findAllByBlockedUser(Long userId,
                                                  @Page int page,
                                                  @PageSize(max = 150) int pageSize,
                                                  @SortingDirection String sortingDirection,
@@ -96,15 +94,35 @@ public class GlobalBlockingServiceImpl implements GlobalBlockingService {
     }
 
     @Override
-    public List<GlobalBlockingDTO> findNonExpiredByUser(Long userId) {
+    public List<GlobalBlockingDTO> findNotEndedByBlockedUser(Long userId) {
         User user = findUserById(userId);
-        return findNonExpiredByUser(user)
+        return findNotEndedByBlockedUser(user)
                 .stream()
                 .map(globalBlockingToGlobalBlockingDTOMapper::map)
                 .collect(Collectors.toList());
     }
 
-    private List<GlobalBlocking> findNonExpiredByUser(User user) {
+    @Override
+    public List<GlobalBlockingDTO> findAllCreatedByUser(Long userId, int page, int pageSize, String sortingDirection, String sortBy) {
+        User user = findUserById(userId);
+        Sort.Direction direction = SortingDirectionUtils.convertFromString(sortingDirection);
+        PageRequest pageRequest = PageRequest.of(page, pageSize, direction, sortBy);
+        return globalBlockingRepository.findByBlockedBy(user, pageRequest)
+                .stream()
+                .map(globalBlockingToGlobalBlockingDTOMapper::map)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<GlobalBlockingDTO> findNotEndedAndCreatedByUser(Long userId) {
+        User user = findUserById(userId);
+        return globalBlockingRepository.findAllByBlockedByAndEndDateGreaterThan(user, Date.from(Instant.now()))
+                .stream()
+                .map(globalBlockingToGlobalBlockingDTOMapper::map)
+                .collect(Collectors.toList());
+    }
+
+    private List<GlobalBlocking> findNotEndedByBlockedUser(User user) {
         return globalBlockingRepository
                 .findAllByBlockedUserAndEndDateGreaterThan(user, Date.from(Instant.now()));
     }
@@ -117,11 +135,11 @@ public class GlobalBlockingServiceImpl implements GlobalBlockingService {
 
     @Override
     public boolean isUserBlockedGlobally(Long userId) {
-        return !findNonExpiredByUser(userId).isEmpty();
+        return !findNotEndedByBlockedUser(userId).isEmpty();
     }
 
     @Override
     public boolean isUserBlockedGlobally(User user) {
-        return !findNonExpiredByUser(user).isEmpty();
+        return !findNotEndedByBlockedUser(user).isEmpty();
     }
 }

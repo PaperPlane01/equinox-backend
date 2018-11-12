@@ -15,4 +15,6 @@ public interface GlobalBlockingRepository extends JpaRepository<GlobalBlocking, 
     Optional<GlobalBlocking> findById(Long id);
     List<GlobalBlocking> findByBlockedUser(User user, Pageable pageable);
     List<GlobalBlocking> findAllByBlockedUserAndEndDateGreaterThan(User user, Date date);
+    List<GlobalBlocking> findByBlockedBy(User user, Pageable pageable);
+    List<GlobalBlocking> findAllByBlockedByAndEndDateGreaterThan(User user, Date date);
 }

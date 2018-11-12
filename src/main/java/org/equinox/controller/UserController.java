@@ -4,9 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.equinox.model.dto.CreateStandardUserDTO;
 import org.equinox.model.dto.CurrentUserDTO;
 import org.equinox.model.dto.CurrentUserFullProfileDTO;
+import org.equinox.model.dto.GlobalBlockingDTO;
 import org.equinox.model.dto.SubscriptionWithBlogDTO;
 import org.equinox.model.dto.UpdateUserDTO;
 import org.equinox.model.dto.UserDTO;
+import org.equinox.service.GlobalBlockingService;
 import org.equinox.service.SubscriptionService;
 import org.equinox.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +33,7 @@ import java.util.Optional;
 public class UserController {
     private final UserService userService;
     private final SubscriptionService subscriptionService;
+    private final GlobalBlockingService globalBlockingService;
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/current")
@@ -79,11 +82,6 @@ public class UserController {
                 sortingDirection.orElse("desc"), sortBy.orElse("id"));
     }
 
-    @PostMapping("/sign-up")
-    public UserDTO save(@RequestBody @Valid CreateStandardUserDTO createStandardUserDTO) {
-        return userService.saveStandardUser(createStandardUserDTO);
-    }
-
     @PreAuthorize("hasRole('USER')")
     @PutMapping("/current")
     public CurrentUserFullProfileDTO updateCurrentUser(@RequestBody @Valid UpdateUserDTO updateUserDTO) {
@@ -99,5 +97,46 @@ public class UserController {
     @PostMapping(params = "authType=usernameAndPassword")
     public UserDTO signUp(@RequestBody @Valid CreateStandardUserDTO createStandardUserDTO) {
         return userService.saveStandardUser(createStandardUserDTO);
+    }
+
+    @PreAuthorize("hasRole('ADMIN') " +
+            "|| @globalBlockingPermissionResolver.canViewGlobalBlockingsOfBlockedUser(#blockedUserId)")
+    @GetMapping("/{blockedUserId}/global-blockings")
+    public List<GlobalBlockingDTO> findAllGlobalBlockingsByBlockedUser(
+            @PathVariable("blockedUserId") Long blockedUserId,
+            @RequestParam("page") Optional<Integer> page,
+            @RequestParam("pageSize") Optional<Integer> pageSize,
+            @RequestParam("sortingDirection") Optional<String> sortingDirection,
+            @RequestParam("sortBy") Optional<String> sortBy) {
+        return globalBlockingService.findAllByBlockedUser(blockedUserId,
+                page.orElse(0), pageSize.orElse(100), sortingDirection.orElse("desc"),
+                sortBy.orElse("id"));
+    }
+
+    @PreAuthorize("hasRole('ADMIN') " +
+            "|| @globalBlockingPermissionResolver.canViewGlobalBlockingsOfBlockedUser(#blockedUserId)")
+    @GetMapping("/{blockedUserId}/global-blockings/not-ended")
+    public List<GlobalBlockingDTO> findNotEndedGlobalBlockingsByBlockedUser(
+            @PathVariable("blockedUserId") Long blockedUserId) {
+        return globalBlockingService.findNotEndedByBlockedUser(blockedUserId);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/{userId}/global-blockings/created")
+    public List<GlobalBlockingDTO> findGlobalBlockingsCreatedByUser(
+            @PathVariable("userId") Long userId,
+            @RequestParam("page") Optional<Integer> page,
+            @RequestParam("pageSize") Optional<Integer> pageSize,
+            @RequestParam("sortingDirection") Optional<String> sortingDirection,
+            @RequestParam("sortBy") Optional<String> sortBy) {
+        return globalBlockingService.findAllCreatedByUser(userId, page.orElse(0),
+                pageSize.orElse(100), sortingDirection.orElse("desc"), sortBy.orElse("id"));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/{userId}/global-blockings/created/not-ended")
+    public List<GlobalBlockingDTO> findNotEndedGlobalBlockingsCreatedByUser(
+            @PathVariable("userId") Long userId) {
+        return globalBlockingService.findNotEndedAndCreatedByUser(userId);
     }
 }
