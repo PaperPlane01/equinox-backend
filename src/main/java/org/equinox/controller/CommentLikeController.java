@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.equinox.model.dto.CreateCommentLikeDTO;
 import org.equinox.model.dto.UpdatedNumberOfCommentLikesDTO;
 import org.equinox.service.CommentLikeService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,7 +30,9 @@ public class CommentLikeController {
 
     @PreAuthorize("hasRole('USER') and @commentLikePermissionResolver.canDeleteCommentLike(#id)")
     @DeleteMapping("/{id}")
-    public UpdatedNumberOfCommentLikesDTO delete(@PathVariable("id") Long id) {
-        return commentLikeService.delete(id);
+    public ResponseEntity<UpdatedNumberOfCommentLikesDTO> delete(@PathVariable("id") Long id) {
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .body(commentLikeService.delete(id));
     }
 }

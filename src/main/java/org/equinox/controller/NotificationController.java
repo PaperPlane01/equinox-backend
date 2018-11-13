@@ -52,7 +52,7 @@ public class NotificationController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable("id") Long id) {
         notificationService.delete(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @PreAuthorize("hasRole('USER') and @notificationPermissionResolver.canUpdateNotification(#id)")

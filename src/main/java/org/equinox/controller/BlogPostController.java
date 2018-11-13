@@ -59,7 +59,7 @@ public class BlogPostController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable("id") Long id) {
         blogPostService.delete(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @IncreaseNumberOfViews(For.MULTIPLE_BLOG_POSTS)
