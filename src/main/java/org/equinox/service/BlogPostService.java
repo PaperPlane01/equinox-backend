@@ -4,6 +4,7 @@ import org.equinox.model.dto.BlogPostDTO;
 import org.equinox.model.dto.BlogPostMinifiedDTO;
 import org.equinox.model.dto.CreateBlogPostDTO;
 import org.equinox.model.dto.UpdateBlogPostDTO;
+import org.equinox.model.dto.UserDTO;
 
 import java.util.List;
 
@@ -16,4 +17,5 @@ public interface BlogPostService {
     void delete(Long id);
     BlogPostDTO restore(Long id);
     List<BlogPostDTO> findByBlog(Long blogId, int page, int pageSize, String sortingDirection, String sortBy);
+    UserDTO findAuthorOfBlogPost(Long blogPostId);
 }

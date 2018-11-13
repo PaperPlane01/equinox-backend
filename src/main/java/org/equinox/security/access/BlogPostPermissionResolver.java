@@ -1,6 +1,7 @@
 package org.equinox.security.access;
 
 import lombok.RequiredArgsConstructor;
+import org.equinox.model.domain.BlogPostPublisherType;
 import org.equinox.model.domain.BlogRole;
 import org.equinox.model.dto.BlogPostDTO;
 import org.equinox.model.dto.CurrentUserDTO;
@@ -79,5 +80,19 @@ public class BlogPostPermissionResolver {
                 .anyMatch(managedBlog -> managedBlog.getBlogId().equals(blogPost.getBlogId()) && managedBlog.getBlogRole().equals(BlogRole.MODERATOR))
                 || currentUser.getAuthorities().stream()
                 .anyMatch(authority -> authority.getName().equalsIgnoreCase("ROLE_ADMIN")));
+    }
+
+    public boolean canSeeBlogPostAuthor(Long blogPostId) {
+        CurrentUserDTO currentUser = userService.getCurrentUser();
+        BlogPostDTO blogPost = blogPostService.findById(blogPostId);
+
+        return blogPost.getPublishedBy().equals(BlogPostPublisherType.BLOG_POST_AUTHOR)
+                || currentUser != null && (currentUser
+                .getAuthorities()
+                .stream()
+                .anyMatch(authority -> authority.getName().toLowerCase().equals("role_admin"))
+                || currentUser.getOwnedBlogs()
+                .stream()
+                .anyMatch(blogId -> Objects.equals(blogId, blogPost.getBlogId())));
     }
 }

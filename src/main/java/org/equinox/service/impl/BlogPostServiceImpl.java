@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.equinox.mapper.BlogPostToBlogPostDTOMapper;
 import org.equinox.mapper.BlogPostToBlogPostMinifiedDTOMapper;
 import org.equinox.mapper.CreateBlogPostDTOToBlogPostMapper;
+import org.equinox.mapper.UserToUserDTOMapper;
 import org.equinox.model.domain.Blog;
 import org.equinox.model.domain.BlogPost;
 import org.equinox.model.domain.NotificationType;
@@ -13,6 +14,7 @@ import org.equinox.model.dto.BlogPostDTO;
 import org.equinox.model.dto.BlogPostMinifiedDTO;
 import org.equinox.model.dto.CreateBlogPostDTO;
 import org.equinox.model.dto.UpdateBlogPostDTO;
+import org.equinox.model.dto.UserDTO;
 import org.equinox.service.BlogPostService;
 import org.equinox.util.SortingDirectionUtils;
 import org.equinox.annotation.NotifySubscribers;
@@ -48,6 +50,7 @@ public class BlogPostServiceImpl implements BlogPostService {
     private final BlogPostToBlogPostDTOMapper blogPostToBlogPostDTOMapper;
     private final BlogPostToBlogPostMinifiedDTOMapper blogPostToBlogPostMinifiedDTOMapper;
     private final CreateBlogPostDTOToBlogPostMapper createBlogPostDTOToBlogPostMapper;
+    private final UserToUserDTOMapper userToUserDTOMapper;
 
     @Override
     @NotifySubscribers(type = NotificationType.NEW_BLOG_POST)
@@ -143,6 +146,11 @@ public class BlogPostServiceImpl implements BlogPostService {
                 .stream()
                 .map(blogPostToBlogPostDTOMapper::map)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public UserDTO findAuthorOfBlogPost(Long blogPostId) {
+        return userToUserDTOMapper.map(findBlogPostById(blogPostId).getAuthor());
     }
 
     private Blog findBlogById(Long blogId) {

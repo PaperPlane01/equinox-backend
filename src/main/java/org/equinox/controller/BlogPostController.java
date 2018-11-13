@@ -7,6 +7,7 @@ import org.equinox.model.dto.BlogPostLikeDTO;
 import org.equinox.model.dto.CommentDTO;
 import org.equinox.model.dto.CreateBlogPostDTO;
 import org.equinox.model.dto.UpdateBlogPostDTO;
+import org.equinox.model.dto.UserDTO;
 import org.equinox.service.BlogPostLikeService;
 import org.equinox.service.BlogPostService;
 import org.equinox.service.CommentService;
@@ -114,5 +115,11 @@ public class BlogPostController {
     @GetMapping("/deleted/{id}")
     public BlogPostDTO findDeletedById(@PathVariable("id") Long id) {
         return blogPostService.findDeletedById(id);
+    }
+
+    @PreAuthorize("@blogPostPermissionResolver.canSeeBlogPostAuthor(#id)")
+    @GetMapping("/{id}/author")
+    public UserDTO findBlogPostAuthor(@PathVariable("id") Long id) {
+        return blogPostService.findAuthorOfBlogPost(id);
     }
 }
