@@ -18,4 +18,5 @@ public interface BlogPostService {
     BlogPostDTO restore(Long id);
     List<BlogPostDTO> findByBlog(Long blogId, int page, int pageSize, String sortingDirection, String sortBy);
     UserDTO findAuthorOfBlogPost(Long blogPostId);
+    List<BlogPostDTO> getFeed(int page, int pageSize);
 }

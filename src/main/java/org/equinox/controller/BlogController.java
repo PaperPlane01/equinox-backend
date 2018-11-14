@@ -207,8 +207,7 @@ public class BlogController {
             @PathVariable("id") Long id,
             @RequestParam("blockedUserDisplayedUsername") String blockedUserDisplayedUsername,
             Optional<Integer> page,
-            Optional<Integer> pageSize
-    ) {
+            Optional<Integer> pageSize) {
         return blogBlockingService.findByBlogAndBlockedUserDisplayedUsernameContains(
                 id, blockedUserDisplayedUsername, page.orElse(0), pageSize.orElse(20)
         );
@@ -220,8 +219,7 @@ public class BlogController {
             @PathVariable("id") Long id,
             @RequestParam("blockedUserDisplayedUsername") String blockedUserDisplayedUsername,
             Optional<Integer> page,
-            Optional<Integer> pageSize
-    ) {
+            Optional<Integer> pageSize) {
         return blogBlockingService.findNotEndedByBlogAndBlockedUserDisplayedUsernameContains(
                 id, blockedUserDisplayedUsername, page.orElse(0), pageSize.orElse(20)
         );

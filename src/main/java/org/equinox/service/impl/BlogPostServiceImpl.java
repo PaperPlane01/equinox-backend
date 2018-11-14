@@ -7,6 +7,7 @@ import org.equinox.mapper.CreateBlogPostDTOToBlogPostMapper;
 import org.equinox.mapper.UserToUserDTOMapper;
 import org.equinox.model.domain.Blog;
 import org.equinox.model.domain.BlogPost;
+import org.equinox.model.domain.Notification;
 import org.equinox.model.domain.NotificationType;
 import org.equinox.model.domain.Tag;
 import org.equinox.model.domain.User;
@@ -15,6 +16,7 @@ import org.equinox.model.dto.BlogPostMinifiedDTO;
 import org.equinox.model.dto.CreateBlogPostDTO;
 import org.equinox.model.dto.UpdateBlogPostDTO;
 import org.equinox.model.dto.UserDTO;
+import org.equinox.repository.NotificationRepository;
 import org.equinox.service.BlogPostService;
 import org.equinox.util.SortingDirectionUtils;
 import org.equinox.annotation.NotifySubscribers;
@@ -46,6 +48,7 @@ public class BlogPostServiceImpl implements BlogPostService {
     private final BlogPostRepository blogPostRepository;
     private final BlogRepository blogRepository;
     private final TagRepository tagRepository;
+    private final NotificationRepository notificationRepository;
     private final AuthenticationFacade authenticationFacade;
     private final BlogPostToBlogPostDTOMapper blogPostToBlogPostDTOMapper;
     private final BlogPostToBlogPostMinifiedDTOMapper blogPostToBlogPostMinifiedDTOMapper;
@@ -151,6 +154,24 @@ public class BlogPostServiceImpl implements BlogPostService {
     @Override
     public UserDTO findAuthorOfBlogPost(Long blogPostId) {
         return userToUserDTOMapper.map(findBlogPostById(blogPostId).getAuthor());
+    }
+
+    @ValidatePaginationParameters
+    @Override
+    public List<BlogPostDTO> getFeed(@Page int page, @PageSize(max = 50) int pageSize) {
+        PageRequest pageRequest = PageRequest.of(page, pageSize, Sort.Direction.DESC, "id");
+        User currentUser = authenticationFacade.getCurrentUser();
+
+        List<Notification> notifications = notificationRepository
+                .findByRecipientAndNotificationType(currentUser, NotificationType.NEW_BLOG_POST, pageRequest);
+        List<Long> blogPostIds = notifications.stream()
+                .map(Notification::getNotificationGeneratorId)
+                .collect(Collectors.toList());
+
+        return blogPostRepository.findAllById(blogPostIds)
+                .stream()
+                .map(blogPostToBlogPostDTOMapper::map)
+                .collect(Collectors.toList());
     }
 
     private Blog findBlogById(Long blogId) {

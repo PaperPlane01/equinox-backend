@@ -122,4 +122,11 @@ public class BlogPostController {
     public UserDTO findBlogPostAuthor(@PathVariable("id") Long id) {
         return blogPostService.findAuthorOfBlogPost(id);
     }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/feed")
+    public List<BlogPostDTO> getFeed(@RequestParam("page") Optional<Integer> page,
+                                     @RequestParam("pageSize") Optional<Integer> pageSize) {
+        return blogPostService.getFeed(page.orElse(0), pageSize.orElse(20));
+    }
 }

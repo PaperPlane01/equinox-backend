@@ -31,9 +31,7 @@ public class BlogPostLikeController {
 
     @PreAuthorize("hasRole('USER') and @blogPostLikePermissionResolver.canDeleteBlogPostLike(#id)")
     @DeleteMapping("/{id}")
-    public ResponseEntity<UpdatedNumberOfBlogPostLikesDTO> delete(@PathVariable("id") Long id) {
-        return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
-                .body(blogPostLikeService.delete(id));
+    public UpdatedNumberOfBlogPostLikesDTO delete(@PathVariable("id") Long id) {
+        return blogPostLikeService.delete(id);
     }
 }

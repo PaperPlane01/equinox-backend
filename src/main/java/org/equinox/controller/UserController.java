@@ -130,7 +130,7 @@ public class UserController {
             @RequestParam("sortingDirection") Optional<String> sortingDirection,
             @RequestParam("sortBy") Optional<String> sortBy) {
         return globalBlockingService.findAllCreatedByUser(userId, page.orElse(0),
-                pageSize.orElse(100), sortingDirection.orElse("desc"), sortBy.orElse("id"));
+                pageSize.orElse(50), sortingDirection.orElse("desc"), sortBy.orElse("id"));
     }
 
     @PreAuthorize("hasRole('ADMIN')")

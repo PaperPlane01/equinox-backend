@@ -30,9 +30,7 @@ public class CommentLikeController {
 
     @PreAuthorize("hasRole('USER') and @commentLikePermissionResolver.canDeleteCommentLike(#id)")
     @DeleteMapping("/{id}")
-    public ResponseEntity<UpdatedNumberOfCommentLikesDTO> delete(@PathVariable("id") Long id) {
-        return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
-                .body(commentLikeService.delete(id));
+    public UpdatedNumberOfCommentLikesDTO delete(@PathVariable("id") Long id) {
+        return commentLikeService.delete(id);
     }
 }

@@ -19,6 +19,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     List<Notification> findByNotificationType(NotificationType notificationType, Pageable pageable);
     List<Notification> findByRecipient(User recipient, Pageable pageable);
     List<Notification> findByRecipientAndRead(User recipient, boolean read, Pageable pageable);
+    List<Notification> findByRecipientAndNotificationType(User recipient, NotificationType notificationType, Pageable pageable);
 
     @Query("select notification from Notification notification where notification.id in :#{#ids}")
     List<Notification> findByIdWithinList(@Param("ids") List<Long> ids);

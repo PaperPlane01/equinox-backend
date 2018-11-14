@@ -99,7 +99,7 @@ public class BlogBlockingServiceImpl implements BlogBlockingService {
     @Override
     public List<BlogBlockingDTO> findByBlog(Long blogId,
                                             @Page int page,
-                                            @PageSize(max = 50) int pageSize) throws BlogNotFoundException {
+                                            @PageSize(max = 100) int pageSize) throws BlogNotFoundException {
         Blog blog = findBlogById(blogId);
         PageRequest pageRequest = PageRequest.of(page, pageSize, Sort.Direction.DESC, "id");
 
@@ -113,7 +113,7 @@ public class BlogBlockingServiceImpl implements BlogBlockingService {
     @Override
     public List<BlogBlockingDTO> findNotEndedByBlog(Long blogId,
                                                     @Page int page,
-                                                    @PageSize(max = 50) int pageSize) throws BlogNotFoundException {
+                                                    @PageSize(max = 100) int pageSize) throws BlogNotFoundException {
         Blog blog = findBlogById(blogId);
         PageRequest pageRequest = PageRequest.of(page, pageSize, Sort.Direction.DESC, "id");
 
@@ -125,9 +125,11 @@ public class BlogBlockingServiceImpl implements BlogBlockingService {
 
     @ValidatePaginationParameters
     @Override
-    public List<BlogBlockingDTO> findByBlogAndBlockedUserDisplayedUsernameContains(Long blogId, String username,
-                                                                                   @Page int page,
-                                                                                   @PageSize(max = 50) int pageSize) throws BlogNotFoundException {
+    public List<BlogBlockingDTO> findByBlogAndBlockedUserDisplayedUsernameContains(
+            Long blogId,
+            String username,
+            @Page int page,
+            @PageSize(max = 100) int pageSize) throws BlogNotFoundException {
         Blog blog = findBlogById(blogId);
         PageRequest pageRequest = PageRequest.of(page, pageSize, Sort.Direction.DESC, "id");
 
@@ -137,8 +139,13 @@ public class BlogBlockingServiceImpl implements BlogBlockingService {
                 .collect(Collectors.toList());
     }
 
+    @ValidatePaginationParameters
     @Override
-    public List<BlogBlockingDTO> findNotEndedByBlogAndBlockedUserDisplayedUsernameContains(Long blogId, String username, int page, int pageSize) throws BlogNotFoundException {
+    public List<BlogBlockingDTO> findNotEndedByBlogAndBlockedUserDisplayedUsernameContains(
+            Long blogId,
+            String username,
+            @Page int page,
+            @PageSize(max = 100) int pageSize) throws BlogNotFoundException {
         Blog blog = findBlogById(blogId);
         PageRequest pageRequest = PageRequest.of(page, pageSize, Sort.Direction.DESC, "id");
 

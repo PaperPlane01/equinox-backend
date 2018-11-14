@@ -81,7 +81,7 @@ public class GlobalBlockingServiceImpl implements GlobalBlockingService {
     @ValidatePaginationParameters
     public List<GlobalBlockingDTO> findAllByBlockedUser(Long userId,
                                                  @Page int page,
-                                                 @PageSize(max = 150) int pageSize,
+                                                 @PageSize(max = 100) int pageSize,
                                                  @SortingDirection String sortingDirection,
                                                  @SortBy(allowed = {"id", "startDate", "endDate"}) String sortBy) {
         User user = findUserById(userId);
@@ -103,7 +103,14 @@ public class GlobalBlockingServiceImpl implements GlobalBlockingService {
     }
 
     @Override
-    public List<GlobalBlockingDTO> findAllCreatedByUser(Long userId, int page, int pageSize, String sortingDirection, String sortBy) {
+    @ValidatePaginationParameters
+    public List<GlobalBlockingDTO> findAllCreatedByUser(Long userId,
+                                                        @Page int page,
+                                                        @PageSize(max = 100) int pageSize,
+                                                        @SortingDirection String sortingDirection,
+                                                        @SortBy(allowed = {
+                                                                "id", "startDate", "endDate"
+                                                        }) String sortBy) {
         User user = findUserById(userId);
         Sort.Direction direction = SortingDirectionUtils.convertFromString(sortingDirection);
         PageRequest pageRequest = PageRequest.of(page, pageSize, direction, sortBy);
