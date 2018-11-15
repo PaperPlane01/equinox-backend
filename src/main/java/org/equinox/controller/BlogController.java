@@ -135,7 +135,7 @@ public class BlogController {
 
     @PreAuthorize("hasRole('USER') && @blogManagerPermissionResolver.canDeleteBlogManager(#blogId)")
     @DeleteMapping("/{blogId}/managers/{managerId}")
-    public ResponseEntity<?> delete(@PathVariable("blogId") Long blogId,
+    public ResponseEntity<?> deleteBlogManager(@PathVariable("blogId") Long blogId,
                                     @PathVariable("managerId") Long managerId) {
         blogManagerService.delete(managerId);
         return ResponseEntity.noContent().build();
@@ -218,8 +218,8 @@ public class BlogController {
     public List<BlogBlockingDTO> findNotEndedBlogBlockingsByBlogAndBlockedUserDisplayedUsername(
             @PathVariable("id") Long id,
             @RequestParam("blockedUserDisplayedUsername") String blockedUserDisplayedUsername,
-            Optional<Integer> page,
-            Optional<Integer> pageSize) {
+            @RequestParam("page") Optional<Integer> page,
+            @RequestParam("pageSize") Optional<Integer> pageSize) {
         return blogBlockingService.findNotEndedByBlogAndBlockedUserDisplayedUsernameContains(
                 id, blockedUserDisplayedUsername, page.orElse(0), pageSize.orElse(20)
         );
