@@ -74,6 +74,9 @@ public class BlogPost {
     @LazyCollection(LazyCollectionOption.EXTRA)
     private List<Comment> comments;
     private boolean deleted;
+
+    @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
+    @JoinColumn(name = "deletedByUserId")
     private User deletedBy;
     private Date deletedAt;
 
