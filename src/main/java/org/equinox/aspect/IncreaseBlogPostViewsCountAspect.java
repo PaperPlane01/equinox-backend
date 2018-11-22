@@ -66,7 +66,7 @@ public class IncreaseBlogPostViewsCountAspect {
             return;
         }
 
-        double ratio = BlogPostViewsUtils.generateBlogPostViewRatio(0, 1);
+        double ratio = BlogPostViewsUtils.generateBlogPostViewRatio(minRatio, maxRatio);
 
         if (BlogPostViewsUtils.shouldPersistBlogPostView(ratio, approximateNumberOfViewsCountedPerItem)) {
             try {

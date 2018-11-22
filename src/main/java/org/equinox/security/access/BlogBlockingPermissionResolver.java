@@ -47,4 +47,9 @@ public class BlogBlockingPermissionResolver {
                 || currentUser.getManagedBlogs().stream()
                 .anyMatch(managedBlog -> Objects.equals(managedBlog.getBlogId(), blogId));
     }
+
+    public boolean canViewBlogBlocking(Long id) {
+        BlogBlockingDTO blogBlocking = blogBlockingService.findById(id);
+        return canViewBlogBlockingsInBlog(blogBlocking.getBlog().getId());
+    }
 }

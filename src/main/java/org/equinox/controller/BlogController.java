@@ -184,7 +184,7 @@ public class BlogController {
         }
     }
 
-    @PreAuthorize("hasRole('USER') && @blogBlockingPermissionResolver.canViewBlogBlockingsInBlog(#id)")
+    @PreAuthorize("hasRole('USER') and @blogBlockingPermissionResolver.canViewBlogBlockingsInBlog(#id)")
     @GetMapping("/{id}/blockings")
     public List<BlogBlockingDTO> findBlogBlockingsByBlog(@PathVariable("id") Long id,
                                                          @RequestParam("page") Optional<Integer> page,
@@ -192,7 +192,7 @@ public class BlogController {
         return blogBlockingService.findByBlog(id, page.orElse(0), pageSize.orElse(20));
     }
 
-    @PreAuthorize("hasRole('USER') && blogBlockingPermissionResolver.canViewBlogBlockingsInBlog(#id)")
+    @PreAuthorize("hasRole('USER') and @blogBlockingPermissionResolver.canViewBlogBlockingsInBlog(#id)")
     @GetMapping("/{id}/blockings/not-ended")
     public List<BlogBlockingDTO> findNotEndedBlogBlockingsByBlog(@PathVariable("id") Long id,
                                                                  @RequestParam("page") Optional<Integer> page,
@@ -206,8 +206,8 @@ public class BlogController {
     public List<BlogBlockingDTO> findBlogBlockingsByBlogAndBlockedUserDisplayedUsername(
             @PathVariable("id") Long id,
             @RequestParam("blockedUserDisplayedUsername") String blockedUserDisplayedUsername,
-            Optional<Integer> page,
-            Optional<Integer> pageSize) {
+            @RequestParam("page") Optional<Integer> page,
+            @RequestParam("pageSize") Optional<Integer> pageSize) {
         return blogBlockingService.findByBlogAndBlockedUserDisplayedUsernameContains(
                 id, blockedUserDisplayedUsername, page.orElse(0), pageSize.orElse(20)
         );
