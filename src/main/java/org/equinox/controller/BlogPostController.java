@@ -99,16 +99,11 @@ public class BlogPostController {
                                                    @RequestParam("sortBy") Optional<String> sortBy,
                                                    @RequestParam("commentsDisplayMode") Optional<String>
                                                                commentsDisplayMode) {
-        if (page.isPresent()) {
-            return commentService.findByBlogPost(blogPostId, page.get(),
-                    pageSize.orElse(100), sortingDirection.orElse("asc"),
-                    sortBy.orElse("id"), CommentsDisplayMode.fromString(commentsDisplayMode
-                            .orElse("flat")));
-        } else {
-            return commentService.findAllByBlogPost(blogPostId, sortingDirection.orElse("asc"),
-                    sortBy.orElse("id"), CommentsDisplayMode.fromString(commentsDisplayMode
-                            .orElse("flat")));
-        }
+
+        return commentService.findByBlogPost(blogPostId, page.orElse(0),
+                pageSize.orElse(100), sortingDirection.orElse("asc"),
+                sortBy.orElse("id"), CommentsDisplayMode.fromString(commentsDisplayMode
+                        .orElse("flat")));
     }
 
     @PreAuthorize("hasRole('USER') && @blogPostPermissionResolver.canViewDeletedBlogPost(#id)")
