@@ -1,6 +1,6 @@
 import org.junit.Test;
-import org.equinox.model.domain.BlogPostView;
-import org.equinox.util.BlogPostViewsUtils;
+import aphelion.model.domain.BlogPostView;
+import aphelion.util.BlogPostViewsUtils;
 
 import java.util.ArrayList;
 import java.util.List;

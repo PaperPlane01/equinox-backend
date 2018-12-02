@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.equinox</groupId>
-    <artifactId>equinox-backend</artifactId>
+    <groupId>aphelion</groupId>
+    <artifactId>aphelion-backend</artifactId>
     <version>1.2.3</version>
 
     <parent>
