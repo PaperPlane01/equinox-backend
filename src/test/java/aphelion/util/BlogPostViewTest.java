@@ -1,3 +1,5 @@
+package aphelion.util;
+
 import org.junit.Test;
 import aphelion.model.domain.BlogPostView;
 import aphelion.util.BlogPostViewsUtils;

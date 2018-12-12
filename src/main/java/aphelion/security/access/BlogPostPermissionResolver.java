@@ -19,13 +19,11 @@ public class BlogPostPermissionResolver {
 
     public boolean canSaveBlogPost(Long blogId) {
         CurrentUserDTO currentUser = userService.getCurrentUser();
-        boolean result = !currentUser.isBlockedGlobally()
+        return !currentUser.isBlockedGlobally()
                 && (currentUser.getOwnedBlogs().stream().anyMatch(id -> Objects.equals(id, blogId))
                 || currentUser.getManagedBlogs().stream()
                 .anyMatch(managedBlog -> Objects.equals(managedBlog.getBlogId(), blogId)
                         && managedBlog.getBlogRole().equals(BlogRole.EDITOR)));
-        System.out.println("Can save block post: " + result);
-        return result;
     }
 
     public boolean canUpdateBlogPost(Long blogPostId) {
@@ -37,7 +35,7 @@ public class BlogPostPermissionResolver {
                 .anyMatch(blogId -> Objects.equals(blogId, blogPost.getBlogId()))
                 || currentUser.getManagedBlogs().stream()
                 .anyMatch(managedBlog -> Objects.equals(managedBlog.getBlogId(), blogPost.getBlogId())
-                        && managedBlog.getBlogRole().equals(BlogRole.MODERATOR))
+                        && managedBlog.getBlogRole().equals(BlogRole.EDITOR))
                 && Objects.equals(blogPost.getPublisher().getId(), currentUser.getId()));
 
     }
@@ -52,7 +50,7 @@ public class BlogPostPermissionResolver {
                 .anyMatch(blogId -> Objects.equals(blogPost.getBlogId(), blogId))
                 || currentUser.getManagedBlogs().stream()
                 .anyMatch(managedBlog -> Objects.equals(managedBlog.getBlogId(), blogPost.getBlogId())
-                        && managedBlog.getBlogRole().equals(BlogRole.MODERATOR))
+                        && managedBlog.getBlogRole().equals(BlogRole.EDITOR))
                 && Objects.equals(blogPost.getPublisher().getId(), currentUser.getId());
     }
 
@@ -65,7 +63,7 @@ public class BlogPostPermissionResolver {
                 .anyMatch(blogId -> blogPost.getBlogId().equals(blogId))
                 || currentUser.getManagedBlogs().stream()
                 .anyMatch(managedBlog -> managedBlog.getBlogId().equals(blogPost.getBlogId())
-                        && managedBlog.getBlogRole().equals(BlogRole.MODERATOR))
+                        && managedBlog.getBlogRole().equals(BlogRole.EDITOR))
                 || currentUser.getAuthorities().stream()
                 .anyMatch(authority -> authority.getName().equalsIgnoreCase("ROLE_ADMIN")));
     }

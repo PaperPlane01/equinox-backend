@@ -1,5 +1,6 @@
 package aphelion.exceptionhandler;
 
+import aphelion.exception.GoogleLoginException;
 import aphelion.model.dto.ErrorDTO;
 import aphelion.exception.InvalidPageNumberException;
 import aphelion.exception.InvalidReportReasonException;
@@ -56,6 +57,14 @@ public class RestApiExceptionHandler extends ResponseEntityExceptionHandler {
                                                                                 WebRequest webRequest) {
         ErrorDTO errorDTO = createErrorDTO(HttpStatus.CONFLICT.value(), exception);
         return handleExceptionInternal(exception, errorDTO, new HttpHeaders(), HttpStatus.CONFLICT,
+                webRequest);
+    }
+
+    @ExceptionHandler(value = GoogleLoginException.class)
+    protected ResponseEntity<?> handleGoogleLoginException(RuntimeException exception,
+                                                           WebRequest webRequest) {
+        ErrorDTO errorDTO = createErrorDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception);
+        return handleExceptionInternal(exception, errorDTO, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR,
                 webRequest);
     }
 

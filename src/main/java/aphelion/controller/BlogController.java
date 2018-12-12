@@ -7,6 +7,7 @@ import aphelion.model.dto.BlogPostDTO;
 import aphelion.model.dto.BlogPostMinifiedDTO;
 import aphelion.model.dto.CreateBlogManagerDTO;
 import aphelion.model.dto.ManagedBlogDTO;
+import aphelion.model.dto.BlogManagerDTO;
 import aphelion.model.dto.ManagedBlogWithUserDTO;
 import aphelion.model.dto.RestoreOrDeleteBlogDTO;
 import aphelion.model.dto.SubscriptionWithUserDTO;
@@ -162,6 +163,13 @@ public class BlogController {
     }
 
     @PreAuthorize("@blogManagerPermissionResolver.canSeeBlogManagers(#blogId)")
+    @GetMapping("/{blogId}/managers/{managerId}")
+    public BlogManagerDTO findBlogManagerById(@PathVariable("blogId") Long blogId,
+                                              @PathVariable("managerId") Long managerId) {
+        return blogManagerService.findById(managerId);
+    }
+
+    @PreAuthorize("@blogManagerPermissionResolver.canSeeBlogManagers(#blogId)")
     @GetMapping("/{blogId}/managers")
     public List<ManagedBlogWithUserDTO> findBlogManagersByBlog(@PathVariable("blogId") Long blogId,
                                                                @RequestParam("page")
@@ -174,6 +182,20 @@ public class BlogController {
                                                                        Optional<String> sortBy) {
         return blogManagerService.findByBlog(blogId, page.orElse(0), pageSize.orElse(10),
                 sortingDirection.orElse("asc"), sortBy.orElse("id"));
+    }
+
+    @PreAuthorize("@blogManagerPermissionResolver.canSeeBlogManagers(#blogId)")
+    @GetMapping(value = "/{blogId}/managers", params = {"username"})
+    public List<ManagedBlogWithUserDTO> findBlogManagersByBlogAndUsername(
+            @PathVariable("blogId") Long blogId,
+            @RequestParam("page") Optional<Integer> page,
+            @RequestParam("pageSize") Optional<Integer> pageSize,
+            @RequestParam("sortingDirection") Optional<String> sortingDirection,
+            @RequestParam("sortBy") Optional<String> sortBy,
+            @RequestParam("username") String username) {
+        return blogManagerService.findByBlogAndDisplayedUsername(blogId, username,
+                page.orElse(0), pageSize.orElse(30), sortingDirection.orElse("asc"),
+                sortBy.orElse("id"));
     }
 
     @PreAuthorize("hasRole('USER') && @blogManagerPermissionResolver.canSeeBlogManagers(#blogId)")

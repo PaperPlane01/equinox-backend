@@ -17,4 +17,5 @@ public interface BlogManagerRepository extends JpaRepository<BlogManager, Long> 
     List<BlogManager> findByUser(User user, Pageable pageable);
     List<BlogManager> findAllByUser(User user);
     List<BlogManager> findByBlog(Blog blog, Pageable pageable);
+    List<BlogManager> findByBlogAndUserDisplayedNameContainsIgnoreCase(Blog blog, String displayedName, Pageable pageable);
 }

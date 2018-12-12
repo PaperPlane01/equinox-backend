@@ -1,13 +1,12 @@
 package aphelion.security.access;
 
-import aphelion.model.domain.BlogRole;
 import aphelion.model.dto.BlogBlockingDTO;
 import aphelion.model.dto.BlogDTO;
 import aphelion.model.dto.CurrentUserDTO;
 import aphelion.service.BlogBlockingService;
+import aphelion.service.BlogService;
 import aphelion.service.UserService;
 import lombok.RequiredArgsConstructor;
-import aphelion.service.BlogService;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
@@ -25,9 +24,7 @@ public class BlogBlockingPermissionResolver {
 
         return Objects.equals(blog.getOwner().getId(), currentUser.getId())
                 || currentUser.getManagedBlogs().stream()
-                .anyMatch(managedBlog -> Objects.equals(managedBlog.getBlogId(), blogId)
-                && managedBlog.getBlogRole().equals(BlogRole.MODERATOR));
-
+                .anyMatch(managedBlog -> Objects.equals(managedBlog.getBlogId(), blogId));
     }
 
     public boolean canUnblockUser(Long blogBlockingId) {

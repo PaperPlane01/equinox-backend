@@ -3,13 +3,20 @@ package aphelion.service.impl;
 import aphelion.mapper.UserToCurrentUserDTOMapper;
 import aphelion.mapper.UserToCurrentUserFullProfileDTOMapper;
 import aphelion.mapper.UserToUserDTOMapper;
+import aphelion.model.domain.Authority;
 import aphelion.model.domain.PersonalInformation;
 import aphelion.model.dto.CreateStandardUserDTO;
 import aphelion.model.dto.CurrentUserDTO;
 import aphelion.model.dto.CurrentUserFullProfileDTO;
+import aphelion.model.dto.GoogleLoginDTO;
 import aphelion.model.dto.UpdateUserDTO;
 import aphelion.model.dto.UserDTO;
 import aphelion.util.SortingDirectionUtils;
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.services.oauth2.Oauth2;
+import com.google.api.services.oauth2.model.Userinfoplus;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
 import aphelion.exception.UserNotFoundException;
@@ -27,14 +34,25 @@ import aphelion.repository.UserRepository;
 import aphelion.security.AuthenticationFacade;
 import aphelion.service.UserService;
 import aphelion.util.ColorUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.security.oauth2.provider.ClientDetails;
+import org.springframework.security.oauth2.provider.ClientDetailsService;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.security.oauth2.provider.OAuth2Request;
+import org.springframework.security.oauth2.provider.client.BaseClientDetails;
+import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -197,5 +215,21 @@ public class UserServiceImpl implements UserService {
         if (user.isPresent()) {
             throw new LoginUsernameIsAlreadyInUseException("This username " + username + " is already in use.");
         }
+    }
+
+    @Override
+    public User registerGoogleUser(Userinfoplus userinfoplus) {
+        Authority authority = authorityRepository.findByName("ROLE_USER");
+        User user = User.builder()
+                .displayedName(userinfoplus.getName())
+                .googleId(userinfoplus.getId())
+                .authType(AuthType.GOOGLE)
+                .avatarUri(userinfoplus.getPicture())
+                .roles(Collections.singletonList(authority))
+                .enabled(true)
+                .locked(false)
+                .letterAvatarColor(ColorUtils.getRandomColor())
+                .build();
+        return userRepository.save(user);
     }
 }

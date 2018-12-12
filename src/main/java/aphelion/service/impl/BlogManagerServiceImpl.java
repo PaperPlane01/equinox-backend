@@ -10,6 +10,7 @@ import aphelion.exception.BlogNotFoundException;
 import aphelion.exception.UserNotFoundException;
 import aphelion.mapper.BlogManagerToManagedBlogDTOMapper;
 import aphelion.mapper.BlogManagerToManagedBlogWithBlogDTOMapper;
+import aphelion.mapper.BlogManagerToBlogManagerDTOMapper;
 import aphelion.mapper.CreateBlogManagerDTOToBlogManagerMapper;
 import aphelion.model.domain.Blog;
 import aphelion.model.domain.BlogManager;
@@ -17,6 +18,7 @@ import aphelion.model.domain.User;
 import aphelion.model.dto.CreateBlogManagerDTO;
 import aphelion.model.dto.ManagedBlogDTO;
 import aphelion.model.dto.ManagedBlogWithBlogDTO;
+import aphelion.model.dto.BlogManagerDTO;
 import aphelion.model.dto.ManagedBlogWithUserDTO;
 import aphelion.model.dto.UpdateBlogManagerDTO;
 import aphelion.repository.BlogManagerRepository;
@@ -45,6 +47,7 @@ public class BlogManagerServiceImpl implements BlogManagerService {
     private final BlogManagerToManagedBlogDTOMapper blogManagerToManagedBlogDTOMapper;
     private final BlogManagerToManagedBlogWithBlogDTOMapper blogManagerToManagedBlogWithBlogDTOMapper;
     private final BlogManagerToManagedBlogWithUserDTOMapper blogManagerToManagedBlogWithUserDTOMapper;
+    private final BlogManagerToBlogManagerDTOMapper blogManagerToManagedBlogWithUserAndBlogDTOMapper;
 
     @Override
     public ManagedBlogDTO save(CreateBlogManagerDTO createBlogManagerDTO) {
@@ -67,8 +70,8 @@ public class BlogManagerServiceImpl implements BlogManagerService {
     }
 
     @Override
-    public ManagedBlogDTO findById(Long id) {
-        return blogManagerToManagedBlogDTOMapper.map(findBlogManagerById(id));
+    public BlogManagerDTO findById(Long id) {
+        return blogManagerToManagedBlogWithUserAndBlogDTOMapper.map(findBlogManagerById(id));
     }
 
     @Override
@@ -110,6 +113,28 @@ public class BlogManagerServiceImpl implements BlogManagerService {
         return blogManagerRepository.findByUserAndBlog(user, blog)
                 .stream()
                 .map(blogManagerToManagedBlogDTOMapper::map)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @ValidatePaginationParameters
+    public List<ManagedBlogWithUserDTO> findByBlogAndDisplayedUsername(
+            Long blogId,
+            String username,
+            @Page int page,
+            @PageSize(max = 50) int pageSize,
+            @SortingDirection String sortingDirection,
+            @SortBy(allowed = "id") String sortBy) {
+        Blog blog = findBlogById(blogId);
+        PageRequest pageRequest = PageRequest.of(
+                page,
+                pageSize,
+                SortingDirectionUtils.convertFromString(sortingDirection),
+                sortBy
+        );
+        return blogManagerRepository.findByBlogAndUserDisplayedNameContainsIgnoreCase(blog, username, pageRequest)
+                .stream()
+                .map(blogManagerToManagedBlogWithUserDTOMapper::map)
                 .collect(Collectors.toList());
     }
 
