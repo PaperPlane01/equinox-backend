@@ -15,6 +15,7 @@ import aphelion.model.dto.UpdateBlogDTO;
 import aphelion.model.dto.UserDTO;
 import aphelion.repository.BlogRepository;
 import aphelion.repository.UserRepository;
+import aphelion.security.AuthenticationFacade;
 import lombok.RequiredArgsConstructor;
 import aphelion.service.BlogService;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,7 @@ public class BlogServiceImpl implements BlogService {
     private final BlogToBlogMinifiedDTOMapper blogToBlogMinifiedDTOMapper;
     private final CreateBlogDTOToBlogMapper createBlogDTOToBlogMapper;
     private final UserToUserDTOMapper userToUserDTOMapper;
+    private final AuthenticationFacade authenticationFacade;
 
     @Override
     public BlogDTO findById(Long id) {
@@ -102,6 +104,24 @@ public class BlogServiceImpl implements BlogService {
         return blogRepository.findByOwner(user)
                 .stream()
                 .map(blogToBlogDTOMapper::map)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<BlogMinifiedDTO> findMinifiedByOwner(Long ownerId) {
+        User user = findUserById(ownerId);
+        return blogRepository.findByOwner(user)
+                .stream()
+                .map(blogToBlogMinifiedDTOMapper::map)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<BlogMinifiedDTO> findMinifiedByCurrentUser() {
+        User user = authenticationFacade.getCurrentUser();
+        return blogRepository.findByOwner(user)
+                .stream()
+                .map(blogToBlogMinifiedDTOMapper::map)
                 .collect(Collectors.toList());
     }
 

@@ -17,4 +17,6 @@ public interface BlogService {
     BlogDTO restore(Long id);
     UserDTO getUserWhoDeletedBlog(Long blogId);
     List<BlogDTO> findByOwner(Long ownerId);
+    List<BlogMinifiedDTO> findMinifiedByOwner(Long ownerId);
+    List<BlogMinifiedDTO> findMinifiedByCurrentUser();
 }

@@ -1,5 +1,6 @@
 package aphelion.controller;
 
+import aphelion.model.dto.BlogMinifiedDTO;
 import aphelion.model.dto.CreateStandardUserDTO;
 import aphelion.model.dto.CurrentUserDTO;
 import aphelion.model.dto.CurrentUserFullProfileDTO;
@@ -7,10 +8,11 @@ import aphelion.model.dto.GlobalBlockingDTO;
 import aphelion.model.dto.SubscriptionWithBlogDTO;
 import aphelion.model.dto.UpdateUserDTO;
 import aphelion.model.dto.UserDTO;
-import aphelion.service.UserService;
-import lombok.RequiredArgsConstructor;
+import aphelion.service.BlogService;
 import aphelion.service.GlobalBlockingService;
 import aphelion.service.SubscriptionService;
+import aphelion.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,6 +36,7 @@ public class UserController {
     private final UserService userService;
     private final SubscriptionService subscriptionService;
     private final GlobalBlockingService globalBlockingService;
+    private final BlogService blogService;
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/current")
@@ -138,5 +141,11 @@ public class UserController {
     public List<GlobalBlockingDTO> findNotEndedGlobalBlockingsCreatedByUser(
             @PathVariable("userId") Long userId) {
         return globalBlockingService.findNotEndedAndCreatedByUser(userId);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/current/owned-blogs")
+    public List<BlogMinifiedDTO> findBlogsOwnedByCurrentUser() {
+        return blogService.findMinifiedByCurrentUser();
     }
 }
