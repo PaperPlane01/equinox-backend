@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.SQLDelete;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,6 +27,7 @@ import javax.persistence.Table;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @SQLDelete(sql = "update UserDetails set deleted = true where id = ?")
@@ -57,9 +59,15 @@ public class User implements UserDetails {
             joinColumns = @JoinColumn(name = "userId"),
             inverseJoinColumns = @JoinColumn(name = "authorityId")
     )
-    private Collection<Authority> roles;
+    private List<Authority> roles;
 
-    @OneToOne(cascade = {CascadeType.MERGE, CascadeType.REMOVE}, fetch = FetchType.EAGER)
+    @Cascade({
+            org.hibernate.annotations.CascadeType.PERSIST,
+            org.hibernate.annotations.CascadeType.DELETE,
+            org.hibernate.annotations.CascadeType.SAVE_UPDATE,
+            org.hibernate.annotations.CascadeType.MERGE
+    })
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "personalInformationId")
     private PersonalInformation personalInformation;
     private String password;

@@ -53,6 +53,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -120,7 +121,7 @@ public class UserServiceImpl implements UserService {
                     .loginUsername(createStandardUserDTO.getLoginUsername())
                     .displayedName(displayedUserName)
                     .password(passwordEncoder.encode(createStandardUserDTO.getPassword()))
-                    .roles(Collections.singleton(authority))
+                    .roles(Collections.singletonList(authority))
                     .authType(AuthType.USERNAME_AND_PASSWORD)
                     .enabled(true)
                     .locked(false)
@@ -220,16 +221,24 @@ public class UserServiceImpl implements UserService {
     @Override
     public User registerGoogleUser(Userinfoplus userinfoplus) {
         Authority authority = authorityRepository.findByName("ROLE_USER");
+        List<Authority> authorities = new ArrayList<>();
+        authorities.add(authority);
         User user = User.builder()
                 .displayedName(userinfoplus.getName())
                 .googleId(userinfoplus.getId())
                 .authType(AuthType.GOOGLE)
                 .avatarUri(userinfoplus.getPicture())
-                .roles(Collections.singletonList(authority))
+                .roles(authorities)
                 .enabled(true)
                 .locked(false)
                 .letterAvatarColor(ColorUtils.getRandomColor())
+                .personalInformation(PersonalInformation
+                        .builder()
+                        .email(userinfoplus.getEmail())
+                        .build())
                 .build();
-        return userRepository.save(user);
+        user = save(user);
+        user.setGeneratedUsername(user.getDisplayedName() + "-" + user.getId() + "-" + UUID.randomUUID());
+        return save(user);
     }
 }
