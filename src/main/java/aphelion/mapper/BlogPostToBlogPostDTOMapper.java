@@ -6,6 +6,7 @@ import aphelion.model.domain.User;
 import aphelion.model.dto.BlogPostDTO;
 import aphelion.repository.BlogPostLikeRepository;
 import aphelion.security.AuthenticationFacade;
+import aphelion.security.access.BlogPostPermissionResolver;
 import aphelion.util.BlogPostViewsUtils;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.BeanMapping;
@@ -27,6 +28,9 @@ public abstract class BlogPostToBlogPostDTOMapper {
     @Autowired
     private BlogPostPublisherExtractor blogPostPublisherExtractor;
 
+    @Autowired
+    private BlogPostPermissionResolver blogPostPermissionResolver;
+
     @BeanMapping(resultType = BlogPostDTO.class)
     @Mapping(source = "blog.id", target = "blogId")
     public abstract BlogPostDTO map(BlogPost blogPost);
@@ -41,13 +45,16 @@ public abstract class BlogPostToBlogPostDTOMapper {
             User currentUser = authenticationFacade.getCurrentUser();
             Optional<BlogPostLike> blogPostLike = blogPostLikeRepository.findByBlogPostAndUser(blogPost,
                     currentUser);
-
+            blogPostDTO.setCanBeDeleted(blogPostPermissionResolver.canDeleteBlogPost(blogPostDTO));
+            blogPostDTO.setCanBeEdited(blogPostPermissionResolver.canUpdateBlogPost(blogPostDTO));
             if (blogPostLike.isPresent()) {
                 blogPostDTO.setLikedByCurrentUser(true);
                 blogPostDTO.setLikeId(blogPostLike.get().getId());
-            } else {
-                blogPostDTO.setLikedByCurrentUser(false);
             }
+        } else {
+            blogPostDTO.setLikedByCurrentUser(false);
+            blogPostDTO.setCanBeEdited(false);
+            blogPostDTO.setCanBeDeleted(false);
         }
 
         blogPostDTO.setNumberOfViews(BlogPostViewsUtils.countNumberOfViews(blogPost.getBlogPostViews(), 7));

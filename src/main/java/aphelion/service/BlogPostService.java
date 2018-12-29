@@ -6,6 +6,7 @@ import aphelion.model.dto.UpdateBlogPostDTO;
 import aphelion.model.dto.UserDTO;
 import aphelion.model.dto.BlogPostMinifiedDTO;
 
+import java.util.Date;
 import java.util.List;
 
 public interface BlogPostService {
@@ -19,4 +20,8 @@ public interface BlogPostService {
     List<BlogPostDTO> findByBlog(Long blogId, int page, int pageSize, String sortingDirection, String sortBy);
     UserDTO findAuthorOfBlogPost(Long blogPostId);
     List<BlogPostDTO> getFeed(int page, int pageSize);
+    List<BlogPostDTO> getMostPopularForWeek(int page, int pageSize);
+    List<BlogPostDTO> getMostPopularForMonth(int page, int pageSize);
+    List<BlogPostDTO> getMostPopularForYear(int page, int pageSize);
+    List<BlogPostDTO> getMostPopularForPeriod(Date from, Date to, int page, int pageSize);
 }

@@ -5,7 +5,7 @@ import org.mapstruct.Mapper;
 import aphelion.model.domain.BlogBlocking;
 import aphelion.model.dto.BlogBlockingDTO;
 
-@Mapper(uses = {UserToCurrentUserDTOMapper.class, BlogToBlogMinifiedDTOMapper.class})
+@Mapper(uses = {UserToUserDTOMapper.class, BlogToBlogMinifiedDTOMapper.class})
 public interface BlogBlockingToBlogBlockingDTOMapper {
     @BeanMapping(resultType = BlogBlockingDTO.class)
     BlogBlockingDTO map(BlogBlocking blogBlocking);

@@ -32,4 +32,6 @@ public class BlogPostDTO {
     private boolean deleted;
     private Long deletedByUserId;
     private BlogPostPublisherType publishedBy;
+    private boolean canBeEdited;
+    private boolean canBeDeleted;
 }

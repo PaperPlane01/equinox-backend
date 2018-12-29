@@ -7,6 +7,7 @@ import aphelion.model.dto.CurrentUserDTO;
 import aphelion.service.BlogPostService;
 import aphelion.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
@@ -14,8 +15,13 @@ import java.util.Objects;
 @Component
 @RequiredArgsConstructor
 public class BlogPostPermissionResolver {
-    private final BlogPostService blogPostService;
+    private BlogPostService blogPostService;
     private final UserService userService;
+
+    @Autowired
+    public void setBlogPostService(BlogPostService blogPostService) {
+        this.blogPostService = blogPostService;
+    }
 
     public boolean canSaveBlogPost(Long blogId) {
         CurrentUserDTO currentUser = userService.getCurrentUser();
@@ -28,8 +34,11 @@ public class BlogPostPermissionResolver {
 
     public boolean canUpdateBlogPost(Long blogPostId) {
         BlogPostDTO blogPost = blogPostService.findById(blogPostId);
-        CurrentUserDTO currentUser = userService.getCurrentUser();
+        return canUpdateBlogPost(blogPost);
+    }
 
+    public boolean canUpdateBlogPost(BlogPostDTO blogPost) {
+        CurrentUserDTO currentUser = userService.getCurrentUser();
         return !currentUser.isBlockedGlobally()
                 && (currentUser.getOwnedBlogs().stream()
                 .anyMatch(blogId -> Objects.equals(blogId, blogPost.getBlogId()))
@@ -37,12 +46,15 @@ public class BlogPostPermissionResolver {
                 .anyMatch(managedBlog -> Objects.equals(managedBlog.getBlogId(), blogPost.getBlogId())
                         && managedBlog.getBlogRole().equals(BlogRole.EDITOR))
                 && Objects.equals(blogPost.getPublisher().getId(), currentUser.getId()));
-
     }
 
     public boolean canDeleteBlogPost(Long blogPostId) {
-        CurrentUserDTO currentUser = userService.getCurrentUser();
         BlogPostDTO blogPost = blogPostService.findById(blogPostId);
+        return canDeleteBlogPost(blogPost);
+    }
+
+    public boolean canDeleteBlogPost(BlogPostDTO blogPost) {
+        CurrentUserDTO currentUser = userService.getCurrentUser();
 
         return currentUser.getAuthorities().stream()
                 .anyMatch(authority -> authority.getName().equalsIgnoreCase("role_admin"))

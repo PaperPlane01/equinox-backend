@@ -31,13 +31,17 @@ import aphelion.service.BlogPostService;
 import aphelion.util.SortingDirectionUtils;
 import lombok.RequiredArgsConstructor;
 import aphelion.mapper.BlogPostToBlogPostDTOMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Date;
+import java.util.Date;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -50,10 +54,15 @@ public class BlogPostServiceImpl implements BlogPostService {
     private final TagRepository tagRepository;
     private final NotificationRepository notificationRepository;
     private final AuthenticationFacade authenticationFacade;
-    private final BlogPostToBlogPostDTOMapper blogPostToBlogPostDTOMapper;
     private final BlogPostToBlogPostMinifiedDTOMapper blogPostToBlogPostMinifiedDTOMapper;
     private final CreateBlogPostDTOToBlogPostMapper createBlogPostDTOToBlogPostMapper;
     private final UserToUserDTOMapper userToUserDTOMapper;
+    private BlogPostToBlogPostDTOMapper blogPostToBlogPostDTOMapper;
+
+    @Autowired
+    public void setBlogPostToBlogPostDTOMapper(BlogPostToBlogPostDTOMapper blogPostToBlogPostDTOMapper) {
+        this.blogPostToBlogPostDTOMapper = blogPostToBlogPostDTOMapper;
+    }
 
     @Override
     @NotifySubscribers(type = NotificationType.NEW_BLOG_POST)
@@ -172,6 +181,58 @@ public class BlogPostServiceImpl implements BlogPostService {
                 .stream()
                 .map(blogPostToBlogPostDTOMapper::map)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @ValidatePaginationParameters
+    public List<BlogPostDTO> getMostPopularForWeek(@Page int page,
+                                                   @PageSize(max = 50) int pageSize) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime weekAgo = now.minusDays(7);
+        return findMostPopularInPeriod(weekAgo, now, page, pageSize)
+                .stream()
+                .map(blogPostToBlogPostDTOMapper::map)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @ValidatePaginationParameters
+    public List<BlogPostDTO> getMostPopularForMonth(@Page int page,
+                                                    @PageSize(max = 50) int pageSize) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime monthAgo = now.minusMonths(1);
+        return findMostPopularInPeriod(monthAgo, now, page, pageSize)
+                .stream()
+                .map(blogPostToBlogPostDTOMapper::map)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @ValidatePaginationParameters
+    public List<BlogPostDTO> getMostPopularForYear(@Page int page,
+                                                   @PageSize(max = 50) int pageSize) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime yearAgo = now.minusYears(1);
+        return findMostPopularInPeriod(yearAgo, now, page, pageSize)
+                .stream()
+                .map(blogPostToBlogPostDTOMapper::map)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<BlogPostDTO> getMostPopularForPeriod(Date from, Date to, int page, int pageSize) {
+        PageRequest pageRequest = PageRequest.of(page, pageSize);
+        return blogPostRepository.findMostPopularForPeriod(from, to, pageRequest)
+                .stream()
+                .map(blogPostToBlogPostDTOMapper::map)
+                .collect(Collectors.toList());
+    }
+
+    private List<BlogPost> findMostPopularInPeriod(LocalDateTime from, LocalDateTime to, int page, int pageSize) {
+        Date fromDate = Date.from(from.toInstant(ZoneOffset.UTC));
+        Date toDate = Date.from(to.toInstant(ZoneOffset.UTC));
+        PageRequest pageRequest = PageRequest.of(page, pageSize);
+        return blogPostRepository.findMostPopularForPeriod(fromDate, toDate, pageRequest);
     }
 
     private Blog findBlogById(Long blogId) {

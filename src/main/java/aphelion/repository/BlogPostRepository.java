@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,4 +30,10 @@ public interface BlogPostRepository extends JpaRepository<BlogPost, Long> {
 
     @Query("select blogPost from BlogPost blogPost where blogPost.blog = :#{#blog} order by blogPost.comments.size")
     List<BlogPost> findByBlogAndOrderByNumberOfComments(@Param("blog") Blog blog, Pageable pageable);
+
+    @Query("select blogPost from BlogPost blogPost " +
+            "where blogPost.createdAt between :#{#from} and :#{#to} " +
+            "order by blogPost.likes.size desc, blogPost.blogPostViews.size desc")
+    List<BlogPost> findMostPopularForPeriod(@Param("from") Date from, @Param("to") Date to,
+                                            Pageable pageable);
 }

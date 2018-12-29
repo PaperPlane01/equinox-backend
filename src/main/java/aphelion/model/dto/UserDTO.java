@@ -6,8 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Builder
@@ -16,7 +16,7 @@ import java.util.Date;
 public class UserDTO {
     private Long id;
     private String displayedName;
-    private Collection<AuthorityDTO> authorities;
+    private List<AuthorityDTO> authorities;
     private String avatarUri;
     private String letterAvatarColor;
     private String bio;

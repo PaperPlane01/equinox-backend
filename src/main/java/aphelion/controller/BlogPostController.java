@@ -12,6 +12,7 @@ import aphelion.service.BlogPostService;
 import lombok.RequiredArgsConstructor;
 import aphelion.service.BlogPostLikeService;
 import aphelion.service.CommentService;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -122,5 +124,47 @@ public class BlogPostController {
     public List<BlogPostDTO> getFeed(@RequestParam("page") Optional<Integer> page,
                                      @RequestParam("pageSize") Optional<Integer> pageSize) {
         return blogPostService.getFeed(page.orElse(0), pageSize.orElse(20));
+    }
+
+    @IncreaseNumberOfViews(IncreaseNumberOfViews.For.MULTIPLE_BLOG_POSTS)
+    @GetMapping("/most-popular/for-week")
+    public List<BlogPostDTO> getMostPopularForWeek(
+            @RequestParam("page") Optional<Integer> page,
+            @RequestParam("pageSize") Optional<Integer> pageSize
+    ) {
+        return blogPostService.getMostPopularForWeek(page.orElse(0),
+                pageSize.orElse(10));
+    }
+
+    @IncreaseNumberOfViews(IncreaseNumberOfViews.For.MULTIPLE_BLOG_POSTS)
+    @GetMapping("/most-popular/for-month")
+    public List<BlogPostDTO> getMostPopularForMonth(
+            @RequestParam("page") Optional<Integer> page,
+            @RequestParam("pageSize") Optional<Integer> pageSize
+    ) {
+        return blogPostService.getMostPopularForMonth(page.orElse(0),
+                pageSize.orElse(10));
+    }
+
+    @IncreaseNumberOfViews(IncreaseNumberOfViews.For.MULTIPLE_BLOG_POSTS)
+    @GetMapping("/most-popular/for-year")
+    public List<BlogPostDTO> getMostPopularForYear(
+            @RequestParam("page") Optional<Integer> page,
+            @RequestParam("pageSize") Optional<Integer> pageSize
+    ) {
+        return blogPostService.getMostPopularForYear(page.orElse(0),
+                pageSize.orElse(10));
+    }
+
+    @IncreaseNumberOfViews(IncreaseNumberOfViews.For.MULTIPLE_BLOG_POSTS)
+    @GetMapping(value = "/most-popular/for-period", params = {"from", "to"})
+    public List<BlogPostDTO> getMostPopularForPeriod(
+            @RequestParam("from") @DateTimeFormat(pattern = "dd-MM-yyyy") Date from,
+            @RequestParam("to") @DateTimeFormat(pattern = "dd-MM-yyyy") Date to,
+            @RequestParam("page") Optional<Integer> page,
+            @RequestParam("pageSize") Optional<Integer> pageSize
+    ) {
+        return blogPostService.getMostPopularForPeriod(from, to,
+                page.orElse(0), pageSize.orElse(10));
     }
 }
