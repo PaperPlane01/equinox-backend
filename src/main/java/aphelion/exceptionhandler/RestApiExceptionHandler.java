@@ -1,6 +1,8 @@
 package aphelion.exceptionhandler;
 
+import aphelion.exception.BlogPostIsTooLongException;
 import aphelion.exception.GoogleLoginException;
+import aphelion.exception.InvalidBlogPostContentException;
 import aphelion.model.dto.ErrorDTO;
 import aphelion.exception.InvalidPageNumberException;
 import aphelion.exception.InvalidReportReasonException;
@@ -43,7 +45,9 @@ public class RestApiExceptionHandler extends ResponseEntityExceptionHandler {
             InvalidReportStatusException.class,
             InvalidSortByException.class,
             InvalidSortingDirectionException.class,
-            InvalidCommentsDisplayModeException.class
+            InvalidCommentsDisplayModeException.class,
+            InvalidBlogPostContentException.class,
+            BlogPostIsTooLongException.class
     })
     protected ResponseEntity<Object> handleInvalidDataException(RuntimeException exception,
                                                                 WebRequest webRequest) {

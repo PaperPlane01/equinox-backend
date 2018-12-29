@@ -1,5 +1,6 @@
 package aphelion.mapper;
 
+import aphelion.service.BlogPostContentValidationService;
 import com.google.common.collect.Lists;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.BeanMapping;
@@ -28,13 +29,18 @@ public abstract class CreateBlogPostDTOToBlogPostMapper {
     @Autowired
     private AuthenticationFacade authenticationFacade;
 
+    @Autowired
+    private BlogPostContentValidationService blogPostContentValidationService;
+
     @BeanMapping(resultType = BlogPost.class)
     @Mapping(target = "tags", ignore = true)
     public abstract BlogPost map(CreateBlogPostDTO createBlogPostDTO);
 
     @BeforeMapping
-    protected void setBlog(CreateBlogPostDTO createBlogPostDTO,
+    protected void validateContentAndSetBlog(CreateBlogPostDTO createBlogPostDTO,
                            @MappingTarget BlogPost blogPost) {
+        String text = blogPostContentValidationService.validateAndGetPlainText(createBlogPostDTO.getContent());
+        blogPost.setPlainText(text);
         blogPost.setBlog(blogRepository.findById(createBlogPostDTO.getBlogId())
                 .orElseThrow(() -> new BlogNotFoundException("Could not find blog with given id " +
                         createBlogPostDTO.getBlogId())));

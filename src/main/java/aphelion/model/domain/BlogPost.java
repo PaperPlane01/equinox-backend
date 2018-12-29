@@ -27,6 +27,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.PreRemove;
 import javax.persistence.SequenceGenerator;
+import javax.validation.constraints.Size;
 
 import java.time.Instant;
 import java.util.Collection;
@@ -92,6 +93,9 @@ public class BlogPost {
     @OneToMany(cascade = CascadeType.MERGE, fetch = FetchType.LAZY, mappedBy = "blogPost")
     @LazyCollection(LazyCollectionOption.EXTRA)
     private Collection<BlogPostView> blogPostViews;
+
+    @Column(columnDefinition = "TEXT")
+    private String plainText;
 
     @PreRemove
     public void deleteBlogPost() {

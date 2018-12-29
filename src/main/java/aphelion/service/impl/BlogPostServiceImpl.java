@@ -8,6 +8,7 @@ import aphelion.annotation.SortingDirection;
 import aphelion.annotation.ValidatePaginationParameters;
 import aphelion.exception.BlogNotFoundException;
 import aphelion.exception.BlogPostNotFoundException;
+import aphelion.mapper.BlogPostToBlogPostDTOMapper;
 import aphelion.mapper.BlogPostToBlogPostMinifiedDTOMapper;
 import aphelion.mapper.CreateBlogPostDTOToBlogPostMapper;
 import aphelion.mapper.UserToUserDTOMapper;
@@ -27,21 +28,20 @@ import aphelion.repository.BlogRepository;
 import aphelion.repository.NotificationRepository;
 import aphelion.repository.TagRepository;
 import aphelion.security.AuthenticationFacade;
+import aphelion.service.BlogPostContentValidationService;
 import aphelion.service.BlogPostService;
 import aphelion.util.SortingDirectionUtils;
 import lombok.RequiredArgsConstructor;
-import aphelion.mapper.BlogPostToBlogPostDTOMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -57,6 +57,7 @@ public class BlogPostServiceImpl implements BlogPostService {
     private final BlogPostToBlogPostMinifiedDTOMapper blogPostToBlogPostMinifiedDTOMapper;
     private final CreateBlogPostDTOToBlogPostMapper createBlogPostDTOToBlogPostMapper;
     private final UserToUserDTOMapper userToUserDTOMapper;
+    private final BlogPostContentValidationService blogPostContentValidationService;
     private BlogPostToBlogPostDTOMapper blogPostToBlogPostDTOMapper;
 
     @Autowired
@@ -75,7 +76,14 @@ public class BlogPostServiceImpl implements BlogPostService {
     @Override
     public BlogPostDTO update(Long id, UpdateBlogPostDTO updateBlogPostDTO) {
         BlogPost blogPost = findBlogPostById(id);
-        blogPost.setTags(updateBlogPostDTO.getTags().stream().map(Tag::new).map(tagRepository::save).collect(Collectors.toList()));
+        String plainText = blogPostContentValidationService
+                .validateAndGetPlainText(updateBlogPostDTO.getContent());
+        blogPost.setPlainText(plainText);
+        blogPost.setTags(updateBlogPostDTO.getTags()
+                .stream()
+                .map(Tag::new)
+                .map(tagRepository::save)
+                .collect(Collectors.toList()));
         blogPost.setTitle(updateBlogPostDTO.getTitle());
         blogPost.setContent(updateBlogPostDTO.getContent());
         blogPost = blogPostRepository.save(blogPost);
