@@ -1,6 +1,7 @@
 package aphelion.exceptionhandler;
 
 import aphelion.exception.BlogPostIsTooLongException;
+import aphelion.exception.BlogPostValidationException;
 import aphelion.exception.GoogleLoginException;
 import aphelion.exception.InvalidBlogPostContentException;
 import aphelion.model.dto.ErrorDTO;
@@ -67,6 +68,14 @@ public class RestApiExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = GoogleLoginException.class)
     protected ResponseEntity<?> handleGoogleLoginException(RuntimeException exception,
                                                            WebRequest webRequest) {
+        ErrorDTO errorDTO = createErrorDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception);
+        return handleExceptionInternal(exception, errorDTO, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR,
+                webRequest);
+    }
+
+    @ExceptionHandler(value = BlogPostValidationException.class)
+    protected ResponseEntity<?> handleBlogPostValidationException(RuntimeException exception,
+                                                                  WebRequest webRequest) {
         ErrorDTO errorDTO = createErrorDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception);
         return handleExceptionInternal(exception, errorDTO, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR,
                 webRequest);
