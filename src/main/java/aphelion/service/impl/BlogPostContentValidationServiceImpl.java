@@ -54,7 +54,7 @@ public class BlogPostContentValidationServiceImpl implements BlogPostContentVali
                 throw new BlogPostValidationException(e);
             } catch (IOException e1) {
                 e1.printStackTrace();
-                throw new RuntimeException(e1);
+                throw new BlogPostValidationException(e1);
             }
         }
     }
