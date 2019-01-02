@@ -91,8 +91,8 @@ public interface BlogBlockingService {
      * Returns list of blog blockings belonging to a blog with the specified id and blocked user's
      * displayed username containing specified string.
      * @param blogId Id of blog.
-     * @param username Page number.
-     * @param page Page.
+     * @param username Displayed username of blocked user.
+     * @param page Page number.
      * @param pageSize Page size.
      * @return List of blog blockings belonging to a blog with the specified id and blocked user's
      * displayed username containing specified string.
