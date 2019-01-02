@@ -102,7 +102,20 @@ public interface BlogBlockingService {
                                                                             int page, int pageSize)
             throws BlogNotFoundException;
 
-    List<BlogBlockingDTO> findNotEndedByBlogAndBlockedUserDisplayedUsernameContains(Long blogId, String username,
-                                                                                    int page, int pageSize)
+    /**
+     * Returns list of not ended blog blockings belonging to a blog with the specified id and blocked
+     * user's displayed username containing specified string.
+     * @param blogId Id of blog.
+     * @param username Displayed username of blocked user.
+     * @param page Page number.
+     * @param pageSize Page size.
+     * @return list of not ended blog blockings belonging to a blog with the specified id and blocked
+     * user's displayed username containing specified string.
+     * @throws BlogNotFoundException Thrown if there is no blog with such id.
+     */
+    List<BlogBlockingDTO> findNotEndedByBlogAndBlockedUserDisplayedUsernameContains(Long blogId,
+                                                                                    String username,
+                                                                                    int page,
+                                                                                    int pageSize)
             throws BlogNotFoundException;
 }
