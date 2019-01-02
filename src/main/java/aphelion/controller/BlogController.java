@@ -146,7 +146,7 @@ public class BlogController {
         return blogManagerService.save(createBlogManagerDTO);
     }
 
-    @PreAuthorize("hasRole('USER') && @blogManagerPermissionResolver.canDeleteBlogManager(#blogId)")
+    @PreAuthorize("hasRole('USER') && @blogManagerPermissionResolver.canDeleteBlogManager(#blogId, #managerId)")
     @DeleteMapping("/{blogId}/managers/{managerId}")
     public ResponseEntity<?> deleteBlogManager(@PathVariable("blogId") Long blogId,
                                     @PathVariable("managerId") Long managerId) {
@@ -154,7 +154,7 @@ public class BlogController {
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasRole('USER') && @blogManagerPermissionResolver.canUpdateBlogManager(#blogId)")
+    @PreAuthorize("hasRole('USER') && @blogManagerPermissionResolver.canUpdateBlogManager(#blogId, #managerId)")
     @PatchMapping("/{blogId}/managers/{managerId}")
     public ManagedBlogDTO updateBlogManager(@PathVariable("blogId") Long blogId,
                                             @PathVariable("managerId") Long managerId,

@@ -1,11 +1,13 @@
 package aphelion.security.access;
 
 import aphelion.model.dto.BlogDTO;
+import aphelion.model.dto.BlogManagerDTO;
 import aphelion.model.dto.CurrentUserDTO;
-import aphelion.service.UserService;
-import lombok.RequiredArgsConstructor;
+import aphelion.service.BlogManagerService;
 import aphelion.service.BlogService;
 import aphelion.service.SubscriptionService;
+import aphelion.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
@@ -13,6 +15,7 @@ import java.util.Objects;
 @Component
 @RequiredArgsConstructor
 public class BlogManagerPermissionResolver {
+    private final BlogManagerService blogManagerService;
     private final UserService userService;
     private final BlogService blogService;
     private final SubscriptionService subscriptionService;
@@ -22,14 +25,18 @@ public class BlogManagerPermissionResolver {
         return currentUser.getOwnedBlogs().stream().anyMatch(id -> Objects.equals(id, blogId));
     }
 
-    public boolean canUpdateBlogManager(Long blogId) {
+    public boolean canUpdateBlogManager(Long blogId, Long managerId) {
         CurrentUserDTO currentUser = userService.getCurrentUser();
-        return currentUser.getOwnedBlogs().stream().anyMatch(id -> Objects.equals(id, blogId));
+        BlogManagerDTO blogManager = blogManagerService.findById(managerId);
+        return currentUser.getOwnedBlogs().stream().anyMatch(id -> Objects.equals(id, blogId))
+                && Objects.equals(blogManager.getBlog().getId(), blogId);
     }
 
-    public boolean canDeleteBlogManager(Long blogId) {
+    public boolean canDeleteBlogManager(Long blogId, Long managerId) {
         CurrentUserDTO currentUser = userService.getCurrentUser();
-        return currentUser.getOwnedBlogs().stream().anyMatch(id -> Objects.equals(id, blogId));
+        BlogManagerDTO blogManager = blogManagerService.findById(managerId);
+        return currentUser.getOwnedBlogs().stream().anyMatch(id -> Objects.equals(id, blogId))
+                && Objects.equals(blogManager.getBlog().getId(), blogId);
     }
 
     public boolean canSeeBlogManagers(Long blogId) {
