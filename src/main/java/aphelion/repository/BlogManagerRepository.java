@@ -14,6 +14,7 @@ public interface BlogManagerRepository extends JpaRepository<BlogManager, Long> 
     Optional<BlogManager> findById(Long id);
     void delete(BlogManager blogManager);
     List<BlogManager> findByUserAndBlog(User user, Blog blog);
+    Optional<BlogManager> findByUserIdAndBlogId(Long userId, Long blogId);
     List<BlogManager> findByUser(User user, Pageable pageable);
     List<BlogManager> findAllByUser(User user);
     List<BlogManager> findByBlog(Blog blog, Pageable pageable);

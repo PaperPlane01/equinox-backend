@@ -30,6 +30,7 @@ import aphelion.repository.TagRepository;
 import aphelion.security.AuthenticationFacade;
 import aphelion.service.BlogPostContentValidationService;
 import aphelion.service.BlogPostService;
+import aphelion.service.TimeStampProvider;
 import aphelion.util.SortingDirectionUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +59,7 @@ public class BlogPostServiceImpl implements BlogPostService {
     private final CreateBlogPostDTOToBlogPostMapper createBlogPostDTOToBlogPostMapper;
     private final UserToUserDTOMapper userToUserDTOMapper;
     private final BlogPostContentValidationService blogPostContentValidationService;
+    private final TimeStampProvider timeStampProvider;
     private BlogPostToBlogPostDTOMapper blogPostToBlogPostDTOMapper;
 
     @Autowired
@@ -195,8 +197,8 @@ public class BlogPostServiceImpl implements BlogPostService {
     @ValidatePaginationParameters
     public List<BlogPostDTO> getMostPopularForWeek(@Page int page,
                                                    @PageSize(max = 50) int pageSize) {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime weekAgo = now.minusDays(7);
+        LocalDateTime now = timeStampProvider.now();
+        LocalDateTime weekAgo = timeStampProvider.weekAgo();
         return findMostPopularInPeriod(weekAgo, now, page, pageSize)
                 .stream()
                 .map(blogPostToBlogPostDTOMapper::map)
@@ -207,8 +209,8 @@ public class BlogPostServiceImpl implements BlogPostService {
     @ValidatePaginationParameters
     public List<BlogPostDTO> getMostPopularForMonth(@Page int page,
                                                     @PageSize(max = 50) int pageSize) {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime monthAgo = now.minusMonths(1);
+        LocalDateTime now = timeStampProvider.now();
+        LocalDateTime monthAgo = timeStampProvider.monthAgo();
         return findMostPopularInPeriod(monthAgo, now, page, pageSize)
                 .stream()
                 .map(blogPostToBlogPostDTOMapper::map)
@@ -219,8 +221,8 @@ public class BlogPostServiceImpl implements BlogPostService {
     @ValidatePaginationParameters
     public List<BlogPostDTO> getMostPopularForYear(@Page int page,
                                                    @PageSize(max = 50) int pageSize) {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime yearAgo = now.minusYears(1);
+        LocalDateTime now = timeStampProvider.now();
+        LocalDateTime yearAgo = timeStampProvider.yearAgo();
         return findMostPopularInPeriod(yearAgo, now, page, pageSize)
                 .stream()
                 .map(blogPostToBlogPostDTOMapper::map)
@@ -228,7 +230,11 @@ public class BlogPostServiceImpl implements BlogPostService {
     }
 
     @Override
-    public List<BlogPostDTO> getMostPopularForPeriod(Date from, Date to, int page, int pageSize) {
+    @ValidatePaginationParameters
+    public List<BlogPostDTO> getMostPopularForPeriod(Date from,
+                                                     Date to,
+                                                     @Page int page,
+                                                     @PageSize(max = 50) int pageSize) {
         PageRequest pageRequest = PageRequest.of(page, pageSize);
         return blogPostRepository.findMostPopularForPeriod(from, to, pageRequest)
                 .stream()

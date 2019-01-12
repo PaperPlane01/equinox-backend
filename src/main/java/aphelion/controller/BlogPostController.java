@@ -120,6 +120,7 @@ public class BlogPostController {
     }
 
     @PreAuthorize("hasRole('USER')")
+    @IncreaseNumberOfViews(IncreaseNumberOfViews.For.MULTIPLE_BLOG_POSTS)
     @GetMapping("/feed")
     public List<BlogPostDTO> getFeed(@RequestParam("page") Optional<Integer> page,
                                      @RequestParam("pageSize") Optional<Integer> pageSize) {

@@ -2,6 +2,7 @@ package aphelion.model.domain;
 
 import aphelion.data.JsonBinaryType;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.LazyCollection;
@@ -27,8 +28,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.PreRemove;
 import javax.persistence.SequenceGenerator;
-import javax.validation.constraints.Size;
-
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
@@ -42,6 +41,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Builder
 @TypeDef(name = "JsonBinaryType", typeClass = JsonBinaryType.class)
 public class BlogPost {
     @Id

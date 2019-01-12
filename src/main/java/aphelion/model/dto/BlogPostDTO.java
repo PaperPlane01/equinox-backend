@@ -21,7 +21,7 @@ public class BlogPostDTO {
     private Map<Object, Object> content;
     private BlogPostPublisher publisher;
     private Long blogId;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private Date createdAt;
     private Collection<TagDTO> tags;
     private Integer numberOfLikes;

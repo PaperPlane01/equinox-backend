@@ -13,8 +13,12 @@ public interface GlobalBlockingRepository extends JpaRepository<GlobalBlocking, 
     GlobalBlocking save(GlobalBlocking globalBlocking);
     void delete(GlobalBlocking globalBlocking);
     Optional<GlobalBlocking> findById(Long id);
+    List<GlobalBlocking> findAllBy(Pageable pageable);
+    List<GlobalBlocking> findAllByEndDateGreaterThan(Date date, Pageable pageable);
     List<GlobalBlocking> findByBlockedUser(User user, Pageable pageable);
     List<GlobalBlocking> findAllByBlockedUserAndEndDateGreaterThan(User user, Date date);
     List<GlobalBlocking> findByBlockedBy(User user, Pageable pageable);
     List<GlobalBlocking> findAllByBlockedByAndEndDateGreaterThan(User user, Date date);
+    List<GlobalBlocking> findAllByBlockedUserDisplayedNameContainsAndEndDateGreaterThan(String username, Date date, Pageable pageable);
+    List<GlobalBlocking> findAllByBlockedUserDisplayedNameContains(String username, Pageable pageable);
 }

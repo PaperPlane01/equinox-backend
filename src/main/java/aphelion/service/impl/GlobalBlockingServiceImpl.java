@@ -71,6 +71,34 @@ public class GlobalBlockingServiceImpl implements GlobalBlockingService {
         return globalBlockingToGlobalBlockingDTOMapper.map(globalBlocking);
     }
 
+    @Override
+    @ValidatePaginationParameters
+    public List<GlobalBlockingDTO> findAll(@Page int page,
+                                           @PageSize(max = 100) int pageSize,
+                                           @SortingDirection String sortingDirection,
+                                           @SortBy(allowed = {"id", "startDate", "endDate"}) String sortBy) {
+        Sort.Direction direction = SortingDirectionUtils.convertFromString(sortingDirection);
+        PageRequest pageRequest = PageRequest.of(page, pageSize, direction, sortBy);
+        return globalBlockingRepository.findAllBy(pageRequest)
+                .stream()
+                .map(globalBlockingToGlobalBlockingDTOMapper::map)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @ValidatePaginationParameters
+    public List<GlobalBlockingDTO> findAllNotEnded(@Page int page,
+                                                   @PageSize(max = 100) int pageSize,
+                                                   @SortingDirection String sortingDirection,
+                                                   @SortBy(allowed = {"id", "startDate", "endDate"}) String sortBy) {
+        Sort.Direction direction = SortingDirectionUtils.convertFromString(sortingDirection);
+        PageRequest pageRequest = PageRequest.of(page, pageSize, direction, sortBy);
+        return globalBlockingRepository.findAllByEndDateGreaterThan(Date.from(Instant.now()), pageRequest)
+                .stream()
+                .map(globalBlockingToGlobalBlockingDTOMapper::map)
+                .collect(Collectors.toList());
+    }
+
     private GlobalBlocking findGlobalBlockingById(Long id) {
         return globalBlockingRepository.findById(id)
                 .orElseThrow(() -> new GlobalBlockingNotFoundException("Global blocking" +
@@ -124,6 +152,42 @@ public class GlobalBlockingServiceImpl implements GlobalBlockingService {
     public List<GlobalBlockingDTO> findNotEndedAndCreatedByUser(Long userId) {
         User user = findUserById(userId);
         return globalBlockingRepository.findAllByBlockedByAndEndDateGreaterThan(user, Date.from(Instant.now()))
+                .stream()
+                .map(globalBlockingToGlobalBlockingDTOMapper::map)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @ValidatePaginationParameters
+    public List<GlobalBlockingDTO> findNotEndedAndBlockedUserUsernameContains(
+            String username,
+            @Page int page,
+            @PageSize(max = 100) int pageSize,
+            @SortingDirection String sortingDirection,
+            @SortBy(allowed = {"id", "startDate", "endDate"}) String sortBy) {
+        Sort.Direction direction = SortingDirectionUtils.convertFromString(sortingDirection);
+        PageRequest pageRequest = PageRequest.of(page, pageSize, direction, sortBy);
+        return globalBlockingRepository
+                .findAllByBlockedUserDisplayedNameContainsAndEndDateGreaterThan(
+                        username,
+                        Date.from(Instant.now()),
+                        pageRequest
+                ).stream()
+                .map(globalBlockingToGlobalBlockingDTOMapper::map)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @ValidatePaginationParameters
+    public List<GlobalBlockingDTO> findAllByBlockedUserUsernameContains(
+            String username,
+            @Page int page,
+            @PageSize(max = 100) int pageSize,
+            @SortingDirection String sortingDirection,
+            @SortBy(allowed = {"id", "startDate", "endDate"}) String sortBy) {
+        Sort.Direction direction = SortingDirectionUtils.convertFromString(sortingDirection);
+        PageRequest pageRequest = PageRequest.of(page, pageSize, direction, sortBy);
+        return globalBlockingRepository.findAllByBlockedUserDisplayedNameContains(username, pageRequest)
                 .stream()
                 .map(globalBlockingToGlobalBlockingDTOMapper::map)
                 .collect(Collectors.toList());

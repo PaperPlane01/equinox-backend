@@ -16,6 +16,5 @@ public interface BlogManagerService {
     BlogManagerDTO findById(Long id);
     List<ManagedBlogWithBlogDTO> findByUser(Long id, int page, int pageSize, String sortingDirection, String sortBy);
     List<ManagedBlogWithUserDTO> findByBlog(Long id, int page, int pageSize, String sortingDirection, String sortBy);
-    List<ManagedBlogDTO> findByBlogAndUser(Long blogId, Long userId);
     List<ManagedBlogWithUserDTO> findByBlogAndDisplayedUsername(Long id, String username, int page, int pageSize, String sortingDirection, String sortBy);
 }

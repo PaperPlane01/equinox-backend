@@ -2,6 +2,7 @@ package aphelion.model.dto;
 
 import aphelion.model.domain.BlogManagersVisibilityLevel;
 import aphelion.model.domain.BlogPostPublisherType;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,6 +19,7 @@ public class BlogDTO {
     private String name;
     private UserDTO owner;
     private String description;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private Date createdAt;
     private String avatarUri;
     private String letterAvatarColor;

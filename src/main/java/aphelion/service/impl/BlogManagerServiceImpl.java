@@ -7,6 +7,7 @@ import aphelion.annotation.SortingDirection;
 import aphelion.annotation.ValidatePaginationParameters;
 import aphelion.exception.BlogManagerNotFoundException;
 import aphelion.exception.BlogNotFoundException;
+import aphelion.exception.UserAlreadyManagesBlogException;
 import aphelion.exception.UserNotFoundException;
 import aphelion.mapper.BlogManagerToManagedBlogDTOMapper;
 import aphelion.mapper.BlogManagerToManagedBlogWithBlogDTOMapper;
@@ -34,6 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,10 +49,16 @@ public class BlogManagerServiceImpl implements BlogManagerService {
     private final BlogManagerToManagedBlogDTOMapper blogManagerToManagedBlogDTOMapper;
     private final BlogManagerToManagedBlogWithBlogDTOMapper blogManagerToManagedBlogWithBlogDTOMapper;
     private final BlogManagerToManagedBlogWithUserDTOMapper blogManagerToManagedBlogWithUserDTOMapper;
-    private final BlogManagerToBlogManagerDTOMapper blogManagerToManagedBlogWithUserAndBlogDTOMapper;
+    private final BlogManagerToBlogManagerDTOMapper blogManagerToBlogManagerDTOMapper;
 
     @Override
     public ManagedBlogDTO save(CreateBlogManagerDTO createBlogManagerDTO) {
+        blogManagerRepository
+                .findByUserIdAndBlogId(createBlogManagerDTO.getUserId(), createBlogManagerDTO.getBlogId())
+                .ifPresent(blogManager -> {
+                    throw new UserAlreadyManagesBlogException("User already manages blog",
+                            blogManagerToBlogManagerDTOMapper.map(blogManager));
+                });
         BlogManager blogManager = createBlogManagerDTOToBlogManagerMapper.map(createBlogManagerDTO);
         blogManager = blogManagerRepository.save(blogManager);
         return blogManagerToManagedBlogDTOMapper.map(blogManager);
@@ -71,7 +79,7 @@ public class BlogManagerServiceImpl implements BlogManagerService {
 
     @Override
     public BlogManagerDTO findById(Long id) {
-        return blogManagerToManagedBlogWithUserAndBlogDTOMapper.map(findBlogManagerById(id));
+        return blogManagerToBlogManagerDTOMapper.map(findBlogManagerById(id));
     }
 
     @Override
@@ -103,16 +111,6 @@ public class BlogManagerServiceImpl implements BlogManagerService {
         return blogManagerRepository.findByBlog(blog, pageRequest)
                 .stream()
                 .map(blogManagerToManagedBlogWithUserDTOMapper::map)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<ManagedBlogDTO> findByBlogAndUser(Long blogId, Long userId) {
-        Blog blog = findBlogById(blogId);
-        User user = findUserById(userId);
-        return blogManagerRepository.findByUserAndBlog(user, blog)
-                .stream()
-                .map(blogManagerToManagedBlogDTOMapper::map)
                 .collect(Collectors.toList());
     }
 

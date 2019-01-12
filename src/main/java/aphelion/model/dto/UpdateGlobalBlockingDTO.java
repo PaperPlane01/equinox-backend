@@ -12,8 +12,6 @@ import java.util.Date;
 @AllArgsConstructor
 public class UpdateGlobalBlockingDTO {
     @NotNull
-    private Long id;
-    @NotNull
     private String reason;
     @NotNull
     private Date endDate;

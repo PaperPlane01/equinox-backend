@@ -42,14 +42,6 @@ public class GlobalBlocking {
     private Date startDate;
     private Date endDate;
 
-    public GlobalBlocking(User blockedUser, User blockedBy, String reason, Date startDate, Date endDate) {
-        this.blockedUser = blockedUser;
-        this.blockedBy = blockedBy;
-        this.reason = reason;
-        this.startDate = startDate;
-        this.endDate = endDate;
-    }
-
     @PrePersist
     public void prePersist() {
         this.startDate = Date.from(Instant.now());

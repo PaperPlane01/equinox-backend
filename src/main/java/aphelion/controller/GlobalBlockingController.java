@@ -34,6 +34,12 @@ public class GlobalBlockingController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/{id}")
+    public GlobalBlockingDTO findById(@PathVariable("id") Long id) {
+        return globalBlockingService.findById(id);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public GlobalBlockingDTO update(@PathVariable("id") Long id,
                                     @RequestBody @Valid UpdateGlobalBlockingDTO updateGlobalBlockingDTO) {
@@ -49,20 +55,69 @@ public class GlobalBlockingController {
 
     @PreAuthorize("hasRole('ADMIN') " +
             "|| @globalBlockingPermissionResolver.canViewGlobalBlockingsOfBlockedUser(#userId)")
-    @GetMapping(params = {"blockedUserId", "notEnded=true"})
-    public List<GlobalBlockingDTO> findNonExpiredByUser(@RequestParam("blockedUserId") Long userId) {
+    @GetMapping(params = {"blockedUserId", "notEndedOnly=true"})
+    public List<GlobalBlockingDTO> findNotEndedByUser(@RequestParam("blockedUserId") Long userId) {
         return globalBlockingService.findNotEndedByBlockedUser(userId);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping(params = {"notEndedOnly=false"})
+    public List<GlobalBlockingDTO> findAll(@RequestParam("page") Optional<Integer> page,
+                                           @RequestParam("pageSize") Optional<Integer> pageSize,
+                                           @RequestParam("sortingDirection") Optional<String> sortingDirection,
+                                           @RequestParam("sortBy") Optional<String> sortBy) {
+        return globalBlockingService.findAll(page.orElse(0), pageSize.orElse(20),
+                sortingDirection.orElse("desc"), sortBy.orElse("id"));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping(params = {"notEndedOnly=true"})
+    public List<GlobalBlockingDTO> findAllNotEnded(@RequestParam("page") Optional<Integer> page,
+                                                   @RequestParam("pageSize") Optional<Integer> pageSize,
+                                                   @RequestParam("sortingDirection") Optional<String> sortingDirection,
+                                                   @RequestParam("sortBy") Optional<String> sortBy) {
+        return globalBlockingService.findAllNotEnded(page.orElse(0), pageSize.orElse(20),
+                sortingDirection.orElse("desc"), sortBy.orElse("id"));
     }
 
     @PreAuthorize("hasRole('ADMIN') " +
             "|| @globalBlockingPermissionResolver.canViewGlobalBlockingsOfBlockedUser(#userId)")
-    @GetMapping(params = {"blockedUserId", "notEnded=false"})
+    @GetMapping(params = {"blockedUserId", "notEndedOnly=false"})
     public List<GlobalBlockingDTO> findAllByUser(@RequestParam("userId") Long userId,
                                                  @RequestParam("page") Optional<Integer> page,
                                                  @RequestParam("pageSize") Optional<Integer> pageSize,
                                                  @RequestParam("sortingDirection") Optional<String> sortingDirection,
                                                  @RequestParam("sortBy") Optional<String> sortBy) {
-        return globalBlockingService.findAllByBlockedUser(userId, page.orElse(0), pageSize.orElse(100),
-                sortingDirection.orElse("desc"), sortBy.orElse("id"));
+        return globalBlockingService.findAllByBlockedUser(userId, page.orElse(0),
+                pageSize.orElse(10), sortingDirection.orElse("desc"),
+                sortBy.orElse("id"));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping(params = {"notEndedOnly=true", "username"})
+    public List<GlobalBlockingDTO> findNotEndedAndBlockedUserUsernameContains(
+            @RequestParam("username") String username,
+            @RequestParam("page") Optional<Integer> page,
+            @RequestParam("pageSize") Optional<Integer> pageSize,
+            @RequestParam("sortingDirection") Optional<String> sortingDirection,
+            @RequestParam("sortBy") Optional<String> sortBy
+    ) {
+        return globalBlockingService.findNotEndedAndBlockedUserUsernameContains(username,
+                page.orElse(0), pageSize.orElse(10), sortingDirection.orElse("desc"),
+                sortBy.orElse("id"));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping(params = {"notEndedOnly=false", "username"})
+    public List<GlobalBlockingDTO> findAllByBlockedUserUsernameContains(
+            @RequestParam("username") String username,
+            @RequestParam("page") Optional<Integer> page,
+            @RequestParam("pageSize") Optional<Integer> pageSize,
+            @RequestParam("sortingDirection") Optional<String> sortingDirection,
+            @RequestParam("sortBy") Optional<String> sortBy
+    ) {
+        return globalBlockingService.findAllByBlockedUserUsernameContains(username,
+                page.orElse(0), pageSize.orElse(10), sortingDirection.orElse("desc"),
+                sortBy.orElse("id"));
     }
 }

@@ -1,6 +1,7 @@
 package aphelion.model.domain;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
@@ -21,11 +22,12 @@ import javax.persistence.SequenceGenerator;
 import java.util.Date;
 
 @Entity
+@SQLDelete(sql = "update Notification set deleted = true where id = ?")
+@Where(clause = "deleted = false")
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@SQLDelete(sql = "update Notification set deleted = true where id = ?")
-@Where(clause = "deleted = false")
+@Builder
 public class Notification {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "notificationSequenceGenerator")
