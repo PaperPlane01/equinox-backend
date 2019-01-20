@@ -2,35 +2,35 @@ package aphelion.exceptionhandler;
 
 import aphelion.exception.BlogPostIsTooLongException;
 import aphelion.exception.BlogPostValidationException;
+import aphelion.exception.EntityNotFoundException;
 import aphelion.exception.GoogleLoginException;
 import aphelion.exception.InvalidBlogPostContentException;
-import aphelion.exception.UserAlreadyManagesBlogException;
-import aphelion.exception.InvalidPageNumberException;
-import aphelion.exception.InvalidReportReasonException;
 import aphelion.exception.InvalidBlogRoleException;
 import aphelion.exception.InvalidCommentsDisplayModeException;
+import aphelion.exception.InvalidPageNumberException;
 import aphelion.exception.InvalidPageSizeException;
 import aphelion.exception.InvalidPublisherTypeException;
+import aphelion.exception.InvalidReportReasonException;
 import aphelion.exception.InvalidReportStatusException;
 import aphelion.exception.InvalidSortByException;
 import aphelion.exception.InvalidSortingDirectionException;
 import aphelion.exception.LoginUsernameIsAlreadyInUseException;
-import aphelion.exception.EntityNotFoundException;
+import aphelion.exception.UserAlreadyManagesBlogException;
 import aphelion.model.dto.ErrorDTO;
 import com.google.common.collect.ImmutableMap;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.util.Map;
 
 @Component
-@ControllerAdvice
+@RestControllerAdvice
 public class RestApiExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = EntityNotFoundException.class)

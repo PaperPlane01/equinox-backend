@@ -58,7 +58,7 @@ public class CommentReportController {
                                           @RequestParam(value = "pageSize") Optional<Integer> pageSize,
                                           @RequestParam(value = "sortingDirection") Optional<String> sortingDirection,
                                           @RequestParam(value = "sortBy") Optional<String> sortBy) {
-        return commentReportService.findAll(page.orElse(0), pageSize.orElse(15),
+        return commentReportService.findAll(page.orElse(0), pageSize.orElse(50),
                 sortingDirection.orElse("desc"), sortBy.orElse("id"));
     }
 

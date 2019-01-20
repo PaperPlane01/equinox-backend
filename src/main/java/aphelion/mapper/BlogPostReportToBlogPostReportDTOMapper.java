@@ -5,7 +5,7 @@ import org.mapstruct.Mapper;
 import aphelion.model.domain.BlogPostReport;
 import aphelion.model.dto.BlogPostReportDTO;
 
-@Mapper
+@Mapper(uses = BlogPostToBlogPostMinifiedDTOMapper.class)
 public interface BlogPostReportToBlogPostReportDTOMapper {
     @BeanMapping(resultType = BlogPostReportDTO.class)
     BlogPostReportDTO map(BlogPostReport blogPostReport);
