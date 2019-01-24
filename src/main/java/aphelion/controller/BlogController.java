@@ -264,6 +264,7 @@ public class BlogController {
         return blogService.findMinifiedById(id);
     }
 
+    @IncreaseNumberOfViews(For.MULTIPLE_BLOG_POSTS)
     @GetMapping("/{id}/blog-posts/pinned")
     public List<BlogPostDTO> findPinnedBlogPostsByBlog(@PathVariable("id") Long id) {
         return blogPostService.findPinnedByBlog(id);
