@@ -168,4 +168,16 @@ public class BlogPostController {
         return blogPostService.getMostPopularForPeriod(from, to,
                 page.orElse(0), pageSize.orElse(10));
     }
+
+    @PreAuthorize("hasRole('USER') && @blogPostPermissionResolver.canPinBlogPost(#id)")
+    @PostMapping("/{id}/pin")
+    public BlogPostDTO pin(@PathVariable("id") Long id) {
+        return blogPostService.pin(id);
+    }
+
+    @PreAuthorize("hasRole('USER') && @blogPostPermissionResolver.canUnpinBlogPost(#id)")
+    @DeleteMapping("/{id}/unpin")
+    public BlogPostDTO unpin(@PathVariable("id") Long id) {
+        return blogPostService.unpin(id);
+    }
 }

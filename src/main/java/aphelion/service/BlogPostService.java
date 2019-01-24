@@ -24,4 +24,7 @@ public interface BlogPostService {
     List<BlogPostDTO> getMostPopularForMonth(int page, int pageSize);
     List<BlogPostDTO> getMostPopularForYear(int page, int pageSize);
     List<BlogPostDTO> getMostPopularForPeriod(Date from, Date to, int page, int pageSize);
+    List<BlogPostDTO> findPinnedByBlog(Long blogId);
+    BlogPostDTO pin(Long blogPostId);
+    BlogPostDTO unpin(Long blogPostId);
 }

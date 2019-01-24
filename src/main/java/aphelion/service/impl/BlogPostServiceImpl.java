@@ -8,6 +8,7 @@ import aphelion.annotation.SortingDirection;
 import aphelion.annotation.ValidatePaginationParameters;
 import aphelion.exception.BlogNotFoundException;
 import aphelion.exception.BlogPostNotFoundException;
+import aphelion.exception.PinnedBlogPostsLimitHasBeenReachedException;
 import aphelion.mapper.BlogPostToBlogPostDTOMapper;
 import aphelion.mapper.BlogPostToBlogPostMinifiedDTOMapper;
 import aphelion.mapper.CreateBlogPostDTOToBlogPostMapper;
@@ -242,6 +243,37 @@ public class BlogPostServiceImpl implements BlogPostService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<BlogPostDTO> findPinnedByBlog(Long blogId) {
+        Blog blog = findBlogById(blogId);
+        return blogPostRepository.findByBlogAndPinnedOrderByPinDateDesc(blog, true)
+                .stream()
+                .map(blogPostToBlogPostDTOMapper::map)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public BlogPostDTO pin(Long blogPostId) {
+        BlogPost blogPost = findBlogPostById(blogPostId);
+        List<BlogPost> blogPosts = blogPostRepository
+                .findByBlogAndPinnedOrderByPinDateDesc(blogPost.getBlog(), true);
+        if (blogPosts.size() >= 5) {
+            throw new PinnedBlogPostsLimitHasBeenReachedException("Pinned blog posts limit " +
+                    "has been reached. You can pin up to 5 blog posts.");
+        }
+        blogPost.setPinned(true);
+        blogPost.setPinDate(Date.from(timeStampProvider.now().toInstant(ZoneOffset.UTC)));
+        return blogPostToBlogPostDTOMapper.map(blogPostRepository.save(blogPost));
+    }
+
+    @Override
+    public BlogPostDTO unpin(Long blogPostId) {
+        BlogPost blogPost = findBlogPostById(blogPostId);
+        blogPost.setPinned(false);
+        blogPost.setPinDate(null);
+        return blogPostToBlogPostDTOMapper.map(blogPostRepository.save(blogPost));
+    }
+
     private List<BlogPost> findMostPopularInPeriod(LocalDateTime from, LocalDateTime to, int page, int pageSize) {
         Date fromDate = Date.from(from.toInstant(ZoneOffset.UTC));
         Date toDate = Date.from(to.toInstant(ZoneOffset.UTC));
@@ -251,6 +283,7 @@ public class BlogPostServiceImpl implements BlogPostService {
 
     private Blog findBlogById(Long blogId) {
         return blogRepository.findById(blogId)
-                .orElseThrow(() -> new BlogNotFoundException("Blog with given id " + blogId + " could not be found."));
+                .orElseThrow(() -> new BlogNotFoundException("Blog with given id "
+                        + blogId + " could not be found."));
     }
 }

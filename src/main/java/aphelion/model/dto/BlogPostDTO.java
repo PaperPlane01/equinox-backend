@@ -1,7 +1,6 @@
 package aphelion.model.dto;
 
 import aphelion.model.domain.BlogPostPublisherType;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,7 +20,6 @@ public class BlogPostDTO {
     private Map<Object, Object> content;
     private BlogPostPublisher publisher;
     private Long blogId;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private Date createdAt;
     private Collection<TagDTO> tags;
     private Integer numberOfLikes;
@@ -34,4 +32,6 @@ public class BlogPostDTO {
     private BlogPostPublisherType publishedBy;
     private boolean canBeEdited;
     private boolean canBeDeleted;
+    private boolean pinned;
+    private Date pinDate;
 }

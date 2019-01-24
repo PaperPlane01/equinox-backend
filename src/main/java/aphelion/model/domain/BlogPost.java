@@ -96,6 +96,8 @@ public class BlogPost {
 
     @Column(columnDefinition = "TEXT")
     private String plainText;
+    private boolean pinned;
+    private Date pinDate;
 
     @PreRemove
     public void deleteBlogPost() {

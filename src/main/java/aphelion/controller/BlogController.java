@@ -263,4 +263,9 @@ public class BlogController {
     public BlogMinifiedDTO findMinifiedById(@PathVariable("id") Long id) {
         return blogService.findMinifiedById(id);
     }
+
+    @GetMapping("/{id}/blog-posts/pinned")
+    public List<BlogPostDTO> findPinnedBlogPostsByBlog(@PathVariable("id") Long id) {
+        return blogPostService.findPinnedByBlog(id);
+    }
 }

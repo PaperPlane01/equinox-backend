@@ -21,6 +21,7 @@ public interface BlogPostRepository extends JpaRepository<BlogPost, Long> {
     BlogPost save(BlogPost blogPost);
     void delete(BlogPost blogPost);
     void deleteById(Long id);
+    List<BlogPost> findByBlogAndPinnedOrderByPinDateDesc(Blog blog, boolean pinned);
 
     @Query("select blogPost from BlogPost blogPost where blogPost.blog = :#{#blog} order by blogPost.blogPostViews.size")
     List<BlogPost> findByBlogAndOrderByNumberOfViews(@Param("blog") Blog blog, Pageable pageable);

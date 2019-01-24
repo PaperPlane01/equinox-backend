@@ -105,4 +105,16 @@ public class BlogPostPermissionResolver {
                 .stream()
                 .anyMatch(blogId -> Objects.equals(blogId, blogPost.getBlogId())));
     }
+
+    public boolean canPinBlogPost(Long blogPostId) {
+        CurrentUserDTO currentUser = userService.getCurrentUser();
+        BlogPostDTO blogPost = blogPostService.findById(blogPostId);
+
+        return currentUser.getOwnedBlogs().stream()
+                .anyMatch(blogId -> Objects.equals(blogId, blogPost.getBlogId()));
+    }
+
+    public boolean canUnpinBlogPost(Long blogPostId) {
+        return canPinBlogPost(blogPostId);
+    }
 }

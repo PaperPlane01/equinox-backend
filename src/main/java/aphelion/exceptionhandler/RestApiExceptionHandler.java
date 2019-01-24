@@ -15,6 +15,7 @@ import aphelion.exception.InvalidReportStatusException;
 import aphelion.exception.InvalidSortByException;
 import aphelion.exception.InvalidSortingDirectionException;
 import aphelion.exception.LoginUsernameIsAlreadyInUseException;
+import aphelion.exception.PinnedBlogPostsLimitHasBeenReachedException;
 import aphelion.exception.UserAlreadyManagesBlogException;
 import aphelion.model.dto.ErrorDTO;
 import com.google.common.collect.ImmutableMap;
@@ -85,15 +86,24 @@ public class RestApiExceptionHandler extends ResponseEntityExceptionHandler {
                 webRequest);
     }
 
-    @ExceptionHandler(value = UserAlreadyManagesBlogException.class)
-    protected ResponseEntity<?> handleUserAlreadyManagesBlogException(UserAlreadyManagesBlogException exception,
-                                                                      WebRequest webRequest) {
+    @ExceptionHandler(UserAlreadyManagesBlogException.class)
+    protected ResponseEntity<?> handleUserAlreadyManagesBlogException(
+            UserAlreadyManagesBlogException exception,
+            WebRequest webRequest) {
         Map<Object, Object> additionalInformation = ImmutableMap
                 .builder()
                 .put("blogManager", exception.getBlogManager())
                 .build();
         ErrorDTO errorDTO = createErrorDTO(HttpStatus.CONFLICT.value(), exception, additionalInformation);
         return handleExceptionInternal(exception, errorDTO, new HttpHeaders(), HttpStatus.CONFLICT,
+                webRequest);
+    }
+
+    @ExceptionHandler(PinnedBlogPostsLimitHasBeenReachedException.class)
+    protected ResponseEntity<?> handlePinnedBlogPostsLimitHasBeenReachedException(
+            RuntimeException exception, WebRequest webRequest) {
+        ErrorDTO errorDTO = createErrorDTO(HttpStatus.LOCKED.value(), exception);
+        return handleExceptionInternal(exception, errorDTO, new HttpHeaders(), HttpStatus.LOCKED,
                 webRequest);
     }
 

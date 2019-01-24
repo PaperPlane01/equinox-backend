@@ -2,6 +2,7 @@ package aphelion.service.impl;
 
 import aphelion.exception.BlogNotFoundException;
 import aphelion.exception.BlogPostNotFoundException;
+import aphelion.exception.PinnedBlogPostsLimitHasBeenReachedException;
 import aphelion.mapper.BlogPostToBlogPostDTOMapper;
 import aphelion.mapper.BlogPostToBlogPostMinifiedDTOMapper;
 import aphelion.mapper.CreateBlogPostDTOToBlogPostMapper;
@@ -637,5 +638,56 @@ public class BlogPostServiceImplTest {
 
         // Verify the results
         assertEquals(expectedResult, result);
+    }
+
+    @Test
+    public void testPin() {
+        // Setup
+        final LocalDateTime nowTime = LocalDateTime.now();
+        final Date now = Date.from(nowTime.toInstant(ZoneOffset.UTC));
+        final Long blogPostId = 1L;
+        final BlogPost blogPost = BlogPost.builder()
+                .id(blogPostId)
+                .pinned(false)
+                .pinDate(null)
+                .build();
+        final BlogPostDTO expectedResult = BlogPostDTO.builder()
+                .id(blogPostId)
+                .pinned(true)
+                .pinDate(now)
+                .build();
+        when(mockBlogPostRepository.findById(blogPostId)).thenReturn(Optional.of(blogPost));
+        when(mockBlogPostRepository.save(blogPost)).thenReturn(blogPost);
+        when(mockTimeStampProvider.now()).thenReturn(nowTime);
+        when(mockBlogPostToBlogPostDTOMapper.map(blogPost)).thenReturn(expectedResult);
+
+        // Run the test
+        final BlogPostDTO result = blogPostServiceImplUnderTest.pin(blogPostId);
+
+        // Verify the results
+        assertEquals(expectedResult, result);
+        assertTrue(blogPost.isPinned());
+        assertEquals(blogPost.getPinDate(), now);
+    }
+
+    @Test(expected = PinnedBlogPostsLimitHasBeenReachedException.class)
+    public void testPin_whenPinnedBlogPostsLimitReached_thenExceptionIsThrown() {
+        // Setup
+        final Long blogPostId = 1L;
+        final Blog blog = Blog.builder().id(1L).build();
+        final BlogPost blogPost = BlogPost.builder().id(blogPostId).blog(blog).build();
+        final List<BlogPost> blogPosts = Arrays.asList(
+                BlogPost.builder().id(2L).build(),
+                BlogPost.builder().id(3L).build(),
+                BlogPost.builder().id(4L).build(),
+                BlogPost.builder().id(5L).build(),
+                BlogPost.builder().id(6L).build()
+        );
+        when(mockBlogPostRepository.findById(blogPostId)).thenReturn(Optional.of(blogPost));
+        when(mockBlogPostRepository.findByBlogAndPinnedOrderByPinDateDesc(blog, true))
+                .thenReturn(blogPosts);
+
+        // Run the test
+       blogPostServiceImplUnderTest.pin(blogPostId);
     }
 }
