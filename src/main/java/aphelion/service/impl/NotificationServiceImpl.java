@@ -1,5 +1,19 @@
 package aphelion.service.impl;
 
+import aphelion.annotation.CollectionArgument;
+import aphelion.annotation.Page;
+import aphelion.annotation.PageSize;
+import aphelion.annotation.SortBy;
+import aphelion.annotation.SortingDirection;
+import aphelion.annotation.ValidateCollectionSize;
+import aphelion.annotation.ValidatePaginationParameters;
+import aphelion.exception.BlogBlockingNotFoundException;
+import aphelion.exception.BlogPostNotFoundException;
+import aphelion.exception.CommentLikeNotFoundException;
+import aphelion.exception.CommentNotFoundException;
+import aphelion.exception.EntityNotFoundException;
+import aphelion.exception.GlobalBlockingNotFoundException;
+import aphelion.exception.NotificationNotFoundException;
 import aphelion.mapper.NotificationToNotificationDTOMapper;
 import aphelion.model.domain.BlogBlocking;
 import aphelion.model.domain.BlogPost;
@@ -9,33 +23,20 @@ import aphelion.model.domain.GlobalBlocking;
 import aphelion.model.domain.Notification;
 import aphelion.model.domain.NotificationType;
 import aphelion.model.domain.Subscription;
+import aphelion.model.domain.User;
 import aphelion.model.dto.NotificationDTO;
 import aphelion.model.dto.UpdateNotificationDTO;
-import aphelion.repository.NotificationRepository;
-import aphelion.util.SortingDirectionUtils;
-import lombok.RequiredArgsConstructor;
-import aphelion.exception.BlogBlockingNotFoundException;
-import aphelion.exception.CommentLikeNotFoundException;
-import aphelion.exception.GlobalBlockingNotFoundException;
-import aphelion.exception.NotificationNotFoundException;
-import aphelion.annotation.CollectionArgument;
-import aphelion.annotation.Page;
-import aphelion.annotation.PageSize;
-import aphelion.annotation.SortBy;
-import aphelion.annotation.SortingDirection;
-import aphelion.annotation.ValidateCollectionSize;
-import aphelion.annotation.ValidatePaginationParameters;
-import aphelion.exception.BlogPostNotFoundException;
-import aphelion.exception.CommentNotFoundException;
-import aphelion.exception.EntityNotFoundException;
-import aphelion.model.domain.User;
 import aphelion.repository.BlogBlockingRepository;
 import aphelion.repository.BlogPostRepository;
 import aphelion.repository.CommentLikeRepository;
 import aphelion.repository.CommentRepository;
 import aphelion.repository.GlobalBlockingRepository;
+import aphelion.repository.NotificationRepository;
 import aphelion.security.AuthenticationFacade;
 import aphelion.service.NotificationService;
+import aphelion.service.NotificationsSender;
+import aphelion.util.SortingDirectionUtils;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -59,11 +60,7 @@ public class NotificationServiceImpl implements NotificationService {
     private final GlobalBlockingRepository globalBlockingRepository;
     private final NotificationToNotificationDTOMapper notificationToNotificationDTOMapper;
     private final AuthenticationFacade authenticationFacade;
-
-    @Override
-    public Notification save(Notification notification) {
-        return notificationRepository.save(notification);
-    }
+    private final NotificationsSender notificationsSender;
 
     @Override
     public void save(Long notificationGeneratorId, NotificationType notificationType) {
@@ -94,7 +91,7 @@ public class NotificationServiceImpl implements NotificationService {
     public NotificationDTO update(Long id, UpdateNotificationDTO updateNotificationDTO) {
         Notification notification = findNotificationById(id);
         notification.setRead(updateNotificationDTO.isRead());
-        return notificationToNotificationDTOMapper.map(notification);
+        return notificationToNotificationDTOMapper.map(save(notification));
     }
 
     @Override
@@ -117,10 +114,15 @@ public class NotificationServiceImpl implements NotificationService {
         List<Notification> notifications = notificationRepository.findAllById(notificationIds);
         notifications.forEach(notification -> notification.setRead(true));
         notifications = notificationRepository.saveAll(notifications);
-        return notifications.stream()
+        List<NotificationDTO> notificationDTOList = notifications.stream()
                 .map(notificationToNotificationDTOMapper::map)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
+        if (!notifications.isEmpty()) {
+            User recipient = notifications.get(0).getRecipient();
+            notificationsSender.sendNotifications(recipient.getGeneratedUsername(), notificationDTOList);
+        }
+        return notificationDTOList;
     }
 
     @Override
@@ -138,10 +140,14 @@ public class NotificationServiceImpl implements NotificationService {
         List<Notification> notifications = notificationRepository.findAllById(notificationIds);
         notifications.forEach(notification -> notification.setRead(false));
         notifications = notificationRepository.saveAll(notifications);
-        return notifications.stream()
+        List<NotificationDTO> notificationDTOList = notifications.stream()
                 .map(notificationToNotificationDTOMapper::map)
-                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
+        if (!notifications.isEmpty()) {
+            String recipientId = notifications.get(0).getRecipient().getGeneratedUsername();
+            notificationsSender.sendNotifications(recipientId, notificationDTOList);
+        }
+        return notificationDTOList;
     }
 
     @Override
@@ -233,6 +239,7 @@ public class NotificationServiceImpl implements NotificationService {
         notification.setRead(false);
         notification.setNotificationGeneratorId(comment.getId());
         notification.setRecipient(comment.getReferredComment().getAuthor());
+        notification.setNotificationType(NotificationType.NEW_COMMENT_REPLY);
         save(notification);
     }
 
@@ -270,6 +277,14 @@ public class NotificationServiceImpl implements NotificationService {
         notification.setRecipient(globalBlocking.getBlockedUser());
 
         save(notification);
+    }
+
+    private Notification save(Notification notification) {
+        notification =  notificationRepository.save(notification);
+        String recipientId = notification.getRecipient().getGeneratedUsername();
+        NotificationDTO notificationDTO = notificationToNotificationDTOMapper.map(notification);
+        notificationsSender.sendNotifications(recipientId, notificationDTO);
+        return notification;
     }
 
     private BlogPost findBlogPostById(Long id) {

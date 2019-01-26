@@ -8,7 +8,6 @@ import aphelion.model.dto.UpdateNotificationDTO;
 import java.util.List;
 
 public interface NotificationService {
-    Notification save(Notification notification);
     void save(Long notificationGeneratorId, NotificationType notificationType);
     NotificationDTO update(Long id, UpdateNotificationDTO updateNotificationDTO);
     NotificationDTO findById(Long id);

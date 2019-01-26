@@ -1,5 +1,6 @@
 package aphelion.service.impl;
 
+import aphelion.annotation.NotifySubscribers;
 import aphelion.annotation.Page;
 import aphelion.annotation.PageSize;
 import aphelion.annotation.SortBy;
@@ -11,6 +12,7 @@ import aphelion.mapper.CreateCommentDTOToCommentMapper;
 import aphelion.model.CommentsDisplayMode;
 import aphelion.model.domain.BlogPost;
 import aphelion.model.domain.Comment;
+import aphelion.model.domain.NotificationType;
 import aphelion.model.dto.CommentDTO;
 import aphelion.model.dto.CreateCommentDTO;
 import aphelion.model.dto.UpdateCommentDTO;
@@ -42,6 +44,7 @@ public class CommentServiceImpl implements CommentService {
     private final AuthenticationFacade authenticationFacade;
 
     @Override
+    @NotifySubscribers(type = NotificationType.NEW_COMMENT_REPLY)
     public CommentDTO save(CreateCommentDTO createCommentDTO) throws BlogPostNotFoundException, CommentNotFoundException {
         Comment comment = createCommentDTOToCommentMapper.map(createCommentDTO);
         return commentToCommentDTOMapper.map(commentRepository.save(comment));
