@@ -3,7 +3,7 @@ Aphelion is a blogging application built
 with Spring Framework and ReactJS. 
 
 ## Used frameworks and libraries
-1. Spring Framework (Core, AOP, MVC, Data, Security)
+1. Spring Framework (Core, AOP, MVC, Data, Security, WebSocket)
 2. Hibernate
 3. Mapstruct
 4. Lombok
