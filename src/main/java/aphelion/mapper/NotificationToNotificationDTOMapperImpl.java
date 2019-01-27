@@ -1,9 +1,8 @@
 package aphelion.mapper;
 
-import lombok.RequiredArgsConstructor;
 import aphelion.exception.BlogBlockingNotFoundException;
-import aphelion.exception.CommentLikeNotFoundException;
 import aphelion.exception.BlogPostNotFoundException;
+import aphelion.exception.CommentLikeNotFoundException;
 import aphelion.exception.CommentNotFoundException;
 import aphelion.exception.EntityNotFoundException;
 import aphelion.exception.GlobalBlockingNotFoundException;
@@ -24,6 +23,7 @@ import aphelion.repository.BlogPostRepository;
 import aphelion.repository.CommentLikeRepository;
 import aphelion.repository.CommentRepository;
 import aphelion.repository.GlobalBlockingRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -45,15 +45,25 @@ public class NotificationToNotificationDTOMapperImpl implements NotificationToNo
         try {
             switch (notification.getNotificationType()) {
                 case NEW_COMMENT_LIKE:
-                    return convertToNewCommentLikeNotificationDTO(notification);
+                    CommentLike commentLike = commentLikeRepository.findById(notification.getNotificationGeneratorId())
+                            .orElseThrow(CommentLikeNotFoundException::new);
+                    return convertToNewCommentLikeNotificationDTO(notification, commentLike);
                 case NEW_BLOG_POST:
-                    return convertToNewBlogPostNotificationDTO(notification);
+                    BlogPost blogPost = blogPostRepository.findById(notification.getNotificationGeneratorId())
+                            .orElseThrow(BlogPostNotFoundException::new);
+                    return convertToNewBlogPostNotificationDTO(notification, blogPost);
                 case NEW_COMMENT_REPLY:
-                    return convertToNewCommentReplyNotificationDTO(notification);
+                    Comment comment = commentRepository.findById(notification.getNotificationGeneratorId())
+                            .orElseThrow(CommentNotFoundException::new);
+                    return convertToNewCommentReplyNotificationDTO(notification, comment);
                 case GLOBAL_BLOCKING:
-                    return convertToGlobalBlockingNotificationDTO(notification);
+                    GlobalBlocking globalBlocking = globalBlockingRepository.findById(notification.getNotificationGeneratorId())
+                            .orElseThrow(GlobalBlockingNotFoundException::new);
+                    return convertToGlobalBlockingNotificationDTO(notification, globalBlocking);
                 case BLOG_BLOCKING:
-                    return convertToBlogBlockingNotificationDTO(notification);
+                    BlogBlocking blogBlocking = blogBlockingRepository.findById(notification.getNotificationGeneratorId())
+                            .orElseThrow(BlogBlockingNotFoundException::new);
+                    return convertToBlogBlockingNotificationDTO(notification, blogBlocking);
                 default:
                     throw new RuntimeException("Unknown notification type.");
             }
@@ -62,10 +72,26 @@ public class NotificationToNotificationDTOMapperImpl implements NotificationToNo
         }
     }
 
-    private NewCommentLikeNotificationDTO convertToNewCommentLikeNotificationDTO(Notification notification) {
+    @Override
+    public NotificationDTO map(Notification notification, Object payload) {
+        switch (notification.getNotificationType()) {
+            case NEW_COMMENT_LIKE:
+                return convertToNewCommentLikeNotificationDTO(notification, (CommentLike) payload);
+            case NEW_BLOG_POST:
+                return convertToNewBlogPostNotificationDTO(notification, (BlogPost) payload);
+            case NEW_COMMENT_REPLY:
+                return convertToNewCommentReplyNotificationDTO(notification, (Comment) payload);
+            case GLOBAL_BLOCKING:
+                return convertToGlobalBlockingNotificationDTO(notification, (GlobalBlocking) payload);
+            case BLOG_BLOCKING:
+                return convertToBlogBlockingNotificationDTO(notification, (BlogBlocking) payload);
+            default:
+                throw new RuntimeException("Unknown notification type.");
+        }
+    }
+
+    private NewCommentLikeNotificationDTO convertToNewCommentLikeNotificationDTO(Notification notification, CommentLike commentLike) {
         NewCommentLikeNotificationDTO newCommentLikeNotificationDTO = new NewCommentLikeNotificationDTO();
-        CommentLike commentLike = commentLikeRepository.findById(notification.getNotificationGeneratorId())
-                .orElseThrow(CommentLikeNotFoundException::new);
 
         newCommentLikeNotificationDTO.setId(notification.getId());
         newCommentLikeNotificationDTO.setRecipientId(notification.getRecipient().getId());
@@ -76,10 +102,8 @@ public class NotificationToNotificationDTOMapperImpl implements NotificationToNo
         return newCommentLikeNotificationDTO;
     }
 
-    private NewBlogPostNotificationDTO convertToNewBlogPostNotificationDTO(Notification notification) {
+    private NewBlogPostNotificationDTO convertToNewBlogPostNotificationDTO(Notification notification, BlogPost blogPost) {
         NewBlogPostNotificationDTO newBlogPostNotificationDTO = new NewBlogPostNotificationDTO();
-        BlogPost blogPost = blogPostRepository.findById(notification.getNotificationGeneratorId())
-                .orElseThrow(BlogPostNotFoundException::new);
 
         newBlogPostNotificationDTO.setId(notification.getId());
         newBlogPostNotificationDTO.setRecipientId(notification.getRecipient().getId());
@@ -89,10 +113,8 @@ public class NotificationToNotificationDTOMapperImpl implements NotificationToNo
         return newBlogPostNotificationDTO;
     }
 
-    private NewCommentReplyNotificationDTO convertToNewCommentReplyNotificationDTO(Notification notification) {
+    private NewCommentReplyNotificationDTO convertToNewCommentReplyNotificationDTO(Notification notification, Comment comment) {
         NewCommentReplyNotificationDTO newCommentReplyNotificationDTO = new NewCommentReplyNotificationDTO();
-        Comment comment = commentRepository.findById(notification.getNotificationGeneratorId())
-                .orElseThrow(CommentNotFoundException::new);
 
         newCommentReplyNotificationDTO.setId(notification.getId());
         newCommentReplyNotificationDTO.setRecipientId(notification.getRecipient().getId());
@@ -103,10 +125,8 @@ public class NotificationToNotificationDTOMapperImpl implements NotificationToNo
         return newCommentReplyNotificationDTO;
     }
 
-    private GlobalBlockingNotificationDTO convertToGlobalBlockingNotificationDTO(Notification notification) {
+    private GlobalBlockingNotificationDTO convertToGlobalBlockingNotificationDTO(Notification notification, GlobalBlocking globalBlocking) {
         GlobalBlockingNotificationDTO globalBlockingNotificationDTO = new GlobalBlockingNotificationDTO();
-        GlobalBlocking globalBlocking = globalBlockingRepository.findById(notification.getNotificationGeneratorId())
-                .orElseThrow(GlobalBlockingNotFoundException::new);
 
         globalBlockingNotificationDTO.setId(notification.getId());
         globalBlockingNotificationDTO.setRecipientId(notification.getRecipient().getId());
@@ -116,10 +136,8 @@ public class NotificationToNotificationDTOMapperImpl implements NotificationToNo
         return globalBlockingNotificationDTO;
     }
 
-    private BlogBlockingNotificationDTO convertToBlogBlockingNotificationDTO(Notification notification) {
+    private BlogBlockingNotificationDTO convertToBlogBlockingNotificationDTO(Notification notification, BlogBlocking blogBlocking) {
         BlogBlockingNotificationDTO blogBlockingNotificationDTO = new BlogBlockingNotificationDTO();
-        BlogBlocking blogBlocking = blogBlockingRepository.findById(notification.getNotificationGeneratorId())
-                .orElseThrow(BlogBlockingNotFoundException::new);
 
         blogBlockingNotificationDTO.setId(notification.getId());
         blogBlockingNotificationDTO.setRecipientId(notification.getRecipient().getId());

@@ -1,6 +1,5 @@
 package aphelion.service.impl;
 
-import aphelion.annotation.NotifySubscribers;
 import aphelion.annotation.Page;
 import aphelion.annotation.PageSize;
 import aphelion.annotation.SortBy;
@@ -13,7 +12,6 @@ import aphelion.mapper.CommentLikeToCommentLikeDTOMapper;
 import aphelion.mapper.CreateCommentLikeDTOToCommentLikeMapper;
 import aphelion.model.domain.Comment;
 import aphelion.model.domain.CommentLike;
-import aphelion.model.domain.NotificationType;
 import aphelion.model.domain.User;
 import aphelion.model.dto.CommentLikeDTO;
 import aphelion.model.dto.CreateCommentLikeDTO;
@@ -21,9 +19,9 @@ import aphelion.model.dto.UpdatedNumberOfCommentLikesDTO;
 import aphelion.repository.CommentLikeRepository;
 import aphelion.repository.CommentRepository;
 import aphelion.repository.UserRepository;
+import aphelion.service.CommentLikeService;
 import aphelion.util.SortingDirectionUtils;
 import lombok.RequiredArgsConstructor;
-import aphelion.service.CommentLikeService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -43,10 +41,10 @@ public class CommentLikeServiceImpl implements CommentLikeService {
     private final CreateCommentLikeDTOToCommentLikeMapper createCommentLikeDTOToCommentLikeMapper;
 
     @Override
-    @NotifySubscribers(type = NotificationType.NEW_COMMENT_LIKE)
     public UpdatedNumberOfCommentLikesDTO save(CreateCommentLikeDTO createCommentLikeDTO) {
         CommentLike commentLike = createCommentLikeDTOToCommentLikeMapper.map(createCommentLikeDTO);
         commentLike = commentLikeRepository.save(commentLike);
+        System.out.println("Saved comment like id: " + commentLike.getId());
 
         return new UpdatedNumberOfCommentLikesDTO(commentLike.getId(),
                 countByComment(commentLike.getComment()));

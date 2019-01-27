@@ -1,6 +1,5 @@
 package aphelion.service.impl;
 
-import aphelion.annotation.NotifySubscribers;
 import aphelion.annotation.Page;
 import aphelion.annotation.PageSize;
 import aphelion.annotation.ValidatePaginationParameters;
@@ -11,7 +10,6 @@ import aphelion.mapper.BlogBlockingToBlogBlockingDTOMapper;
 import aphelion.mapper.CreateBlogBlockingDTOToBlogBlockingMapper;
 import aphelion.model.domain.Blog;
 import aphelion.model.domain.BlogBlocking;
-import aphelion.model.domain.NotificationType;
 import aphelion.model.domain.User;
 import aphelion.model.dto.BlogBlockingDTO;
 import aphelion.model.dto.CreateBlogBlockingDTO;
@@ -50,7 +48,6 @@ public class BlogBlockingServiceImpl implements BlogBlockingService {
         return blogBlockingRepository.findById(id).orElseThrow(BlogBlockingNotFoundException::new);
     }
 
-    @NotifySubscribers(type = NotificationType.BLOG_BLOCKING)
     @Override
     public BlogBlockingDTO save(CreateBlogBlockingDTO createBlogBlockingDTO) throws BlogNotFoundException, UserNotFoundException {
         BlogBlocking blogBlocking = createBlogBlockingDTOToBlogBlockingMapper.map(createBlogBlockingDTO);

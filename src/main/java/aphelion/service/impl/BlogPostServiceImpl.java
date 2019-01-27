@@ -1,6 +1,5 @@
 package aphelion.service.impl;
 
-import aphelion.annotation.NotifySubscribers;
 import aphelion.annotation.Page;
 import aphelion.annotation.PageSize;
 import aphelion.annotation.SortBy;
@@ -69,7 +68,6 @@ public class BlogPostServiceImpl implements BlogPostService {
     }
 
     @Override
-    @NotifySubscribers(type = NotificationType.NEW_BLOG_POST)
     public BlogPostDTO save(CreateBlogPostDTO createBlogPostDTO) {
         BlogPost blogPost = createBlogPostDTOToBlogPostMapper.map(createBlogPostDTO);
         blogPost = blogPostRepository.save(blogPost);
