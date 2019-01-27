@@ -1,6 +1,5 @@
 package aphelion.service.impl;
 
-import aphelion.annotation.NotifySubscribers;
 import aphelion.annotation.Page;
 import aphelion.annotation.PageSize;
 import aphelion.annotation.SortBy;
@@ -8,21 +7,20 @@ import aphelion.annotation.SortingDirection;
 import aphelion.annotation.ValidatePaginationParameters;
 import aphelion.exception.BlogPostNotFoundException;
 import aphelion.exception.CommentNotFoundException;
+import aphelion.mapper.CommentToCommentDTOMapper;
 import aphelion.mapper.CreateCommentDTOToCommentMapper;
 import aphelion.model.CommentsDisplayMode;
 import aphelion.model.domain.BlogPost;
 import aphelion.model.domain.Comment;
-import aphelion.model.domain.NotificationType;
 import aphelion.model.dto.CommentDTO;
 import aphelion.model.dto.CreateCommentDTO;
 import aphelion.model.dto.UpdateCommentDTO;
 import aphelion.repository.BlogPostRepository;
 import aphelion.repository.CommentRepository;
 import aphelion.security.AuthenticationFacade;
+import aphelion.service.CommentService;
 import aphelion.util.SortingDirectionUtils;
 import lombok.RequiredArgsConstructor;
-import aphelion.mapper.CommentToCommentDTOMapper;
-import aphelion.service.CommentService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -44,7 +42,6 @@ public class CommentServiceImpl implements CommentService {
     private final AuthenticationFacade authenticationFacade;
 
     @Override
-    @NotifySubscribers(type = NotificationType.NEW_COMMENT_REPLY)
     public CommentDTO save(CreateCommentDTO createCommentDTO) throws BlogPostNotFoundException, CommentNotFoundException {
         Comment comment = createCommentDTOToCommentMapper.map(createCommentDTO);
         return commentToCommentDTOMapper.map(commentRepository.save(comment));

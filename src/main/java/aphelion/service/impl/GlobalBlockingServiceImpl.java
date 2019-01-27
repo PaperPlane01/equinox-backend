@@ -1,6 +1,5 @@
 package aphelion.service.impl;
 
-import aphelion.annotation.NotifySubscribers;
 import aphelion.annotation.Page;
 import aphelion.annotation.PageSize;
 import aphelion.annotation.SortBy;
@@ -11,16 +10,15 @@ import aphelion.exception.UserNotFoundException;
 import aphelion.mapper.CreateGlobalBlockingDTOToGlobalBlockingMapper;
 import aphelion.mapper.GlobalBlockingToGlobalBlockingDTOMapper;
 import aphelion.model.domain.GlobalBlocking;
-import aphelion.model.domain.NotificationType;
 import aphelion.model.domain.User;
 import aphelion.model.dto.CreateGlobalBlockingDTO;
 import aphelion.model.dto.GlobalBlockingDTO;
 import aphelion.model.dto.UpdateGlobalBlockingDTO;
 import aphelion.repository.GlobalBlockingRepository;
 import aphelion.repository.UserRepository;
+import aphelion.service.GlobalBlockingService;
 import aphelion.util.SortingDirectionUtils;
 import lombok.RequiredArgsConstructor;
-import aphelion.service.GlobalBlockingService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -41,7 +39,6 @@ public class GlobalBlockingServiceImpl implements GlobalBlockingService {
     private final CreateGlobalBlockingDTOToGlobalBlockingMapper
             createGlobalBlockingDTOToGlobalBlockingMapper;
 
-    @NotifySubscribers(type = NotificationType.GLOBAL_BLOCKING)
     @Override
     public GlobalBlockingDTO save(CreateGlobalBlockingDTO createGlobalBlockingDTO) {
         GlobalBlocking globalBlocking = createGlobalBlockingDTOToGlobalBlockingMapper

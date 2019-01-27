@@ -1,5 +1,10 @@
 package aphelion.service;
 
+import aphelion.model.domain.BlogBlocking;
+import aphelion.model.domain.BlogPost;
+import aphelion.model.domain.Comment;
+import aphelion.model.domain.CommentLike;
+import aphelion.model.domain.GlobalBlocking;
 import aphelion.model.domain.Notification;
 import aphelion.model.domain.NotificationType;
 import aphelion.model.dto.NotificationDTO;
@@ -8,7 +13,11 @@ import aphelion.model.dto.UpdateNotificationDTO;
 import java.util.List;
 
 public interface NotificationService {
-    void save(Long notificationGeneratorId, NotificationType notificationType);
+    void createNewBlogPostNotification(BlogPost blogPost);
+    void createNewCommentLikeNotification(CommentLike commentLike);
+    void createNewCommentReplyNotification(Comment comment);
+    void createGlobalBlockingNotification(GlobalBlocking globalBlocking);
+    void createBlogBlockingNotification(BlogBlocking blogBlocking);
     NotificationDTO update(Long id, UpdateNotificationDTO updateNotificationDTO);
     NotificationDTO findById(Long id);
     NotificationDTO markAsRead(Long id);

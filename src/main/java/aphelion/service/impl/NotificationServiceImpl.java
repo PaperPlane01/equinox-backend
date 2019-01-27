@@ -11,7 +11,6 @@ import aphelion.exception.BlogBlockingNotFoundException;
 import aphelion.exception.BlogPostNotFoundException;
 import aphelion.exception.CommentLikeNotFoundException;
 import aphelion.exception.CommentNotFoundException;
-import aphelion.exception.EntityNotFoundException;
 import aphelion.exception.GlobalBlockingNotFoundException;
 import aphelion.exception.NotificationNotFoundException;
 import aphelion.mapper.NotificationToNotificationDTOMapper;
@@ -63,38 +62,10 @@ public class NotificationServiceImpl implements NotificationService {
     private final NotificationsSender notificationsSender;
 
     @Override
-    public void save(Long notificationGeneratorId, NotificationType notificationType) {
-        System.out.println("in notificationService.save()");
-        System.out.println("Notification generator id: " + notificationGeneratorId);
-        try {
-            switch (notificationType) {
-                case NEW_COMMENT_REPLY:
-                    createNewCommentReplyNotification(findCommentById(notificationGeneratorId));
-                    break;
-                case NEW_BLOG_POST:
-                    createNewBlogPostNotification(findBlogPostById(notificationGeneratorId));
-                    break;
-                case NEW_COMMENT_LIKE:
-                    createNewCommentLikeNotification(findCommentLikeById(notificationGeneratorId));
-                    break;
-                case BLOG_BLOCKING:
-                    createBlogBlockingNotification(findBlogBlockingById(notificationGeneratorId));
-                    break;
-                case GLOBAL_BLOCKING:
-                    createGlobalBlockingNotification(findGlobalBlockingById(notificationGeneratorId));
-                    break;
-            }
-        } catch (EntityNotFoundException e) {
-            System.out.println("caught entity not found exception");
-            e.printStackTrace();
-        }
-    }
-
-    @Override
     public NotificationDTO update(Long id, UpdateNotificationDTO updateNotificationDTO) {
         Notification notification = findNotificationById(id);
         notification.setRead(updateNotificationDTO.isRead());
-        return notificationToNotificationDTOMapper.map(save(notification));
+        return notificationToNotificationDTOMapper.map(notificationRepository.save(notification));
     }
 
     @Override
@@ -212,7 +183,8 @@ public class NotificationServiceImpl implements NotificationService {
                 .collect(Collectors.toList());
     }
 
-    private void createNewBlogPostNotification(BlogPost blogPost) {
+    @Override
+    public void createNewBlogPostNotification(BlogPost blogPost) {
         List<User> subscribers = blogPost.getBlog()
                 .getSubscriptions()
                 .stream()
@@ -227,11 +199,12 @@ public class NotificationServiceImpl implements NotificationService {
             notification.setRead(false);
             notification.setNotificationGeneratorId(blogPost.getId());
             notification.setRecipient(subscriber);
-            save(notification);
+            save(notification, blogPost);
         });
     }
 
-    private void createNewCommentReplyNotification(Comment comment) {
+    @Override
+    public void createNewCommentReplyNotification(Comment comment) {
         if (comment.getReferredComment() == null) {
             return;
         }
@@ -243,10 +216,11 @@ public class NotificationServiceImpl implements NotificationService {
         notification.setNotificationGeneratorId(comment.getId());
         notification.setRecipient(comment.getReferredComment().getAuthor());
         notification.setNotificationType(NotificationType.NEW_COMMENT_REPLY);
-        save(notification);
+        save(notification, comment);
     }
 
-    private void createNewCommentLikeNotification(CommentLike commentLike) {
+    @Override
+    public void createNewCommentLikeNotification(CommentLike commentLike) {
         Notification notification = new Notification();
 
         System.out.println("in createNewCommentLikeNotification()");
@@ -256,10 +230,11 @@ public class NotificationServiceImpl implements NotificationService {
         notification.setNotificationGeneratorId(commentLike.getId());
         notification.setRecipient(commentLike.getComment().getAuthor());
 
-        save(notification);
+        save(notification, commentLike);
     }
 
-    private void createBlogBlockingNotification(BlogBlocking blogBlocking) {
+    @Override
+    public void createBlogBlockingNotification(BlogBlocking blogBlocking) {
         Notification notification = new Notification();
 
         notification.setCreatedAt(Date.from(Instant.now()));
@@ -268,10 +243,11 @@ public class NotificationServiceImpl implements NotificationService {
         notification.setNotificationGeneratorId(blogBlocking.getId());
         notification.setRecipient(blogBlocking.getBlockedUser());
 
-        save(notification);
+        save(notification, blogBlocking);
     }
 
-    private void createGlobalBlockingNotification(GlobalBlocking globalBlocking) {
+    @Override
+    public void createGlobalBlockingNotification(GlobalBlocking globalBlocking) {
         Notification notification = new Notification();
 
         notification.setCreatedAt(Date.from(Instant.now()));
@@ -280,13 +256,14 @@ public class NotificationServiceImpl implements NotificationService {
         notification.setNotificationGeneratorId(globalBlocking.getId());
         notification.setRecipient(globalBlocking.getBlockedUser());
 
-        save(notification);
+        save(notification, globalBlocking);
     }
 
-    private Notification save(Notification notification) {
+    private Notification save(Notification notification, Object payload) {
         notification =  notificationRepository.save(notification);
         String recipientId = notification.getRecipient().getGeneratedUsername();
-        NotificationDTO notificationDTO = notificationToNotificationDTOMapper.map(notification);
+        NotificationDTO notificationDTO = notificationToNotificationDTOMapper.map(notification, payload);
+        System.out.println("Notification to be sent: " + notificationDTO);
         notificationsSender.sendNotifications(recipientId, notificationDTO);
         return notification;
     }
