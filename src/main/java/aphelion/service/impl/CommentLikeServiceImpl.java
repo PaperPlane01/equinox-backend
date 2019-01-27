@@ -47,6 +47,7 @@ public class CommentLikeServiceImpl implements CommentLikeService {
     public UpdatedNumberOfCommentLikesDTO save(CreateCommentLikeDTO createCommentLikeDTO) {
         CommentLike commentLike = createCommentLikeDTOToCommentLikeMapper.map(createCommentLikeDTO);
         commentLike = commentLikeRepository.save(commentLike);
+        System.out.println("Saved comment like id: " + commentLike.getId());
 
         return new UpdatedNumberOfCommentLikesDTO(commentLike.getId(),
                 countByComment(commentLike.getComment()));

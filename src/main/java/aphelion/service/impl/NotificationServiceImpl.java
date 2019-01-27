@@ -64,6 +64,8 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void save(Long notificationGeneratorId, NotificationType notificationType) {
+        System.out.println("in notificationService.save()");
+        System.out.println("Notification generator id: " + notificationGeneratorId);
         try {
             switch (notificationType) {
                 case NEW_COMMENT_REPLY:
@@ -83,7 +85,8 @@ public class NotificationServiceImpl implements NotificationService {
                     break;
             }
         } catch (EntityNotFoundException e) {
-            //ignore
+            System.out.println("caught entity not found exception");
+            e.printStackTrace();
         }
     }
 
@@ -246,6 +249,7 @@ public class NotificationServiceImpl implements NotificationService {
     private void createNewCommentLikeNotification(CommentLike commentLike) {
         Notification notification = new Notification();
 
+        System.out.println("in createNewCommentLikeNotification()");
         notification.setCreatedAt(Date.from(Instant.now()));
         notification.setNotificationType(NotificationType.NEW_COMMENT_LIKE);
         notification.setRead(false);

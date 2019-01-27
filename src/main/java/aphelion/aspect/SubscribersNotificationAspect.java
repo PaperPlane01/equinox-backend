@@ -27,6 +27,7 @@ public class SubscribersNotificationAspect {
     @AfterReturning(value = "@annotation(notifySubscribers)", returning = "notificationCreator")
     public void notifySubscribers(Object notificationCreator, NotifySubscribers notifySubscribers) {
         asyncExecutor.execute(() -> Arrays.stream(notifySubscribers.type()).forEach(notificationType -> {
+            System.out.println("trying to save notification");
             switch (notificationType) {
                 case NEW_COMMENT_LIKE:
                     notificationService.save(((UpdatedNumberOfCommentLikesDTO) notificationCreator)
