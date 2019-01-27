@@ -7,11 +7,6 @@ import aphelion.annotation.SortBy;
 import aphelion.annotation.SortingDirection;
 import aphelion.annotation.ValidateCollectionSize;
 import aphelion.annotation.ValidatePaginationParameters;
-import aphelion.exception.BlogBlockingNotFoundException;
-import aphelion.exception.BlogPostNotFoundException;
-import aphelion.exception.CommentLikeNotFoundException;
-import aphelion.exception.CommentNotFoundException;
-import aphelion.exception.GlobalBlockingNotFoundException;
 import aphelion.exception.NotificationNotFoundException;
 import aphelion.mapper.NotificationToNotificationDTOMapper;
 import aphelion.model.domain.BlogBlocking;
@@ -25,11 +20,6 @@ import aphelion.model.domain.Subscription;
 import aphelion.model.domain.User;
 import aphelion.model.dto.NotificationDTO;
 import aphelion.model.dto.UpdateNotificationDTO;
-import aphelion.repository.BlogBlockingRepository;
-import aphelion.repository.BlogPostRepository;
-import aphelion.repository.CommentLikeRepository;
-import aphelion.repository.CommentRepository;
-import aphelion.repository.GlobalBlockingRepository;
 import aphelion.repository.NotificationRepository;
 import aphelion.security.AuthenticationFacade;
 import aphelion.service.NotificationService;
@@ -52,11 +42,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
-    private final BlogPostRepository blogPostRepository;
-    private final CommentRepository commentRepository;
-    private final CommentLikeRepository commentLikeRepository;
-    private final BlogBlockingRepository blogBlockingRepository;
-    private final GlobalBlockingRepository globalBlockingRepository;
     private final NotificationToNotificationDTOMapper notificationToNotificationDTOMapper;
     private final AuthenticationFacade authenticationFacade;
     private final NotificationsSender notificationsSender;
@@ -65,7 +50,8 @@ public class NotificationServiceImpl implements NotificationService {
     public NotificationDTO update(Long id, UpdateNotificationDTO updateNotificationDTO) {
         Notification notification = findNotificationById(id);
         notification.setRead(updateNotificationDTO.isRead());
-        return notificationToNotificationDTOMapper.map(notificationRepository.save(notification));
+        notification = saveAndSend(notification);
+        return notificationToNotificationDTOMapper.map(notification);
     }
 
     @Override
@@ -77,7 +63,7 @@ public class NotificationServiceImpl implements NotificationService {
     public NotificationDTO markAsRead(Long id) {
         Notification notification = findNotificationById(id);
         notification.setRead(true);
-        notification = notificationRepository.save(notification);
+        notification = saveAndSend(notification);
         return notificationToNotificationDTOMapper.map(notification);
     }
 
@@ -103,7 +89,7 @@ public class NotificationServiceImpl implements NotificationService {
     public NotificationDTO markAsUnread(Long id) {
         Notification notification = findNotificationById(id);
         notification.setRead(false);
-        notification = notificationRepository.save(notification);
+        notification = saveAndSend(notification);
         return notificationToNotificationDTOMapper.map(notification);
     }
 
@@ -185,6 +171,10 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void createNewBlogPostNotification(BlogPost blogPost) {
+        if (blogPost.getLastUpdateDate() != null) {
+            //means that blog post is not new - no deed to create new notification
+            return;
+        }
         List<User> subscribers = blogPost.getBlog()
                 .getSubscriptions()
                 .stream()
@@ -199,13 +189,18 @@ public class NotificationServiceImpl implements NotificationService {
             notification.setRead(false);
             notification.setNotificationGeneratorId(blogPost.getId());
             notification.setRecipient(subscriber);
-            save(notification, blogPost);
+            saveAndSend(notification, blogPost);
         });
     }
 
     @Override
     public void createNewCommentReplyNotification(Comment comment) {
         if (comment.getReferredComment() == null) {
+            return;
+        }
+
+        if (comment.getLastUpdateDate() != null) {
+            //means that comment is not new - no need to create new notification
             return;
         }
 
@@ -216,7 +211,7 @@ public class NotificationServiceImpl implements NotificationService {
         notification.setNotificationGeneratorId(comment.getId());
         notification.setRecipient(comment.getReferredComment().getAuthor());
         notification.setNotificationType(NotificationType.NEW_COMMENT_REPLY);
-        save(notification, comment);
+        saveAndSend(notification, comment);
     }
 
     @Override
@@ -230,7 +225,7 @@ public class NotificationServiceImpl implements NotificationService {
         notification.setNotificationGeneratorId(commentLike.getId());
         notification.setRecipient(commentLike.getComment().getAuthor());
 
-        save(notification, commentLike);
+        saveAndSend(notification, commentLike);
     }
 
     @Override
@@ -243,7 +238,7 @@ public class NotificationServiceImpl implements NotificationService {
         notification.setNotificationGeneratorId(blogBlocking.getId());
         notification.setRecipient(blogBlocking.getBlockedUser());
 
-        save(notification, blogBlocking);
+        saveAndSend(notification, blogBlocking);
     }
 
     @Override
@@ -256,40 +251,23 @@ public class NotificationServiceImpl implements NotificationService {
         notification.setNotificationGeneratorId(globalBlocking.getId());
         notification.setRecipient(globalBlocking.getBlockedUser());
 
-        save(notification, globalBlocking);
+        saveAndSend(notification, globalBlocking);
     }
 
-    private Notification save(Notification notification, Object payload) {
+    private Notification saveAndSend(Notification notification) {
+        notification = notificationRepository.save(notification);
+        String recipientId = notification.getRecipient().getGeneratedUsername();
+        NotificationDTO notificationDTO = notificationToNotificationDTOMapper.map(notification);
+        notificationsSender.sendNotifications(recipientId, notificationDTO);
+        return notification;
+    }
+
+    private Notification saveAndSend(Notification notification, Object payload) {
         notification =  notificationRepository.save(notification);
         String recipientId = notification.getRecipient().getGeneratedUsername();
         NotificationDTO notificationDTO = notificationToNotificationDTOMapper.map(notification, payload);
         System.out.println("Notification to be sent: " + notificationDTO);
         notificationsSender.sendNotifications(recipientId, notificationDTO);
         return notification;
-    }
-
-    private BlogPost findBlogPostById(Long id) {
-        return blogPostRepository.findById(id).filter(blogPost -> !blogPost.isDeleted())
-                .orElseThrow(BlogPostNotFoundException::new);
-    }
-
-    private Comment findCommentById(Long id) {
-        return commentRepository.findById(id).filter(comment -> !comment.isDeleted())
-                .orElseThrow(CommentNotFoundException::new);
-    }
-
-    private CommentLike findCommentLikeById(Long id) {
-        return commentLikeRepository.findById(id)
-                .orElseThrow(CommentLikeNotFoundException::new);
-    }
-
-    private GlobalBlocking findGlobalBlockingById(Long id) {
-        return globalBlockingRepository.findById(id)
-                .orElseThrow(GlobalBlockingNotFoundException::new);
-    }
-
-    private BlogBlocking findBlogBlockingById(Long id) {
-        return blogBlockingRepository.findById(id)
-                .orElseThrow(BlogBlockingNotFoundException::new);
     }
 }

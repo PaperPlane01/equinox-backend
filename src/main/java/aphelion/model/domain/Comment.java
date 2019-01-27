@@ -17,6 +17,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.PreRemove;
+import javax.persistence.PreUpdate;
 import javax.persistence.SequenceGenerator;
 import javax.validation.constraints.Size;
 import java.time.Instant;
@@ -69,11 +70,17 @@ public class Comment {
     @JoinColumn(name = "deletedByUserId")
     private User deletedBy;
     private Date deletedAt;
+    private Date lastUpdateDate;
 
     @PreRemove
     public void deleteComment() {
         this.deleted = true;
         this.deletedAt = Date.from(Instant.now());
+    }
+
+    @PreUpdate
+    public void setUpLastUpdateDate() {
+        this.lastUpdateDate = Date.from(Instant.now());
     }
 
     public void removeLike(CommentLike commentLike) {

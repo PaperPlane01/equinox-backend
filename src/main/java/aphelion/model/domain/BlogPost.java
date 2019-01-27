@@ -27,6 +27,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.PreRemove;
+import javax.persistence.PreUpdate;
 import javax.persistence.SequenceGenerator;
 import java.time.Instant;
 import java.util.Collection;
@@ -98,11 +99,17 @@ public class BlogPost {
     private String plainText;
     private boolean pinned;
     private Date pinDate;
+    private Date lastUpdateDate;
 
     @PreRemove
     public void deleteBlogPost() {
         this.deleted = true;
         this.deletedAt = Date.from(Instant.now());
+    }
+
+    @PreUpdate
+    public void setUpLastUpdateDate() {
+        this.lastUpdateDate = Date.from(Instant.now());
     }
 
     public void removeBlogPostLike(BlogPostLike blogPostLike) {
