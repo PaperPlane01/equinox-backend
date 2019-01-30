@@ -39,6 +39,7 @@ public class IncreaseBlogPostViewsCountAspect {
     public void increaseNumberOfViews(IncreaseNumberOfViews increaseNumberOfViews,
                                       Object result) {
         asyncExecutor.execute(() -> {
+            boolean increaseForPinnedBlogPosts = increaseNumberOfViews.increaseForPinnedBlogPosts();
             switch (increaseNumberOfViews.value()) {
                 case SINGLE_BLOG_POST:
                     BlogPostDTO blogPost = (BlogPostDTO) result;
@@ -46,7 +47,7 @@ public class IncreaseBlogPostViewsCountAspect {
                     break;
                 case MULTIPLE_BLOG_POSTS:
                     List<BlogPostDTO> blogPosts = (List<BlogPostDTO>) result;
-                    increaseNumberOfViewsForMultipleBlogPosts(blogPosts);
+                    increaseNumberOfViewsForMultipleBlogPosts(blogPosts, increaseForPinnedBlogPosts);
                     break;
                 default:
                     break;
@@ -55,9 +56,17 @@ public class IncreaseBlogPostViewsCountAspect {
 
     }
 
-    private void increaseNumberOfViewsForMultipleBlogPosts(Collection<BlogPostDTO> blogPostDTOs) {
-        if (!blogPostDTOs.isEmpty()) {
-            blogPostDTOs.forEach(this::increaseNumberOfViewsForSingleBlogPost);
+    private void increaseNumberOfViewsForMultipleBlogPosts(
+            Collection<BlogPostDTO> blogPosts,
+            boolean increaseForPinnedBlogPosts) {
+        if (!blogPosts.isEmpty()) {
+            blogPosts.forEach(blogPost -> {
+                if (!blogPost.isPinned()) {
+                    increaseNumberOfViewsForSingleBlogPost(blogPost);
+                } else if (increaseForPinnedBlogPosts) {
+                    increaseNumberOfViewsForSingleBlogPost(blogPost);
+                }
+            });
         }
     }
 

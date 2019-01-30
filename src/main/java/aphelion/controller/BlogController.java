@@ -112,7 +112,7 @@ public class BlogController {
                 pageSize.orElse(50), sortingDirection.orElse("id"), sortBy.orElse("asc"));
     }
 
-    @IncreaseNumberOfViews(For.MULTIPLE_BLOG_POSTS)
+    @IncreaseNumberOfViews(value = For.MULTIPLE_BLOG_POSTS, increaseForPinnedBlogPosts = false)
     @GetMapping("/{blogId}/blog-posts")
     public List<BlogPostDTO> findBlogPostsByBlog(@PathVariable("blogId") Long blogId,
                                                  @RequestParam("page") Optional<Integer> page,

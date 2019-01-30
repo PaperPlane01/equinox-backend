@@ -9,6 +9,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface IncreaseNumberOfViews {
     For value();
+    boolean increaseForPinnedBlogPosts() default true;
 
     enum For {
         SINGLE_BLOG_POST,

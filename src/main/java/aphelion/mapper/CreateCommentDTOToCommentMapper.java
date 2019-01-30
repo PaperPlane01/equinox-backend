@@ -1,9 +1,5 @@
 package aphelion.mapper;
 
-import org.mapstruct.BeanMapping;
-import org.mapstruct.BeforeMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
 import aphelion.exception.BlogPostNotFoundException;
 import aphelion.exception.CommentNotFoundException;
 import aphelion.model.domain.Comment;
@@ -11,9 +7,14 @@ import aphelion.model.dto.CreateCommentDTO;
 import aphelion.repository.BlogPostRepository;
 import aphelion.repository.CommentRepository;
 import aphelion.security.AuthenticationFacade;
+import aphelion.service.TimeStampProvider;
+import org.mapstruct.BeanMapping;
+import org.mapstruct.BeforeMapping;
+import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.Date;
 
@@ -28,11 +29,14 @@ public abstract class CreateCommentDTOToCommentMapper {
     @Autowired
     private AuthenticationFacade authenticationFacade;
 
+    @Autowired
+    private TimeStampProvider timeStampProvider;
+
     @BeforeMapping
     protected void setFields(CreateCommentDTO createCommentDTO,
                              @MappingTarget Comment comment) {
         comment.setLikes(Collections.emptyList());
-        comment.setCreatedAt(Date.from(Instant.now()));
+        comment.setCreatedAt(Date.from(timeStampProvider.now().toInstant(ZoneOffset.UTC)));
         comment.setDeleted(false);
         comment.setBlogPost(blogPostRepository
                 .findById(createCommentDTO.getBlogPostId())

@@ -1,11 +1,11 @@
 package aphelion.service.impl;
 
 import aphelion.service.TimeStampProvider;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
-@Service
+@Component
 public class TimeStampProviderImpl implements TimeStampProvider {
     @Override
     public LocalDateTime now() {

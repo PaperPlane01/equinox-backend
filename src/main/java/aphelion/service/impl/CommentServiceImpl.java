@@ -19,6 +19,7 @@ import aphelion.repository.BlogPostRepository;
 import aphelion.repository.CommentRepository;
 import aphelion.security.AuthenticationFacade;
 import aphelion.service.CommentService;
+import aphelion.service.TimeStampProvider;
 import aphelion.util.SortingDirectionUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -26,7 +27,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,6 +41,7 @@ public class CommentServiceImpl implements CommentService {
     private final CommentToCommentDTOMapper commentToCommentDTOMapper;
     private final CreateCommentDTOToCommentMapper createCommentDTOToCommentMapper;
     private final AuthenticationFacade authenticationFacade;
+    private final TimeStampProvider timeStampProvider;
 
     @Override
     public CommentDTO save(CreateCommentDTO createCommentDTO) throws BlogPostNotFoundException, CommentNotFoundException {
@@ -59,7 +61,7 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = findCommentById(id);
         comment.setDeleted(true);
         comment.setDeletedBy(authenticationFacade.getCurrentUser());
-        comment.setDeletedAt(Date.from(Instant.now()));
+        comment.setDeletedAt(Date.from(timeStampProvider.now().toInstant(ZoneOffset.UTC)));
         commentRepository.save(comment);
     }
 
@@ -69,11 +71,15 @@ public class CommentServiceImpl implements CommentService {
     }
 
     private Comment findCommentById(Long id) {
-        return commentRepository.findById(id).orElseThrow(CommentNotFoundException::new);
+        return commentRepository.findById(id)
+                .orElseThrow(() -> new CommentNotFoundException("Could not find comment with " +
+                        "given id " + id));
     }
 
     private BlogPost findBlogPostById(Long id) {
-        return blogPostRepository.findById(id).orElseThrow(BlogPostNotFoundException::new);
+        return blogPostRepository.findById(id)
+                .orElseThrow(() -> new BlogPostNotFoundException("Could not find blog post with " +
+                        "given id " + id));
     }
 
     private List<Comment> findAllByRootComment(Comment rootComment) {

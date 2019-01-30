@@ -1,6 +1,7 @@
 package aphelion.controller;
 
 import aphelion.annotation.IncreaseNumberOfViews;
+import aphelion.annotation.IncreaseNumberOfViews.For;
 import aphelion.model.CommentsDisplayMode;
 import aphelion.model.dto.BlogPostDTO;
 import aphelion.model.dto.BlogPostLikeDTO;
@@ -38,7 +39,7 @@ public class BlogPostController {
     private final BlogPostLikeService blogPostLikeService;
     private final CommentService commentService;
 
-    @IncreaseNumberOfViews(IncreaseNumberOfViews.For.SINGLE_BLOG_POST)
+    @IncreaseNumberOfViews(For.SINGLE_BLOG_POST)
     @GetMapping("/{id}")
     public BlogPostDTO findById(@PathVariable("id") Long id) {
        return blogPostService.findById(id);
@@ -62,18 +63,6 @@ public class BlogPostController {
     public ResponseEntity<?> delete(@PathVariable("id") Long id) {
         blogPostService.delete(id);
         return ResponseEntity.noContent().build();
-    }
-
-    @IncreaseNumberOfViews(IncreaseNumberOfViews.For.MULTIPLE_BLOG_POSTS)
-    @GetMapping(params = {"blogId"})
-    public List<BlogPostDTO> findByBlog(@RequestParam("blogId") Long blogId,
-                                        @RequestParam(value = "page") Optional<Integer> page,
-                                        @RequestParam(value = "pageSize") Optional<Integer> pageSize,
-                                        @RequestParam(value = "sortingDirection")
-                                                    Optional<String> sortingDirection,
-                                        @RequestParam(value = "sortBy") Optional<String> sortBy) {
-        return blogPostService.findByBlog(blogId, page.orElse(0), pageSize.orElse(10),
-                sortingDirection.orElse("asc"), sortBy.orElse("id"));
     }
 
     @GetMapping("/{blogPostId}/likes")
@@ -120,14 +109,14 @@ public class BlogPostController {
     }
 
     @PreAuthorize("hasRole('USER')")
-    @IncreaseNumberOfViews(IncreaseNumberOfViews.For.MULTIPLE_BLOG_POSTS)
+    @IncreaseNumberOfViews(For.MULTIPLE_BLOG_POSTS)
     @GetMapping("/feed")
     public List<BlogPostDTO> getFeed(@RequestParam("page") Optional<Integer> page,
                                      @RequestParam("pageSize") Optional<Integer> pageSize) {
         return blogPostService.getFeed(page.orElse(0), pageSize.orElse(20));
     }
 
-    @IncreaseNumberOfViews(IncreaseNumberOfViews.For.MULTIPLE_BLOG_POSTS)
+    @IncreaseNumberOfViews(For.MULTIPLE_BLOG_POSTS)
     @GetMapping("/most-popular/for-week")
     public List<BlogPostDTO> getMostPopularForWeek(
             @RequestParam("page") Optional<Integer> page,
@@ -137,7 +126,7 @@ public class BlogPostController {
                 pageSize.orElse(10));
     }
 
-    @IncreaseNumberOfViews(IncreaseNumberOfViews.For.MULTIPLE_BLOG_POSTS)
+    @IncreaseNumberOfViews(For.MULTIPLE_BLOG_POSTS)
     @GetMapping("/most-popular/for-month")
     public List<BlogPostDTO> getMostPopularForMonth(
             @RequestParam("page") Optional<Integer> page,
@@ -147,7 +136,7 @@ public class BlogPostController {
                 pageSize.orElse(10));
     }
 
-    @IncreaseNumberOfViews(IncreaseNumberOfViews.For.MULTIPLE_BLOG_POSTS)
+    @IncreaseNumberOfViews(For.MULTIPLE_BLOG_POSTS)
     @GetMapping("/most-popular/for-year")
     public List<BlogPostDTO> getMostPopularForYear(
             @RequestParam("page") Optional<Integer> page,
@@ -157,7 +146,7 @@ public class BlogPostController {
                 pageSize.orElse(10));
     }
 
-    @IncreaseNumberOfViews(IncreaseNumberOfViews.For.MULTIPLE_BLOG_POSTS)
+    @IncreaseNumberOfViews(For.MULTIPLE_BLOG_POSTS)
     @GetMapping(value = "/most-popular/for-period", params = {"from", "to"})
     public List<BlogPostDTO> getMostPopularForPeriod(
             @RequestParam("from") @DateTimeFormat(pattern = "dd-MM-yyyy") Date from,
