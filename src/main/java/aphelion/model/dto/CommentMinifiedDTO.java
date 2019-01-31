@@ -15,4 +15,5 @@ public class CommentMinifiedDTO {
     private Long blogPostId;
     private Date createdAt;
     private String content;
+    private Long rootCommentId;
 }

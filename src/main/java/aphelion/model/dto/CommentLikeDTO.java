@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 public class CommentLikeDTO {
     private Long id;
     private UserDTO user;
-    private long commentId;
+    private Long commentId;
 }

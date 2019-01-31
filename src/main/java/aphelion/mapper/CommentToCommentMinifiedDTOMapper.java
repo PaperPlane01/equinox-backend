@@ -10,5 +10,6 @@ import org.mapstruct.Mapping;
 public interface CommentToCommentMinifiedDTOMapper {
     @BeanMapping(resultType = CommentMinifiedDTO.class)
     @Mapping(source = "blogPost.id", target = "blogPostId")
+    @Mapping(source = "rootComment.id", target = "rootCommentId")
     CommentMinifiedDTO map(Comment comment);
 }
