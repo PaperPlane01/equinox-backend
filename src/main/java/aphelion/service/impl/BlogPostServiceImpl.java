@@ -272,6 +272,34 @@ public class BlogPostServiceImpl implements BlogPostService {
         return blogPostToBlogPostDTOMapper.map(blogPostRepository.save(blogPost));
     }
 
+    @Override
+    @ValidatePaginationParameters
+    public List<BlogPostDTO> search(
+            String query,
+            @Page int page,
+            @PageSize(max = 50) int pageSize,
+            @SortingDirection String sortingDirection,
+            @SortBy(allowed = {"id", "createdAt", "popularity"}) String sortBy) {
+        List<BlogPost> blogPosts;
+        PageRequest pageRequest;
+        Sort.Direction direction = SortingDirectionUtils.convertFromString(sortingDirection);
+        if ("popularity".equals(sortBy)) {
+            pageRequest = PageRequest.of(page, pageSize);
+            if (direction.equals(Sort.Direction.ASC)) {
+                blogPosts = blogPostRepository.searchSortByPopularityAsc(query, pageRequest);
+            } else {
+                blogPosts = blogPostRepository.searchSortByPopularityDesc(query, pageRequest);
+            }
+        } else {
+            pageRequest = PageRequest.of(page, pageSize, direction, sortBy);
+            blogPosts = blogPostRepository.search(query, pageRequest);
+        }
+
+        return blogPosts.stream()
+                .map(blogPostToBlogPostDTOMapper::map)
+                .collect(Collectors.toList());
+    }
+
     private List<BlogPost> findMostPopularInPeriod(LocalDateTime from, LocalDateTime to, int page, int pageSize) {
         Date fromDate = Date.from(from.toInstant(ZoneOffset.UTC));
         Date toDate = Date.from(to.toInstant(ZoneOffset.UTC));

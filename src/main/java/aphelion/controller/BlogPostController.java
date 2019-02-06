@@ -9,10 +9,10 @@ import aphelion.model.dto.CommentDTO;
 import aphelion.model.dto.CreateBlogPostDTO;
 import aphelion.model.dto.UpdateBlogPostDTO;
 import aphelion.model.dto.UserDTO;
-import aphelion.service.BlogPostService;
-import lombok.RequiredArgsConstructor;
 import aphelion.service.BlogPostLikeService;
+import aphelion.service.BlogPostService;
 import aphelion.service.CommentService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -168,5 +168,21 @@ public class BlogPostController {
     @DeleteMapping("/{id}/unpin")
     public BlogPostDTO unpin(@PathVariable("id") Long id) {
         return blogPostService.unpin(id);
+    }
+
+    @IncreaseNumberOfViews(For.MULTIPLE_BLOG_POSTS)
+    @GetMapping(value = "/search", params = {"query"})
+    public List<BlogPostDTO> search(@RequestParam("query") String query,
+                                    @RequestParam("page") Optional<Integer> page,
+                                    @RequestParam("pageSize") Optional<Integer> pageSize,
+                                    @RequestParam("sortingDirection") Optional<String> sortingDirection,
+                                    @RequestParam("sortBy") Optional<String> sortBy) {
+        return blogPostService.search(
+                query,
+                page.orElse(0),
+                pageSize.orElse(10),
+                sortingDirection.orElse("desc"),
+                sortBy.orElse("popularity")
+        );
     }
 }

@@ -18,6 +18,7 @@ import aphelion.repository.BlogBlockingRepository;
 import aphelion.repository.BlogRepository;
 import aphelion.repository.UserRepository;
 import aphelion.service.BlogBlockingService;
+import aphelion.service.TimeStampProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,6 +40,7 @@ public class BlogBlockingServiceImpl implements BlogBlockingService {
     private final BlogRepository blogRepository;
     private final BlogBlockingToBlogBlockingDTOMapper blogBlockingToBlogBlockingDTOMapper;
     private final CreateBlogBlockingDTOToBlogBlockingMapper createBlogBlockingDTOToBlogBlockingMapper;
+    private final TimeStampProvider timeStampProvider;
     
     @Override
     public BlogBlockingDTO findById(Long id) throws BlogBlockingNotFoundException {
@@ -71,7 +74,8 @@ public class BlogBlockingServiceImpl implements BlogBlockingService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User with given id "
                         + userId + " could not be found."));
-        return blogBlockingRepository.findAllByBlockedUserAndEndDateGreaterThan(user, Date.from(Instant.now()))
+        Date now = Date.from(timeStampProvider.now().toInstant(ZoneOffset.UTC));
+        return blogBlockingRepository.findAllByBlockedUserAndEndDateGreaterThan(user, now)
                 .stream()
                 .map(blogBlockingToBlogBlockingDTOMapper::map)
                 .collect(Collectors.toList());
@@ -87,9 +91,11 @@ public class BlogBlockingServiceImpl implements BlogBlockingService {
     public boolean isUserBlockedInBlog(Long userId, Long blogId) {
         User user = findUserById(userId);
         Blog blog = findBlogById(blogId);
+        Date now = Date.from(timeStampProvider.now().toInstant(ZoneOffset.UTC));
 
-        return blogBlockingRepository.findAllByBlockedUserAndBlogAndEndDateGreaterThan(user, blog,
-                Date.from(Instant.now())).isEmpty();
+        return !blogBlockingRepository
+                .findAllByBlockedUserAndBlogAndEndDateGreaterThan(user, blog, now)
+                .isEmpty();
     }
 
     @ValidatePaginationParameters
@@ -113,8 +119,9 @@ public class BlogBlockingServiceImpl implements BlogBlockingService {
                                                     @PageSize(max = 100) int pageSize) throws BlogNotFoundException {
         Blog blog = findBlogById(blogId);
         PageRequest pageRequest = PageRequest.of(page, pageSize, Sort.Direction.DESC, "id");
+        Date now = Date.from(timeStampProvider.now().toInstant(ZoneOffset.UTC));
 
-        return blogBlockingRepository.findByBlogAndEndDateGreaterThan(blog, Date.from(Instant.now()), pageRequest)
+        return blogBlockingRepository.findByBlogAndEndDateGreaterThan(blog, now, pageRequest)
                 .stream()
                 .map(blogBlockingToBlogBlockingDTOMapper::map)
                 .collect(Collectors.toList());
@@ -145,10 +152,15 @@ public class BlogBlockingServiceImpl implements BlogBlockingService {
             @PageSize(max = 100) int pageSize) throws BlogNotFoundException {
         Blog blog = findBlogById(blogId);
         PageRequest pageRequest = PageRequest.of(page, pageSize, Sort.Direction.DESC, "id");
+        Date now = Date.from(timeStampProvider.now().toInstant(ZoneOffset.UTC));
 
-        return blogBlockingRepository.findByBlogAndBlockedUserDisplayedNameContainsAndEndDateGreaterThan(
-                blog, username, Date.from(Instant.now()), pageRequest
-        ).stream().map(blogBlockingToBlogBlockingDTOMapper::map).collect(Collectors.toList());
+        return blogBlockingRepository
+                .findByBlogAndBlockedUserDisplayedNameContainsAndEndDateGreaterThan(
+                        blog, username, now, pageRequest
+                )
+                .stream()
+                .map(blogBlockingToBlogBlockingDTOMapper::map)
+                .collect(Collectors.toList());
     }
 
     private User findUserById(Long id) {
