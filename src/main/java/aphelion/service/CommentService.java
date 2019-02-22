@@ -17,4 +17,5 @@ public interface CommentService {
     List<CommentDTO> findByBlogPost(Long blogPostId, int page, int pageSize, String sortingDirection, String sortBy, CommentsDisplayMode commentsDisplayMode);
     List<CommentDTO> findByRootComment(Long commentId, int page, int pageSize, String sortingDirection, String sortBy);
     CommentDTO restore(Long commentId) throws CommentNotFoundException;
+    void deleteMultiple(List<Long> ids);
 }

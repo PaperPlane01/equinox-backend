@@ -40,6 +40,13 @@ public class CommentReportController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/multiple")
+    public List<CommentReportDTO> updateMultiple(
+            @RequestBody @Valid List<UpdateCommentReportDTO> updateCommentReportDTOs) {
+        return commentReportService.updateMultiple(updateCommentReportDTOs);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
     public CommentReportDTO findById(@PathVariable("id") Long id) {
         return commentReportService.findById(id);

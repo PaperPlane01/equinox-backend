@@ -113,4 +113,11 @@ public class CommentController {
             return commentService.restore(id);
         }
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/multiple")
+    public ResponseEntity<?> deleteMultiple(@RequestBody List<Long> ids) {
+        commentService.deleteMultiple(ids);
+        return ResponseEntity.noContent().build();
+    }
 }

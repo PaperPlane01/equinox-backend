@@ -56,6 +56,6 @@ public interface BlogPostRepository extends JpaRepository<BlogPost, Long> {
             "where (lower(blogPost.title) like concat('%', lower(:#{#query}), '%') " +
             "or lower(blogPost.plainText) like concat('%', lower(:#{#query}), '%'))" +
             "and blogPost.deleted = false " +
-            "order by blogPost.likes.size asc, blogPost.blogPostViews.size asc")
+            "order by blogPost.likes.size desc, blogPost.blogPostViews.size desc")
     List<BlogPost> searchSortByPopularityDesc(@Param("query") String query, Pageable pageable);
 }

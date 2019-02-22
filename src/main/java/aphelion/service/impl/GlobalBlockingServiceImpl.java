@@ -1,9 +1,11 @@
 package aphelion.service.impl;
 
+import aphelion.annotation.CollectionArgument;
 import aphelion.annotation.Page;
 import aphelion.annotation.PageSize;
 import aphelion.annotation.SortBy;
 import aphelion.annotation.SortingDirection;
+import aphelion.annotation.ValidateCollectionSize;
 import aphelion.annotation.ValidatePaginationParameters;
 import aphelion.exception.GlobalBlockingNotFoundException;
 import aphelion.exception.UserNotFoundException;
@@ -66,6 +68,19 @@ public class GlobalBlockingServiceImpl implements GlobalBlockingService {
     public GlobalBlockingDTO findById(Long id) {
         GlobalBlocking globalBlocking = findGlobalBlockingById(id);
         return globalBlockingToGlobalBlockingDTOMapper.map(globalBlocking);
+    }
+
+    @Override
+    @ValidateCollectionSize
+    public List<GlobalBlockingDTO> saveMultiple(
+            @CollectionArgument(maxSize = 30) List<CreateGlobalBlockingDTO> createGlobalBlockingDTOList) {
+        List<GlobalBlocking> globalBlockings = createGlobalBlockingDTOList.stream()
+                .map(createGlobalBlockingDTOToGlobalBlockingMapper::map)
+                .collect(Collectors.toList());
+        globalBlockings = globalBlockingRepository.saveAll(globalBlockings);
+        return globalBlockings.stream()
+                .map(globalBlockingToGlobalBlockingDTOMapper::map)
+                .collect(Collectors.toList());
     }
 
     @Override

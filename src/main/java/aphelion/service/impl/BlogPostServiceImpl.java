@@ -77,9 +77,11 @@ public class BlogPostServiceImpl implements BlogPostService {
     @Override
     public BlogPostDTO update(Long id, UpdateBlogPostDTO updateBlogPostDTO) {
         BlogPost blogPost = findBlogPostById(id);
+        Date now = Date.from(timeStampProvider.now().toInstant(ZoneOffset.UTC));
         String plainText = blogPostContentValidationService
                 .validateAndGetPlainText(updateBlogPostDTO.getContent());
         blogPost.setPlainText(plainText);
+        blogPost.setLastUpdateDate(now);
         blogPost.setTags(updateBlogPostDTO.getTags()
                 .stream()
                 .map(Tag::new)
@@ -130,8 +132,10 @@ public class BlogPostServiceImpl implements BlogPostService {
     @Override
     public void delete(Long id) {
         BlogPost blogPost = findBlogPostById(id);
+        Date now = Date.from(timeStampProvider.now().toInstant(ZoneOffset.UTC));
         blogPost.setDeleted(true);
-        blogPost.setDeletedAt(Date.from(Instant.now()));
+        blogPost.setDeletedAt(now);
+        blogPost.setLastUpdateDate(now);
         blogPost.setDeletedBy(authenticationFacade.getCurrentUser());
         blogPostRepository.save(blogPost);
     }
@@ -139,9 +143,11 @@ public class BlogPostServiceImpl implements BlogPostService {
     @Override
     public BlogPostDTO restore(Long id) {
         BlogPost blogPost = findDeletedBlogPostById(id);
+        Date now = Date.from(timeStampProvider.now().toInstant(ZoneOffset.UTC));
         blogPost.setDeleted(false);
         blogPost.setDeletedAt(null);
         blogPost.setDeletedBy(null);
+        blogPost.setLastUpdateDate(now);
         blogPost = blogPostRepository.save(blogPost);
         return blogPostToBlogPostDTOMapper.map(blogPost);
     }
@@ -253,14 +259,16 @@ public class BlogPostServiceImpl implements BlogPostService {
     @Override
     public BlogPostDTO pin(Long blogPostId) {
         BlogPost blogPost = findBlogPostById(blogPostId);
-        List<BlogPost> blogPosts = blogPostRepository
+        List<BlogPost> pinnedBlogPosts = blogPostRepository
                 .findByBlogAndPinnedOrderByPinDateDesc(blogPost.getBlog(), true);
-        if (blogPosts.size() >= 5) {
+        if (pinnedBlogPosts.size() >= 5) {
             throw new PinnedBlogPostsLimitHasBeenReachedException("Pinned blog posts limit " +
                     "has been reached. You can pin up to 5 blog posts.");
         }
         blogPost.setPinned(true);
-        blogPost.setPinDate(Date.from(timeStampProvider.now().toInstant(ZoneOffset.UTC)));
+        Date now = Date.from(timeStampProvider.now().toInstant(ZoneOffset.UTC));
+        blogPost.setPinDate(now);
+        blogPost.setLastUpdateDate(now);
         return blogPostToBlogPostDTOMapper.map(blogPostRepository.save(blogPost));
     }
 
@@ -269,6 +277,7 @@ public class BlogPostServiceImpl implements BlogPostService {
         BlogPost blogPost = findBlogPostById(blogPostId);
         blogPost.setPinned(false);
         blogPost.setPinDate(null);
+        blogPost.setLastUpdateDate(Date.from(timeStampProvider.now().toInstant(ZoneOffset.UTC)));
         return blogPostToBlogPostDTOMapper.map(blogPostRepository.save(blogPost));
     }
 

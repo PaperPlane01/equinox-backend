@@ -1,9 +1,11 @@
 package aphelion.service.impl;
 
+import aphelion.annotation.CollectionArgument;
 import aphelion.annotation.Page;
 import aphelion.annotation.PageSize;
 import aphelion.annotation.SortBy;
 import aphelion.annotation.SortingDirection;
+import aphelion.annotation.ValidateCollectionSize;
 import aphelion.annotation.ValidatePaginationParameters;
 import aphelion.exception.BlogPostNotFoundException;
 import aphelion.exception.CommentNotFoundException;
@@ -171,6 +173,18 @@ public class CommentServiceImpl implements CommentService {
         comment.setDeleted(false);
         comment = commentRepository.save(comment);
         return commentToCommentDTOMapper.map(comment);
+    }
+
+    @Override
+    @ValidateCollectionSize
+    public void deleteMultiple(@CollectionArgument(maxSize = 30) List<Long> ids) {
+        List<Comment> comments = commentRepository.findAllById(ids);
+        comments.forEach(comment -> {
+            comment.setDeleted(true);
+            comment.setDeletedAt(Date.from(timeStampProvider.now().toInstant(ZoneOffset.UTC)));
+            comment.setDeletedBy(authenticationFacade.getCurrentUser());
+        });
+        commentRepository.saveAll(comments);
     }
 
     private List<Comment> findByRootComment(Comment rootComment, int page, int pageSize, String sortingDirection,

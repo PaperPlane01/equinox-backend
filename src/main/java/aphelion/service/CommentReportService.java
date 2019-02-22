@@ -10,6 +10,7 @@ import java.util.List;
 public interface CommentReportService {
     CommentReportDTO save(CreateCommentReportDTO createCommentReportDTO);
     CommentReportDTO update(Long id, UpdateCommentReportDTO updateCommentReportDTO);
+    List<CommentReportDTO> updateMultiple(List<UpdateCommentReportDTO> updateCommentReportDTOs);
     void delete(Long id);
     CommentReportDTO findById(Long id);
     List<CommentReportDTO> findAll(int page, int pageSize, String sortingDirection, String sortBy);

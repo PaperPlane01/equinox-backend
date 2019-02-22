@@ -3,8 +3,8 @@ package aphelion.controller;
 import aphelion.model.dto.CreateGlobalBlockingDTO;
 import aphelion.model.dto.GlobalBlockingDTO;
 import aphelion.model.dto.UpdateGlobalBlockingDTO;
-import lombok.RequiredArgsConstructor;
 import aphelion.service.GlobalBlockingService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -119,5 +119,12 @@ public class GlobalBlockingController {
         return globalBlockingService.findAllByBlockedUserUsernameContains(username,
                 page.orElse(0), pageSize.orElse(10), sortingDirection.orElse("desc"),
                 sortBy.orElse("id"));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/multiple")
+    public List<GlobalBlockingDTO> saveMultiple(
+            @RequestBody @Valid List<CreateGlobalBlockingDTO> createGlobalBlockingDTOs) {
+        return globalBlockingService.saveMultiple(createGlobalBlockingDTOs);
     }
 }

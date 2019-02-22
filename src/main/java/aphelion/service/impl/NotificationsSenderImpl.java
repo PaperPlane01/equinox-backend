@@ -17,14 +17,13 @@ public class NotificationsSenderImpl implements NotificationsSender {
 
     @Override
     public void sendNotifications(String recipientId, NotificationDTO... notifications) {
-        System.out.println(recipientId);
         sendNotifications(recipientId, Arrays.stream(notifications).collect(Collectors.toList()));
     }
 
     @Override
     public void sendNotifications(String recipientId, List<NotificationDTO> notifications) {
-        System.out.println(recipientId);
-        simpMessagingTemplate.convertAndSendToUser(recipientId,
+        simpMessagingTemplate.convertAndSendToUser(
+                recipientId,
                 "/notifications",
                 notifications
         );

@@ -1,9 +1,11 @@
 package aphelion.service.impl;
 
+import aphelion.annotation.CollectionArgument;
 import aphelion.annotation.Page;
 import aphelion.annotation.PageSize;
 import aphelion.annotation.SortBy;
 import aphelion.annotation.SortingDirection;
+import aphelion.annotation.ValidateCollectionSize;
 import aphelion.annotation.ValidatePaginationParameters;
 import aphelion.exception.CommentNotFoundException;
 import aphelion.exception.CommentReportNotFoundException;
@@ -28,7 +30,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -55,6 +60,32 @@ public class CommentReportServiceImpl implements CommentReportService {
         commentReport.setStatus(ReportStatus.fromString(updateCommentReportDTO.getStatus()));
         commentReport = commentReportRepository.save(commentReport);
         return commentReportToCommentReportDTOMapper.map(commentReport);
+    }
+
+    @Override
+    @ValidateCollectionSize
+    public List<CommentReportDTO> updateMultiple(
+            @CollectionArgument(maxSize = 30) List<UpdateCommentReportDTO> updateCommentReportDTOs) {
+        List<Long> ids = updateCommentReportDTOs.stream()
+                .map(UpdateCommentReportDTO::getId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        Map<Long, UpdateCommentReportDTO> updateCommentReportDTOMap = new HashMap<>();
+        updateCommentReportDTOs.forEach(updateCommentReportDTO -> {
+            if (updateCommentReportDTO.getId() != null) {
+                updateCommentReportDTOMap.put(updateCommentReportDTO.getId(), updateCommentReportDTO);
+            }
+        });
+        List<CommentReport> commentReports = commentReportRepository.findAllById(ids);
+        commentReports.forEach(report -> {
+            ReportStatus reportStatus = ReportStatus
+                    .fromString(updateCommentReportDTOMap.get(report.getId()).getStatus());
+            report.setStatus(reportStatus);
+        });
+        return commentReportRepository.saveAll(commentReports)
+                .stream()
+                .map(commentReportToCommentReportDTOMapper::map)
+                .collect(Collectors.toList());
     }
 
     @Override

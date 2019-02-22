@@ -12,6 +12,7 @@ public interface GlobalBlockingService {
     GlobalBlockingDTO update(Long id, UpdateGlobalBlockingDTO updateGlobalBlockingDTO);
     void delete(Long id);
     GlobalBlockingDTO findById(Long id);
+    List<GlobalBlockingDTO> saveMultiple(List<CreateGlobalBlockingDTO> createGlobalBlockingDTOList);
     List<GlobalBlockingDTO> findAll(int page, int pageSize, String sortingDirection, String sortBy);
     List<GlobalBlockingDTO> findAllNotEnded(int page, int pageSize, String sortingDirection, String sortBy);
     List<GlobalBlockingDTO> findAllByBlockedUser(Long userId, int page, int pageSize, String sortingDirection, String sortBy);

@@ -10,7 +10,6 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateCommentReportDTO {
-    @NotNull
     private Long id;
     @NotNull
     private String status;

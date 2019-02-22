@@ -15,7 +15,8 @@ public enum CommentsDisplayMode {
             case "ROOTCOMMENT":
                 return ROOT_COMMENT;
             default:
-                throw new InvalidCommentsDisplayModeException("Unknown comments display mode, expected flat, root_comment or rootComment, got " + commentsDisplayMode);
+                throw new InvalidCommentsDisplayModeException("Unknown comments display mode, " +
+                        "expected flat, root_comment or rootComment, got " + commentsDisplayMode);
         }
     }
 }

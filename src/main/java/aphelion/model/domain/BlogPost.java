@@ -27,7 +27,6 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.PreRemove;
-import javax.persistence.PreUpdate;
 import javax.persistence.SequenceGenerator;
 import java.time.Instant;
 import java.util.Collection;
@@ -88,7 +87,8 @@ public class BlogPost {
     @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
     @JoinTable(name = "BlogPostsAndTags",
             joinColumns = @JoinColumn(name = "blogPostId"),
-            inverseJoinColumns = @JoinColumn(name = "tagId"))
+            inverseJoinColumns = @JoinColumn(name = "tagId")
+    )
     private Collection<Tag> tags;
 
     @OneToMany(cascade = CascadeType.MERGE, fetch = FetchType.LAZY, mappedBy = "blogPost")
@@ -105,11 +105,6 @@ public class BlogPost {
     public void deleteBlogPost() {
         this.deleted = true;
         this.deletedAt = Date.from(Instant.now());
-    }
-
-    @PreUpdate
-    public void setUpLastUpdateDate() {
-        this.lastUpdateDate = Date.from(Instant.now());
     }
 
     public void removeBlogPostLike(BlogPostLike blogPostLike) {
