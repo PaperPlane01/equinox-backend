@@ -1,6 +1,5 @@
 package aphelion.model.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,7 +17,6 @@ public class CommentDTO {
     private Long id;
     private Long blogId;
     private Long blogPostId;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private Date createdAt;
     private UserDTO author;
     private String content;
