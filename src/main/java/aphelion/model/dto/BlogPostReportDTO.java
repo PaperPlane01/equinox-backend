@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class BlogPostReportDTO {
     private Long id;
-    private BlogPostMinifiedDTO blogPost;
+    private BlogPostMinifiedWithAuthorDTO blogPost;
     private String description;
     private ReportStatus status;
     private ReportReason reason;

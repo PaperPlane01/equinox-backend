@@ -1,9 +1,11 @@
 package aphelion.service.impl;
 
+import aphelion.annotation.CollectionArgument;
 import aphelion.annotation.Page;
 import aphelion.annotation.PageSize;
 import aphelion.annotation.SortBy;
 import aphelion.annotation.SortingDirection;
+import aphelion.annotation.ValidateCollectionSize;
 import aphelion.annotation.ValidatePaginationParameters;
 import aphelion.exception.BlogNotFoundException;
 import aphelion.exception.BlogPostNotFoundException;
@@ -307,6 +309,12 @@ public class BlogPostServiceImpl implements BlogPostService {
         return blogPosts.stream()
                 .map(blogPostToBlogPostDTOMapper::map)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @ValidateCollectionSize
+    public void deleteMultiple(@CollectionArgument(maxSize = 30) List<Long> ids) {
+        blogPostRepository.deleteAllById(ids);
     }
 
     private List<BlogPost> findMostPopularInPeriod(LocalDateTime from, LocalDateTime to, int page, int pageSize) {

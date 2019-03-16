@@ -185,4 +185,11 @@ public class BlogPostController {
                 sortBy.orElse("popularity")
         );
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/multiple")
+    public ResponseEntity<?> deleteMultiple(@RequestBody List<Long> ids) {
+        blogPostService.deleteMultiple(ids);
+        return ResponseEntity.noContent().build();
+    }
 }

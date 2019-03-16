@@ -28,4 +28,5 @@ public interface BlogPostService {
     BlogPostDTO pin(Long blogPostId);
     BlogPostDTO unpin(Long blogPostId);
     List<BlogPostDTO> search(String query, int page, int pageSize, String sortingDirection, String sortBy);
+    void deleteMultiple(List<Long> ids);
 }
