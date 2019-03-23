@@ -62,6 +62,7 @@ public class CommentReportServiceImpl implements CommentReportService {
         return commentReportToCommentReportDTOMapper.map(commentReport);
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     @ValidateCollectionSize
     public List<CommentReportDTO> updateMultiple(

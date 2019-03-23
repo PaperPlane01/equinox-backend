@@ -1,9 +1,11 @@
 package aphelion.service.impl;
 
+import aphelion.annotation.CollectionArgument;
 import aphelion.annotation.Page;
 import aphelion.annotation.PageSize;
 import aphelion.annotation.SortBy;
 import aphelion.annotation.SortingDirection;
+import aphelion.annotation.ValidateCollectionSize;
 import aphelion.annotation.ValidatePaginationParameters;
 import aphelion.exception.BlogPostNotFoundException;
 import aphelion.exception.BlogPostReportNotFoundException;
@@ -25,7 +27,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,7 +52,7 @@ public class BlogPostReportServiceImpl implements BlogPostReportService {
     @Override
     public BlogPostReportDTO update(Long id, UpdateBlogPostReportDTO updateBlogPostReportDTO) {
         BlogPostReport blogPostReport = findBlogPostReportById(id);
-        blogPostReport.setStatus(updateBlogPostReportDTO.getStatus());
+        blogPostReport.setStatus(ReportStatus.fromString(updateBlogPostReportDTO.getStatus()));
         blogPostReport = blogPostReportRepository.save(blogPostReport);
         return blogPostReportToBlogPostReportDTOMapper.map(blogPostReport);
     }
@@ -116,6 +121,33 @@ public class BlogPostReportServiceImpl implements BlogPostReportService {
         Sort.Direction direction = SortingDirectionUtils.convertFromString(sortingDirection);
         PageRequest pageRequest = PageRequest.of(page, pageSize, direction, sortBy);
         return blogPostReportRepository.findByStatus(reportStatus, pageRequest)
+                .stream()
+                .map(blogPostReportToBlogPostReportDTOMapper::map)
+                .collect(Collectors.toList());
+    }
+
+    @SuppressWarnings("Duplicates")
+    @Override
+    @ValidateCollectionSize
+    public List<BlogPostReportDTO> updateMultiple(
+            @CollectionArgument(maxSize = 30) List<UpdateBlogPostReportDTO> updateBlogPostReportDTOList) {
+        List<Long> blogPostReportIds = updateBlogPostReportDTOList.stream()
+                .map(UpdateBlogPostReportDTO::getId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        Map<Long, UpdateBlogPostReportDTO> updateBlogPostReportDTOMap = new HashMap<>();
+        updateBlogPostReportDTOList.forEach(updateBlogPostReportDTO -> {
+            if (updateBlogPostReportDTO.getId() != null) {
+                updateBlogPostReportDTOMap.put(updateBlogPostReportDTO.getId(), updateBlogPostReportDTO);
+            }
+        });
+        List<BlogPostReport> blogPostReports = blogPostReportRepository.findAllById(blogPostReportIds);
+        blogPostReports.forEach(report -> {
+            ReportStatus status = ReportStatus
+                    .fromString(updateBlogPostReportDTOMap.get(report.getId()).getStatus());
+            report.setStatus(status);
+        });
+        return blogPostReportRepository.saveAll(blogPostReports)
                 .stream()
                 .map(blogPostReportToBlogPostReportDTOMapper::map)
                 .collect(Collectors.toList());

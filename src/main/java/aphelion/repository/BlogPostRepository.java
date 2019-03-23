@@ -16,25 +16,17 @@ public interface BlogPostRepository extends JpaRepository<BlogPost, Long> {
     Optional<BlogPost> findById(Long id);
     Optional<BlogPost> findByIdAndDeleted(Long id, Boolean deleted);
     List<BlogPost> findByBlogAndDeletedAndDeletedBy(Blog blog, Boolean deleted, User user, Pageable pageable);
-    List<BlogPost> findByBlog(Blog blog, Pageable pageable);
-    List<BlogPost> findByTitleContaining(String line);
     BlogPost save(BlogPost blogPost);
     void delete(BlogPost blogPost);
     void deleteById(Long id);
-    void deleteAllById(Iterable<Long> ids);
-    List<BlogPost> findByBlogAndPinnedOrderByPinDateDesc(Blog blog, boolean pinned);
-
-    @Query("select blogPost from BlogPost blogPost where blogPost.blog = :#{#blog} order by blogPost.blogPostViews.size")
-    List<BlogPost> findByBlogAndOrderByNumberOfViews(@Param("blog") Blog blog, Pageable pageable);
-
-    @Query("select blogPost from BlogPost blogPost where blogPost.blog = :#{#blog} order by blogPost.blogPostViews.size")
-    List<BlogPost> findByBlogAndOrderByNumberOfLikes(@Param("blog") Blog blog, Pageable pageable);
-
-    @Query("select blogPost from BlogPost blogPost where blogPost.blog = :#{#blog} order by blogPost.comments.size")
-    List<BlogPost> findByBlogAndOrderByNumberOfComments(@Param("blog") Blog blog, Pageable pageable);
+    List<BlogPost> findByBlogAndPinnedAndDeletedFalseOrderByPinDateDesc(Blog blog, boolean pinned);
 
     @Query("select blogPost from BlogPost blogPost " +
-            "where blogPost.createdAt between :#{#from} and :#{#to} " +
+            "where blogPost.blog = :#{#blog} and blogPost.deleted = false ")
+    List<BlogPost> findByBlog(@Param("blog") Blog blog, Pageable pageable);
+
+    @Query("select blogPost from BlogPost blogPost " +
+            "where blogPost.createdAt between :#{#from} and :#{#to} and blogPost.deleted = false " +
             "order by blogPost.likes.size desc, blogPost.blogPostViews.size desc")
     List<BlogPost> findMostPopularForPeriod(@Param("from") Date from, @Param("to") Date to,
                                             Pageable pageable);

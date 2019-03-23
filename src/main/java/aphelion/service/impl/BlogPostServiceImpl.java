@@ -41,7 +41,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Date;
@@ -155,8 +154,14 @@ public class BlogPostServiceImpl implements BlogPostService {
     }
 
     private BlogPost findBlogPostById(Long id) {
-        return blogPostRepository.findById(id)
-                .orElseThrow(() -> new BlogPostNotFoundException("Blog post with given id " + id + " could not be found."));
+        BlogPost blogPost = blogPostRepository.findById(id)
+                .orElseThrow(() -> new BlogPostNotFoundException("Blog post with given id "
+                        + id + " could not be found."));
+        if (blogPost.isDeleted()) {
+            throw  new BlogPostNotFoundException("Blog post with given id "
+                    + id + " could not be found.");
+        }
+        return blogPost;
     }
 
     @Override
@@ -196,6 +201,7 @@ public class BlogPostServiceImpl implements BlogPostService {
 
         return blogPostRepository.findAllById(blogPostIds)
                 .stream()
+                .filter(blogPost -> !blogPost.isDeleted())
                 .map(blogPostToBlogPostDTOMapper::map)
                 .collect(Collectors.toList());
     }
@@ -252,7 +258,7 @@ public class BlogPostServiceImpl implements BlogPostService {
     @Override
     public List<BlogPostDTO> findPinnedByBlog(Long blogId) {
         Blog blog = findBlogById(blogId);
-        return blogPostRepository.findByBlogAndPinnedOrderByPinDateDesc(blog, true)
+        return blogPostRepository.findByBlogAndPinnedAndDeletedFalseOrderByPinDateDesc(blog, true)
                 .stream()
                 .map(blogPostToBlogPostDTOMapper::map)
                 .collect(Collectors.toList());
@@ -262,7 +268,7 @@ public class BlogPostServiceImpl implements BlogPostService {
     public BlogPostDTO pin(Long blogPostId) {
         BlogPost blogPost = findBlogPostById(blogPostId);
         List<BlogPost> pinnedBlogPosts = blogPostRepository
-                .findByBlogAndPinnedOrderByPinDateDesc(blogPost.getBlog(), true);
+                .findByBlogAndPinnedAndDeletedFalseOrderByPinDateDesc(blogPost.getBlog(), true);
         if (pinnedBlogPosts.size() >= 5) {
             throw new PinnedBlogPostsLimitHasBeenReachedException("Pinned blog posts limit " +
                     "has been reached. You can pin up to 5 blog posts.");
@@ -314,7 +320,15 @@ public class BlogPostServiceImpl implements BlogPostService {
     @Override
     @ValidateCollectionSize
     public void deleteMultiple(@CollectionArgument(maxSize = 30) List<Long> ids) {
-        blogPostRepository.deleteAllById(ids);
+        List<BlogPost> blogPosts = blogPostRepository.findAllById(ids);
+        blogPosts.forEach(blogPost -> {
+            Date now = Date.from(timeStampProvider.now().toInstant(ZoneOffset.UTC));
+            blogPost.setDeleted(true);
+            blogPost.setDeletedAt(Date.from(timeStampProvider.now().toInstant(ZoneOffset.UTC)));
+            blogPost.setLastUpdateDate(now);
+            blogPost.setDeletedBy(authenticationFacade.getCurrentUser());
+        });
+        blogPostRepository.saveAll(blogPosts);
     }
 
     private List<BlogPost> findMostPopularInPeriod(LocalDateTime from, LocalDateTime to, int page, int pageSize) {

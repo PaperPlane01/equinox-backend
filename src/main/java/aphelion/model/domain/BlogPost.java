@@ -37,7 +37,6 @@ import java.util.stream.Collectors;
 
 @Entity
 @SQLDelete(sql = "update blog_post set deleted = true where id = ?")
-@Where(clause = "deleted = false")
 @AllArgsConstructor
 @NoArgsConstructor
 @Data

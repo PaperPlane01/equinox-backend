@@ -684,7 +684,7 @@ public class BlogPostServiceImplTest {
                 BlogPost.builder().id(6L).build()
         );
         when(mockBlogPostRepository.findById(blogPostId)).thenReturn(Optional.of(blogPost));
-        when(mockBlogPostRepository.findByBlogAndPinnedOrderByPinDateDesc(blog, true))
+        when(mockBlogPostRepository.findByBlogAndPinnedAndDeletedFalseOrderByPinDateDesc(blog, true))
                 .thenReturn(blogPosts);
 
         // Run the test

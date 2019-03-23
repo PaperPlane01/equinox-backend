@@ -15,4 +15,5 @@ public interface BlogPostReportService {
     List<BlogPostReportDTO> findAll(int page, int pageSize, String sortingDirection, String sortBy);
     List<BlogPostReportDTO> findByBlogPost(Long blogPostId, int page, int pageSize, String sortingDirection, String sortBy);
     List<BlogPostReportDTO> findByStatus(ReportStatus reportStatus, int page, int pageSize, String sortingDirection, String sortBy);
+    List<BlogPostReportDTO> updateMultiple(List<UpdateBlogPostReportDTO> updateBlogPostReportDTOList);
 }

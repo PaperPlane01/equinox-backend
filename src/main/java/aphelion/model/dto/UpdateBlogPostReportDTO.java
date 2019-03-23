@@ -11,6 +11,8 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateBlogPostReportDTO {
+    private Long id;
+
     @NotNull
-    private ReportStatus status;
+    private String status;
 }

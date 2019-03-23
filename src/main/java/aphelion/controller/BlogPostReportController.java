@@ -72,4 +72,11 @@ public class BlogPostReportController {
         return blogPostReportService.findByBlogPost(blogPostId, page.orElse(0), pageSize.orElse(50),
                 sortingDirection.orElse("desc"), sortBy.orElse("id"));
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/multiple")
+    public List<BlogPostReportDTO> updateMultiple(
+            @RequestBody @Valid List<UpdateBlogPostReportDTO> updateBlogPostReportDTOList) {
+        return blogPostReportService.updateMultiple(updateBlogPostReportDTOList);
+    }
 }
