@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Optional;
 
-@Mapper(uses = UserToUserDTOMapper.class)
+@Mapper(uses = UserToUserMinifiedDTOMapper.class)
 public abstract class BlogToBlogDTOMapper {
     @Autowired
     private SubscriptionRepository subscriptionRepository;

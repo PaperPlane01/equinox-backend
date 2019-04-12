@@ -1,13 +1,21 @@
 package aphelion.model.domain;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import org.codehaus.jackson.annotate.JsonCreator;
 import aphelion.exception.InvalidBlogManagersVisibilityLevelException;
 
+@ApiModel(value = "Blog managers visibility level", description = "Level of blog managers' visibility")
 public enum BlogManagersVisibilityLevel {
+    @ApiModelProperty("Anyone can see managers of this blog")
     PUBLIC,
+    @ApiModelProperty("Only registered users can see managers of this blog")
     REGISTERED_USERS,
+    @ApiModelProperty("Only blog's subscribers can see managers of this blog")
     SUBSCRIBERS,
+    @ApiModelProperty("Only other managers of this blog can see managers of this blog")
     MANAGERS,
+    @ApiModelProperty("Only blog's owner can see managers of this blog")
     OWNER;
 
     @JsonCreator

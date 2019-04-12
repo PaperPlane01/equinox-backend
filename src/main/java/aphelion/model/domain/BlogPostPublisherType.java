@@ -1,10 +1,15 @@
 package aphelion.model.domain;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import org.codehaus.jackson.annotate.JsonCreator;
 import aphelion.exception.InvalidPublisherTypeException;
 
+@ApiModel("Blog post publisher type")
 public enum BlogPostPublisherType {
+    @ApiModelProperty("Blog post published by blog")
     BLOG,
+    @ApiModelProperty("Blog post published by blog post author")
     BLOG_POST_AUTHOR;
 
     @JsonCreator

@@ -72,6 +72,7 @@ public class BlogServiceImpl implements BlogService {
         blog.setName(updateBlogDTO.getName());
         blog.setBlogManagersVisibilityLevel(updateBlogDTO.getBlogManagersVisibilityLevel());
         blog.setDefaultPublisherType(updateBlogDTO.getDefaultPublisherType());
+        blog.setAvatarUri(updateBlogDTO.getAvatarUri());
         blog = blogRepository.save(blog);
         return blogToBlogDTOMapper.map(blog);
     }

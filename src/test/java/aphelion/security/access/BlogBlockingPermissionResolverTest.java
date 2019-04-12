@@ -7,6 +7,7 @@ import aphelion.model.dto.BlogMinifiedDTO;
 import aphelion.model.dto.CurrentUserDTO;
 import aphelion.model.dto.ManagedBlogDTO;
 import aphelion.model.dto.UserDTO;
+import aphelion.model.dto.UserMinifiedDTO;
 import aphelion.service.BlogBlockingService;
 import aphelion.service.BlogService;
 import aphelion.service.UserService;
@@ -60,15 +61,15 @@ public class BlogBlockingPermissionResolverTest {
                 .build();
         var firstBlog = BlogDTO.builder()
                 .id(FIRST_BLOG_ID)
-                .owner(UserDTO.builder().id(3L).build())
+                .owner(UserMinifiedDTO.builder().id(3L).build())
                 .build();
         var secondBlog = BlogDTO.builder()
                 .id(SECOND_BLOG_ID)
-                .owner(UserDTO.builder().id(4L).build())
+                .owner(UserMinifiedDTO.builder().id(4L).build())
                 .build();
         var thirdBlog = BlogDTO.builder()
                 .id(THIRD_BLOG_ID)
-                .owner(UserDTO.builder().id(CURRENT_USER_ID).build())
+                .owner(UserMinifiedDTO.builder().id(CURRENT_USER_ID).build())
                 .build();
         var firstBlogBlocking = BlogBlockingDTO.builder()
                 .id(FIRST_BLOG_BLOCKING_ID)

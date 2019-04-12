@@ -12,6 +12,7 @@ import aphelion.model.dto.BlogMinifiedDTO;
 import aphelion.model.dto.CreateBlogBlockingDTO;
 import aphelion.model.dto.UpdateBlogBlockingDTO;
 import aphelion.model.dto.UserDTO;
+import aphelion.model.dto.UserMinifiedDTO;
 import aphelion.repository.BlogBlockingRepository;
 import aphelion.repository.BlogRepository;
 import aphelion.repository.UserRepository;
@@ -70,8 +71,8 @@ public class BlogBlockingServiceImplTest {
         final BlogBlockingDTO expectedResult = BlogBlockingDTO.builder()
                 .id(id)
                 .blog(BlogMinifiedDTO.builder().id(1L).build())
-                .blockedBy(UserDTO.builder().id(1L).build())
-                .blockedUser(UserDTO.builder().id(2L).build())
+                .blockedBy(UserMinifiedDTO.builder().id(1L).build())
+                .blockedUser(UserMinifiedDTO.builder().id(2L).build())
                 .startDate(startDate)
                 .endDate(endDate)
                 .build();
@@ -116,8 +117,8 @@ public class BlogBlockingServiceImplTest {
         final BlogBlockingDTO expectedResult = BlogBlockingDTO.builder()
                 .id(2L)
                 .blog(BlogMinifiedDTO.builder().id(1L).build())
-                .blockedBy(UserDTO.builder().id(1L).build())
-                .blockedUser(UserDTO.builder().id(2L).build())
+                .blockedBy(UserMinifiedDTO.builder().id(1L).build())
+                .blockedUser(UserMinifiedDTO.builder().id(2L).build())
                 .startDate(now)
                 .endDate(new GregorianCalendar(2019, 12, 10, 15, 30, 0).getTime())
                 .build();
@@ -162,8 +163,8 @@ public class BlogBlockingServiceImplTest {
                 .id(id)
                 .startDate(new GregorianCalendar(2018, 31, 12, 10, 0, 0).getTime())
                 .endDate(endDate)
-                .blockedUser(UserDTO.builder().id(1L).build())
-                .blockedBy(UserDTO.builder().id(2L).build())
+                .blockedUser(UserMinifiedDTO.builder().id(1L).build())
+                .blockedBy(UserMinifiedDTO.builder().id(2L).build())
                 .blog(BlogMinifiedDTO.builder().id(1L).build())
                 .build();
         when(mockBlogBlockingRepository.findById(id)).thenReturn(Optional.of(blogBlocking));

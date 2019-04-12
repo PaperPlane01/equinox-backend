@@ -1,6 +1,7 @@
 package aphelion.model.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,11 +11,14 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@ApiModel("Subscription with user")
 public class SubscriptionWithUserDTO {
+    @ApiModelProperty("Id of subscription")
     private Long id;
+    @ApiModelProperty("Subscribed user")
     private UserMinifiedDTO user;
+    @ApiModelProperty("Id of blog")
     private Long blogId;
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-mm-YYYY hh:MM:ss")
+    @ApiModelProperty("Date of subscription")
     private Date subscriptionDate;
 }
