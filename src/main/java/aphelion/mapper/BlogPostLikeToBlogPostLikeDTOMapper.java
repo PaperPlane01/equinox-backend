@@ -6,7 +6,7 @@ import org.mapstruct.Mapping;
 import aphelion.model.domain.BlogPostLike;
 import aphelion.model.dto.BlogPostLikeDTO;
 
-@Mapper(uses = UserToUserDTOMapper.class)
+@Mapper(uses = UserToUserMinifiedDTOMapper.class)
 public interface BlogPostLikeToBlogPostLikeDTOMapper {
     @BeanMapping(resultType = BlogPostLikeDTO.class)
     @Mapping(source = "blogPost.id", target = "blogPostId")

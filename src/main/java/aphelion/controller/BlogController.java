@@ -731,12 +731,39 @@ public class BlogController {
         );
     }
 
+    @ApiOperation(
+            value = "Retrieves blockings of blog with specified id",
+            notes = "Requires current user to be either owner of blog or manager of blog"
+    )
+    @ApiImplicitParams({
+            @ApiImplicitParam(
+                    value = "Access token",
+                    name = "Authorization",
+                    paramType = "header",
+                    required = true
+            )
+    })
+    @ApiResponses({
+            @ApiResponse(
+                    code = 200,
+                    message = "Successfully retrieved blog blockings of blog",
+                    response = BlogBlockingDTO[].class
+            ),
+            @ApiResponse(code = 400, message = "Invalid request"),
+            @ApiResponse(code = 401, message = "Access token has expired"),
+            @ApiResponse(code = 403, message = "Current user can't do this operation"),
+            @ApiResponse(code = 404, message = "Blog with specified id not found")
+    })
     @PreAuthorize("hasRole('USER') && @blogBlockingPermissionResolver.canViewBlogBlockingsInBlog(#id)")
     @GetMapping(value = "/{id}/blockings", params = {"blockedUserDisplayedUsername"})
     public List<BlogBlockingDTO> findBlogBlockingsByBlogAndBlockedUserDisplayedUsername(
+            @ApiParam(value = "Id of blog", required = true)
             @PathVariable("id") Long id,
-            @RequestParam("blockedUserDisplayedUsername") String blockedUserDisplayedUsername,
+            @ApiParam("Username to searc")
+            @RequestParam(value = "blockedUserDisplayedUsername") String blockedUserDisplayedUsername,
+            @ApiParam(value = "Page number", defaultValue = "0")
             @RequestParam("page") Optional<Integer> page,
+            @ApiParam(value = "Size of page. Max size is 100", defaultValue = "20")
             @RequestParam("pageSize") Optional<Integer> pageSize) {
         return blogBlockingService.findByBlogAndBlockedUserDisplayedUsernameContains(
                 id,
@@ -746,12 +773,39 @@ public class BlogController {
         );
     }
 
+    @ApiOperation(
+            value = "Retrieves not ended blockings in blog with specified id",
+            notes = "Requires current user to be either owner of blog or manager of blog"
+    )
+    @ApiImplicitParams({
+            @ApiImplicitParam(
+                    value = "Access token",
+                    name = "Authorization",
+                    paramType = "header",
+                    required = true
+            )
+    })
+    @ApiResponses({
+            @ApiResponse(
+                    code = 200,
+                    message = "Successfully retrieved not ended blog blockings of blog",
+                    response = BlogBlockingDTO[].class
+            ),
+            @ApiResponse(code = 400, message = "Invalid request"),
+            @ApiResponse(code = 401, message = "Access token has expired"),
+            @ApiResponse(code = 403, message = "Current user can't do this operation"),
+            @ApiResponse(code = 404, message = "Blog with specified id not found")
+    })
     @PreAuthorize("hasRole('USER') && @blogBlockingPermissionResolver.canViewBlogBlockingsInBlog(#id)")
     @GetMapping(value = "/{id}/blockings/not-ended", params = {"blockedUserDisplayedUsername"})
     public List<BlogBlockingDTO> findNotEndedBlogBlockingsByBlogAndBlockedUserDisplayedUsername(
+            @ApiParam("Id of blog")
             @PathVariable("id") Long id,
+            @ApiParam("Username to search")
             @RequestParam("blockedUserDisplayedUsername") String blockedUserDisplayedUsername,
+            @ApiParam(value = "Page number", defaultValue = "0")
             @RequestParam("page") Optional<Integer> page,
+            @ApiParam(value = "Size of page. Max size is 100", defaultValue = "20")
             @RequestParam("pageSize") Optional<Integer> pageSize) {
         return blogBlockingService.findNotEndedByBlogAndBlockedUserDisplayedUsernameContains(
                 id,

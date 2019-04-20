@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class CommentToCommentDTOMapperImpl implements CommentToCommentDTOMapper {
-    private final UserToUserDTOMapper userToUserDTOMapper;
+    private final UserToUserMinifiedDTOMapper userToUserDTOMapper;
     private final CommentLikeRepository commentLikeRepository;
     private final AuthenticationFacade authenticationFacade;
 
