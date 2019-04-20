@@ -172,7 +172,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void createNewBlogPostNotification(BlogPost blogPost) {
         if (blogPost.getLastUpdateDate() != null) {
-            //means that blog post is not new - no deed to create new notification
+            //means that blog post is not new - no need to create new notification
             return;
         }
         List<User> subscribers = blogPost.getBlog()
@@ -218,7 +218,6 @@ public class NotificationServiceImpl implements NotificationService {
     public void createNewCommentLikeNotification(CommentLike commentLike) {
         Notification notification = new Notification();
 
-        System.out.println("in createNewCommentLikeNotification()");
         notification.setCreatedAt(Date.from(Instant.now()));
         notification.setNotificationType(NotificationType.NEW_COMMENT_LIKE);
         notification.setRead(false);
@@ -266,7 +265,6 @@ public class NotificationServiceImpl implements NotificationService {
         notification =  notificationRepository.save(notification);
         String recipientId = notification.getRecipient().getGeneratedUsername();
         NotificationDTO notificationDTO = notificationToNotificationDTOMapper.map(notification, payload);
-        System.out.println("Notification to be sent: " + notificationDTO);
         notificationsSender.sendNotifications(recipientId, notificationDTO);
         return notification;
     }

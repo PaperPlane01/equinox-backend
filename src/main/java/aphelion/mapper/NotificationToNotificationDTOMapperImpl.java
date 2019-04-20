@@ -50,6 +50,7 @@ public class NotificationToNotificationDTOMapperImpl implements NotificationToNo
                     return convertToNewCommentLikeNotificationDTO(notification, commentLike);
                 case NEW_BLOG_POST:
                     BlogPost blogPost = blogPostRepository.findById(notification.getNotificationGeneratorId())
+                            .filter(notificationBlogPost -> !notificationBlogPost.isDeleted())
                             .orElseThrow(BlogPostNotFoundException::new);
                     return convertToNewBlogPostNotificationDTO(notification, blogPost);
                 case NEW_COMMENT_REPLY:
