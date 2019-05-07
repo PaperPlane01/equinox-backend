@@ -11,11 +11,12 @@ import java.util.stream.Collectors;
 
 public class BlogPostViewTest {
     private final int APPROXIMATE_NUMBER_OF_VIEWS_RECORDED = 7;
+    private final int NUMBER_OF_VIEWS = 100;
 
     private List<BlogPostView> blogPostViews() {
         List<BlogPostView> blogPostViews = new ArrayList<>();
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < NUMBER_OF_VIEWS; i++) {
             blogPostViews.add(createBlogPostView());
         }
 

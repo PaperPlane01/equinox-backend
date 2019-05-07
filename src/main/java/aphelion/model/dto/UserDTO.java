@@ -29,8 +29,6 @@ public class UserDTO {
     private String letterAvatarColor;
     @ApiModelProperty("Bio of user")
     private String bio;
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-YYYY")
     @ApiModelProperty("Birth date")
     private Date birthDate;
     @ApiModelProperty("Email")
