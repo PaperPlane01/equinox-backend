@@ -6,10 +6,10 @@ import aphelion.model.dto.CommentReportDTO;
 import aphelion.model.dto.CreateCommentDTO;
 import aphelion.model.dto.RestoreOrDeleteCommentDTO;
 import aphelion.model.dto.UpdateCommentDTO;
-import lombok.RequiredArgsConstructor;
 import aphelion.service.CommentLikeService;
 import aphelion.service.CommentReportService;
 import aphelion.service.CommentService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -42,7 +42,7 @@ public class CommentController {
 
     @PreAuthorize("hasRole('USER') and @commentPermissionResolver.canSaveComment(#createCommentDTO.blogPostId)")
     @PostMapping
-    public CommentDTO save(@RequestBody CreateCommentDTO createCommentDTO) {
+    public CommentDTO save(@RequestBody @Valid CreateCommentDTO createCommentDTO) {
         return commentService.save(createCommentDTO);
     }
 

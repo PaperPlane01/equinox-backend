@@ -40,11 +40,4 @@ public class CommentReport {
 
     @Enumerated(EnumType.STRING)
     private ReportReason reason;
-
-    public CommentReport(Comment comment, String content, ReportStatus status, ReportReason reason) {
-        this.comment = comment;
-        this.content = content;
-        this.status = status;
-        this.reason = reason;
-    }
 }

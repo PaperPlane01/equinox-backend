@@ -11,9 +11,10 @@ import java.util.Date;
 @Data
 public class CommentMinifiedDTO {
     private Long id;
-    private UserDTO author;
+    private UserMinifiedDTO author;
     private Long blogPostId;
     private Date createdAt;
     private String content;
     private Long rootCommentId;
+    private Long referredCommentId;
 }

@@ -5,9 +5,9 @@ import aphelion.model.dto.CommentDTO;
 import aphelion.model.dto.CurrentUserDTO;
 import aphelion.model.dto.RestoreOrDeleteCommentDTO;
 import aphelion.service.BlogPostService;
+import aphelion.service.CommentService;
 import aphelion.service.UserService;
 import lombok.RequiredArgsConstructor;
-import aphelion.service.CommentService;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;

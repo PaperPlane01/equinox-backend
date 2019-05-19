@@ -74,13 +74,9 @@ public class User implements UserDetails {
     private boolean enabled;
     private Date disabledAt;
     private boolean locked;
-    private String vkId;
     private String googleId;
     private String avatarUri;
     private String letterAvatarColor;
-
-    @Enumerated(EnumType.STRING)
-    private Sex sex;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

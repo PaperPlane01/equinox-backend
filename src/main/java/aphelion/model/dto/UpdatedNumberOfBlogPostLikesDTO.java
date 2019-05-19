@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
                 "<code>updatedNumberOfLikes</code> property always contains current number of likes."
 )
 public class UpdatedNumberOfBlogPostLikesDTO {
-    @ApiModelProperty("Id of blog post")
+    @ApiModelProperty("Id of blog post like")
     private Long blogPostLikeId;
     @ApiModelProperty("Updated number of likes")
     private Integer updatedNumberOfLikes;

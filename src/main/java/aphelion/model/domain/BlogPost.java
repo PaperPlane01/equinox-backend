@@ -10,7 +10,6 @@ import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
-import org.hibernate.annotations.Where;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;

@@ -12,7 +12,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     User findByGeneratedUsername(String username);
     Optional<User> findByLoginUsername(String loginUserName);
     List<User> findByDisplayedNameContains(String line, Pageable pageable);
-    Optional<User> findByVkId(String vkId);
     Optional<User> findByGoogleId(String googleId);
     User save(User user);
     void delete(User user);
