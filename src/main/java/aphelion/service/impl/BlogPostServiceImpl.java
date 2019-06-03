@@ -71,6 +71,15 @@ public class BlogPostServiceImpl implements BlogPostService {
     @Override
     public BlogPostDTO save(CreateBlogPostDTO createBlogPostDTO) {
         BlogPost blogPost = createBlogPostDTOToBlogPostMapper.map(createBlogPostDTO);
+        if (createBlogPostDTO.getTags().size() != 0) {
+            blogPost.setTags(
+                    createBlogPostDTO.getTags()
+                            .stream()
+                            .map(tagName -> tagRepository.findByName(tagName)
+                                    .orElseGet(() -> tagRepository.save(new Tag(tagName))))
+                            .collect(Collectors.toList())
+            );
+        }
         blogPost = blogPostRepository.save(blogPost);
         return blogPostToBlogPostDTOMapper.map(blogPost);
     }
@@ -85,8 +94,8 @@ public class BlogPostServiceImpl implements BlogPostService {
         blogPost.setLastUpdateDate(now);
         blogPost.setTags(updateBlogPostDTO.getTags()
                 .stream()
-                .map(Tag::new)
-                .map(tagRepository::save)
+                .map(tagName -> tagRepository.findByName(tagName)
+                        .orElseGet(() -> tagRepository.save(new Tag(tagName))))
                 .collect(Collectors.toList()));
         blogPost.setTitle(updateBlogPostDTO.getTitle());
         blogPost.setContent(updateBlogPostDTO.getContent());

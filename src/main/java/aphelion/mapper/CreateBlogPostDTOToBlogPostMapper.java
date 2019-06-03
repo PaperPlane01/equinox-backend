@@ -1,5 +1,7 @@
 package aphelion.mapper;
 
+import aphelion.model.domain.Blog;
+import aphelion.repository.TagRepository;
 import aphelion.service.BlogPostContentValidationService;
 import com.google.common.collect.Lists;
 import org.mapstruct.AfterMapping;
@@ -27,6 +29,9 @@ public abstract class CreateBlogPostDTOToBlogPostMapper {
     private BlogRepository blogRepository;
 
     @Autowired
+    private TagRepository tagRepository;
+
+    @Autowired
     private AuthenticationFacade authenticationFacade;
 
     @Autowired
@@ -34,34 +39,30 @@ public abstract class CreateBlogPostDTOToBlogPostMapper {
 
     @BeanMapping(resultType = BlogPost.class)
     @Mapping(target = "tags", ignore = true)
+    @Mapping(target = "publishedBy", ignore = true)
     public abstract BlogPost map(CreateBlogPostDTO createBlogPostDTO);
 
     @BeforeMapping
-    protected void validateContentAndSetBlog(CreateBlogPostDTO createBlogPostDTO,
-                           @MappingTarget BlogPost blogPost) {
+    protected void validateContentAndSetBlog(CreateBlogPostDTO createBlogPostDTO, @MappingTarget BlogPost blogPost) {
         String text = blogPostContentValidationService.validateAndGetPlainText(createBlogPostDTO.getContent());
-        blogPost.setPlainText(text);
-        blogPost.setBlog(blogRepository.findById(createBlogPostDTO.getBlogId())
+        Blog blog = blogRepository.findById(createBlogPostDTO.getBlogId())
                 .orElseThrow(() -> new BlogNotFoundException("Could not find blog with given id " +
-                        createBlogPostDTO.getBlogId())));
+                        createBlogPostDTO.getBlogId()));
+        blogPost.setPlainText(text);
+        blogPost.setBlog(blog);
+        if (createBlogPostDTO.getPublishedBy() == null) {
+            blogPost.setPublishedBy(blog.getDefaultPublisherType());
+        } else {
+            blogPost.setPublishedBy(createBlogPostDTO.getPublishedBy());
+        }
     }
 
     @AfterMapping
-    protected void setRemainingFields(CreateBlogPostDTO createBlogPostDTO,
-                                      @MappingTarget BlogPost blogPost) {
+    protected void setRemainingFields(@MappingTarget BlogPost blogPost) {
         blogPost.setCreatedAt(Date.from(Instant.now()));
         blogPost.setDeleted(false);
-        blogPost.setTags(createBlogPostDTO.getTags()
-                .stream()
-                .map(tagName -> {
-                    Tag tag = new Tag();
-                    tag.setName(tagName);
-                    return tag;
-                })
-                .collect(Collectors.toList()));
         blogPost.setComments(Collections.emptyList());
         blogPost.setAuthor(authenticationFacade.getCurrentUser());
-        blogPost.setPublishedBy(blogPost.getBlog().getDefaultPublisherType());
         blogPost.setBlogPostViews(Lists.newArrayList());
         blogPost.setLikes(Lists.newArrayList());
     }
