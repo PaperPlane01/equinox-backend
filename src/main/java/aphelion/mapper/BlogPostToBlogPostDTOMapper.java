@@ -31,6 +31,9 @@ public abstract class BlogPostToBlogPostDTOMapper {
     @Autowired
     private BlogPostPermissionResolver blogPostPermissionResolver;
 
+    @Autowired
+    private UserToUserDTOMapper userToUserDTOMapper;
+
     @BeanMapping(resultType = BlogPostDTO.class)
     @Mapping(source = "blog.id", target = "blogId")
     public abstract BlogPostDTO map(BlogPost blogPost);
@@ -45,8 +48,8 @@ public abstract class BlogPostToBlogPostDTOMapper {
             User currentUser = authenticationFacade.getCurrentUser();
             Optional<BlogPostLike> blogPostLike = blogPostLikeRepository.findByBlogPostAndUser(blogPost,
                     currentUser);
-            blogPostDTO.setCanBeDeleted(blogPostPermissionResolver.canDeleteBlogPost(blogPostDTO));
-            blogPostDTO.setCanBeEdited(blogPostPermissionResolver.canUpdateBlogPost(blogPostDTO));
+            blogPostDTO.setCanBeDeleted(blogPostPermissionResolver.canDeleteBlogPost(blogPostDTO, userToUserDTOMapper.map(blogPost.getAuthor())));
+            blogPostDTO.setCanBeEdited(blogPostPermissionResolver.canUpdateBlogPost(blogPostDTO, userToUserDTOMapper.map(blogPost.getAuthor())));
             if (blogPostLike.isPresent()) {
                 blogPostDTO.setLikedByCurrentUser(true);
                 blogPostDTO.setLikeId(blogPostLike.get().getId());

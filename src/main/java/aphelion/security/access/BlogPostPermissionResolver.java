@@ -4,6 +4,7 @@ import aphelion.model.domain.BlogPostPublisherType;
 import aphelion.model.domain.BlogRole;
 import aphelion.model.dto.BlogPostDTO;
 import aphelion.model.dto.CurrentUserDTO;
+import aphelion.model.dto.UserDTO;
 import aphelion.service.BlogPostService;
 import aphelion.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -34,10 +35,11 @@ public class BlogPostPermissionResolver {
 
     public boolean canUpdateBlogPost(Long blogPostId) {
         BlogPostDTO blogPost = blogPostService.findById(blogPostId);
-        return canUpdateBlogPost(blogPost);
+        UserDTO author = blogPostService.findAuthorOfBlogPost(blogPostId);
+        return canUpdateBlogPost(blogPost, author);
     }
 
-    public boolean canUpdateBlogPost(BlogPostDTO blogPost) {
+    public boolean canUpdateBlogPost(BlogPostDTO blogPost, UserDTO author) {
         CurrentUserDTO currentUser = userService.getCurrentUser();
         return !currentUser.isBlockedGlobally()
                 && (currentUser.getOwnedBlogs().stream()
@@ -45,15 +47,16 @@ public class BlogPostPermissionResolver {
                 || currentUser.getManagedBlogs().stream()
                 .anyMatch(managedBlog -> Objects.equals(managedBlog.getBlogId(), blogPost.getBlogId())
                         && managedBlog.getBlogRole().equals(BlogRole.EDITOR))
-                && Objects.equals(blogPost.getPublisher().getId(), currentUser.getId()));
+                && Objects.equals(author.getId(), currentUser.getId()));
     }
 
     public boolean canDeleteBlogPost(Long blogPostId) {
         BlogPostDTO blogPost = blogPostService.findById(blogPostId);
-        return canDeleteBlogPost(blogPost);
+        UserDTO author = blogPostService.findAuthorOfBlogPost(blogPostId);
+        return canDeleteBlogPost(blogPost, author);
     }
 
-    public boolean canDeleteBlogPost(BlogPostDTO blogPost) {
+    public boolean canDeleteBlogPost(BlogPostDTO blogPost, UserDTO author) {
         CurrentUserDTO currentUser = userService.getCurrentUser();
 
         return currentUser.getAuthorities().stream()
@@ -63,7 +66,7 @@ public class BlogPostPermissionResolver {
                 || currentUser.getManagedBlogs().stream()
                 .anyMatch(managedBlog -> Objects.equals(managedBlog.getBlogId(), blogPost.getBlogId())
                         && managedBlog.getBlogRole().equals(BlogRole.EDITOR))
-                && Objects.equals(blogPost.getPublisher().getId(), currentUser.getId());
+                && Objects.equals(author.getId(), currentUser.getId());
     }
 
     public boolean canViewDeletedBlogPost(Long blogPostId) {
