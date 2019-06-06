@@ -7,6 +7,7 @@ import aphelion.model.dto.UserDTO;
 import aphelion.service.UserService;
 import lombok.RequiredArgsConstructor;
 import aphelion.service.BlogService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
@@ -14,8 +15,13 @@ import java.util.Objects;
 @Component
 @RequiredArgsConstructor
 public class BlogPermissionResolver {
-    private final BlogService blogService;
     private final UserService userService;
+    private BlogService blogService;
+
+    @Autowired
+    public void setBlogService(BlogService blogService) {
+        this.blogService = blogService;
+    }
 
     public boolean canUpdateBlog(Long id) {
         CurrentUserDTO currentUser = userService.getCurrentUser();

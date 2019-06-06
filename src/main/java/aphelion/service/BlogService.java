@@ -3,6 +3,7 @@ package aphelion.service;
 import aphelion.model.dto.BlogDTO;
 import aphelion.model.dto.BlogMinifiedDTO;
 import aphelion.model.dto.CreateBlogDTO;
+import aphelion.model.dto.ManagedBlogsOfUserDTO;
 import aphelion.model.dto.UpdateBlogDTO;
 import aphelion.model.dto.UserDTO;
 
@@ -19,4 +20,5 @@ public interface BlogService {
     List<BlogDTO> findByOwner(Long ownerId);
     List<BlogMinifiedDTO> findMinifiedByOwner(Long ownerId);
     List<BlogMinifiedDTO> findMinifiedByCurrentUser();
+    ManagedBlogsOfUserDTO findBlogsManagedByUser(Long userId);
 }

@@ -1,13 +1,16 @@
 package aphelion.controller;
 
 import aphelion.model.dto.BlogMinifiedDTO;
+import aphelion.model.dto.BlogPostLikeWithBlogPostDTO;
 import aphelion.model.dto.CreateStandardUserDTO;
 import aphelion.model.dto.CurrentUserDTO;
 import aphelion.model.dto.CurrentUserFullProfileDTO;
 import aphelion.model.dto.GlobalBlockingDTO;
+import aphelion.model.dto.ManagedBlogsOfUserDTO;
 import aphelion.model.dto.SubscriptionWithBlogDTO;
 import aphelion.model.dto.UpdateUserDTO;
 import aphelion.model.dto.UserDTO;
+import aphelion.service.BlogPostLikeService;
 import aphelion.service.BlogService;
 import aphelion.service.GlobalBlockingService;
 import aphelion.service.SubscriptionService;
@@ -37,6 +40,7 @@ public class UserController {
     private final SubscriptionService subscriptionService;
     private final GlobalBlockingService globalBlockingService;
     private final BlogService blogService;
+    private final BlogPostLikeService blogPostLikeService;
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/current")
@@ -147,5 +151,26 @@ public class UserController {
     @GetMapping("/current/owned-blogs")
     public List<BlogMinifiedDTO> findBlogsOwnedByCurrentUser() {
         return blogService.findMinifiedByCurrentUser();
+    }
+
+    @GetMapping("/{userId}/managed-blogs")
+    public ManagedBlogsOfUserDTO findBlogsManagedByUser(@PathVariable Long userId) {
+        return blogService.findBlogsManagedByUser(userId);
+    }
+
+    @GetMapping("/{userId}/blog-post-likes")
+    public List<BlogPostLikeWithBlogPostDTO> findBlogPostLikesByUser(
+            @PathVariable Long userId,
+            @RequestParam Optional<Integer> page,
+            @RequestParam Optional<Integer> pageSize,
+            @RequestParam Optional<String> sortingDirection,
+            @RequestParam Optional<String> sortBy) {
+        return blogPostLikeService.findByUser(
+                userId,
+                page.orElse(0),
+                pageSize.orElse(10),
+                sortingDirection.orElse("desc"),
+                sortBy.orElse("id")
+        );
     }
 }

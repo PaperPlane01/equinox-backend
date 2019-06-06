@@ -2,22 +2,28 @@ package aphelion.service.impl;
 
 import aphelion.exception.BlogNotFoundException;
 import aphelion.exception.UserNotFoundException;
+import aphelion.mapper.BlogManagerToManagedBlogWithBlogDTOMapper;
 import aphelion.mapper.BlogToBlogDTOMapper;
 import aphelion.mapper.BlogToBlogMinifiedDTOMapper;
 import aphelion.mapper.CreateBlogDTOToBlogMapper;
 import aphelion.mapper.UserToUserDTOMapper;
 import aphelion.model.domain.Blog;
+import aphelion.model.domain.BlogManager;
 import aphelion.model.domain.User;
 import aphelion.model.dto.BlogDTO;
 import aphelion.model.dto.BlogMinifiedDTO;
 import aphelion.model.dto.CreateBlogDTO;
+import aphelion.model.dto.ManagedBlogsOfUserDTO;
 import aphelion.model.dto.UpdateBlogDTO;
 import aphelion.model.dto.UserDTO;
+import aphelion.repository.BlogManagerRepository;
 import aphelion.repository.BlogRepository;
 import aphelion.repository.UserRepository;
 import aphelion.security.AuthenticationFacade;
-import lombok.RequiredArgsConstructor;
+import aphelion.security.access.BlogManagerPermissionResolver;
 import aphelion.service.BlogService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,11 +36,19 @@ import java.util.stream.Collectors;
 public class BlogServiceImpl implements BlogService {
     private final BlogRepository blogRepository;
     private final UserRepository userRepository;
+    private final BlogManagerRepository blogManagerRepository;
     private final BlogToBlogDTOMapper blogToBlogDTOMapper;
     private final BlogToBlogMinifiedDTOMapper blogToBlogMinifiedDTOMapper;
     private final CreateBlogDTOToBlogMapper createBlogDTOToBlogMapper;
+    private final BlogManagerToManagedBlogWithBlogDTOMapper blogManagerToManagedBlogWithBlogDTOMapper;
     private final UserToUserDTOMapper userToUserDTOMapper;
     private final AuthenticationFacade authenticationFacade;
+    private BlogManagerPermissionResolver blogManagerPermissionResolver;
+
+    @Autowired
+    public void setBlogPermissionResolver(BlogManagerPermissionResolver blogManagerPermissionResolver) {
+        this.blogManagerPermissionResolver = blogManagerPermissionResolver;
+    }
 
     @Override
     public BlogDTO findById(Long id) {
@@ -124,6 +138,23 @@ public class BlogServiceImpl implements BlogService {
                 .stream()
                 .map(blogToBlogMinifiedDTOMapper::map)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public ManagedBlogsOfUserDTO findBlogsManagedByUser(Long userId) {
+        User user = findUserById(userId);
+        List<Blog> ownedBlogs = blogRepository.findByOwner(user)
+                .stream()
+                .filter(blog -> blogManagerPermissionResolver.canSeeBlogManagers(blog))
+                .collect(Collectors.toList());
+        List<BlogManager> blogManagers = blogManagerRepository.findAllByUser(user)
+                .stream()
+                .filter(blogManager -> blogManagerPermissionResolver.canSeeBlogManagers(blogManager.getBlog()))
+                .collect(Collectors.toList());
+        ManagedBlogsOfUserDTO result = new ManagedBlogsOfUserDTO();
+        result.setOwnedBlogs(ownedBlogs.stream().map(blogToBlogMinifiedDTOMapper::map).collect(Collectors.toList()));
+        result.setManagedBlogs(blogManagers.stream().map(blogManagerToManagedBlogWithBlogDTOMapper::map).collect(Collectors.toList()));
+        return result;
     }
 
     private User findUserById(Long userId) {

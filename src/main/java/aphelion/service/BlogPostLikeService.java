@@ -6,6 +6,7 @@ import aphelion.exception.UserNotFoundException;
 import aphelion.model.domain.BlogPost;
 import aphelion.model.domain.User;
 import aphelion.model.dto.BlogPostLikeDTO;
+import aphelion.model.dto.BlogPostLikeWithBlogPostDTO;
 import aphelion.model.dto.CreateBlogPostLikeDTO;
 import aphelion.model.dto.UpdatedNumberOfBlogPostLikesDTO;
 
@@ -57,7 +58,7 @@ public interface BlogPostLikeService {
      * @return Blog post likes of user.
      * @throws UserNotFoundException Thrown if there is no user with such id.
      */
-    List<BlogPostLikeDTO> findByUser(Long userId, int page, int pageSize, String sortingDirection, String sortBy) throws UserNotFoundException;
+    List<BlogPostLikeWithBlogPostDTO> findByUser(Long userId, int page, int pageSize, String sortingDirection, String sortBy) throws UserNotFoundException;
     BlogPostLikeDTO findById(Long id) throws BlogPostLikeNotFoundException;
     int countByBlogPost(Long blogPostId) throws BlogPostNotFoundException;
 

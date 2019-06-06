@@ -9,11 +9,13 @@ import aphelion.exception.BlogPostLikeNotFoundException;
 import aphelion.exception.BlogPostNotFoundException;
 import aphelion.exception.UserNotFoundException;
 import aphelion.mapper.BlogPostLikeToBlogPostLikeDTOMapper;
+import aphelion.mapper.BlogPostLikeToBlogPostLikeWithBlogPostDTOMapper;
 import aphelion.mapper.CreateBlogPostLikeDTOToBlogPostLikeMapper;
 import aphelion.model.domain.BlogPost;
 import aphelion.model.domain.BlogPostLike;
 import aphelion.model.domain.User;
 import aphelion.model.dto.BlogPostLikeDTO;
+import aphelion.model.dto.BlogPostLikeWithBlogPostDTO;
 import aphelion.model.dto.CreateBlogPostLikeDTO;
 import aphelion.model.dto.UpdatedNumberOfBlogPostLikesDTO;
 import aphelion.repository.BlogPostLikeRepository;
@@ -39,6 +41,7 @@ public class BlogPostLikeServiceImpl implements BlogPostLikeService {
     private final BlogPostRepository blogPostRepository;
     private final BlogPostLikeToBlogPostLikeDTOMapper blogPostLikeToBlogPostLikeDTOMapper;
     private final CreateBlogPostLikeDTOToBlogPostLikeMapper createBlogPostLikeDTOToBlogPostLikeMapper;
+    private final BlogPostLikeToBlogPostLikeWithBlogPostDTOMapper blogPostLikeToBlogPostLikeWithBlogPostDTOMapper;
 
     @Override
     public UpdatedNumberOfBlogPostLikesDTO save(CreateBlogPostLikeDTO createBlogPostLikeDTO) {
@@ -88,11 +91,17 @@ public class BlogPostLikeServiceImpl implements BlogPostLikeService {
     }
 
     @Override
-    public List<BlogPostLikeDTO> findByUser(Long userId, int page, int pageSize, String sortingDirection, String sortBy) {
+    @ValidatePaginationParameters
+    public List<BlogPostLikeWithBlogPostDTO> findByUser(
+            Long userId,
+            @Page int page,
+            @PageSize(max = 50) int pageSize,
+            @SortingDirection String sortingDirection,
+            @SortBy(allowed = "id") String sortBy) {
         User user = findUserById(userId);
         return findByUser(user, page, pageSize, sortingDirection, sortBy)
                 .stream()
-                .map(blogPostLikeToBlogPostLikeDTOMapper::map)
+                .map(blogPostLikeToBlogPostLikeWithBlogPostDTOMapper::map)
                 .collect(Collectors.toList());
     }
 
