@@ -2,12 +2,14 @@ package aphelion.repository;
 
 import aphelion.model.domain.Blog;
 import aphelion.model.domain.BlogPost;
+import aphelion.model.domain.Tag;
 import aphelion.model.domain.User;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -27,28 +29,72 @@ public interface BlogPostRepository extends JpaRepository<BlogPost, Long> {
 
     @Query("select blogPost from BlogPost blogPost " +
             "where blogPost.createdAt between :#{#from} and :#{#to} and blogPost.deleted = false " +
-            "order by blogPost.likes.size desc, blogPost.blogPostViews.size desc")
+            "order by blogPost.likes.size desc, blogPost.blogPostViews.size desc"
+    )
     List<BlogPost> findMostPopularForPeriod(@Param("from") Date from, @Param("to") Date to,
                                             Pageable pageable);
 
     @Query("select blogPost from BlogPost blogPost " +
             "where (lower(blogPost.title) like concat('%', lower(:#{#query}), '%' ) " +
             "or lower(blogPost.plainText) like concat('%', lower(:#{#query}), '%' )) " +
-            "and blogPost.deleted = false "
+            "and blogPost.deleted = false"
     )
     List<BlogPost> search(@Param("query") String query, Pageable pageable);
 
     @Query("select blogPost from BlogPost blogPost " +
-            "where (lower(blogPost.title) like concat('%', lower(:#{#query}), '%') " +
-            "or lower(blogPost.plainText) like concat('%', lower(:#{#query}), '%'))" +
+            "join blogPost.tags tags " +
+            "where (lower(blogPost.title) like concat('%', lower(:#{#query}), '%' ) " +
+            "or lower(blogPost.plainText) like concat('%', lower(:#{#query}), '%' )) " +
             "and blogPost.deleted = false " +
-            "order by blogPost.likes.size asc, blogPost.blogPostViews.size asc")
+            "and tags in :#{#tags}"
+    )
+    List<BlogPost> search(
+            @Param("query") String query,
+            @Param("tags") List<Tag> tags,
+            Pageable pageable
+    );
+
+    @Query("select blogPost from BlogPost blogPost " +
+            "where (lower(blogPost.title) like concat('%', lower(:#{#query}), '%') " +
+            "or lower(blogPost.plainText) like concat('%', lower(:#{#query}), '%')) " +
+            "and blogPost.deleted = false " +
+            "order by blogPost.likes.size asc, blogPost.blogPostViews.size asc"
+    )
     List<BlogPost> searchSortByPopularityAsc(@Param("query") String query, Pageable pageable);
+
+    @Query("select blogPost from BlogPost blogPost " +
+            "join blogPost.tags tags " +
+            "where (lower(blogPost.title) like concat('%', lower(:#{#query}), '%') " +
+            "or lower(blogPost.plainText) like concat('%', lower(:#{#query}), '%')) " +
+            "and blogPost.deleted = false " +
+            "and tags in :#{#tags} " +
+            "order by blogPost.likes.size asc, blogPost.blogPostViews.size asc"
+    )
+    List<BlogPost> searchSortByPopularityAsc(
+            @Param("query") String query,
+            @Param("tags") List<Tag> tags,
+            Pageable pageable
+    );
 
     @Query("select blogPost from BlogPost blogPost " +
             "where (lower(blogPost.title) like concat('%', lower(:#{#query}), '%') " +
             "or lower(blogPost.plainText) like concat('%', lower(:#{#query}), '%'))" +
             "and blogPost.deleted = false " +
-            "order by blogPost.likes.size desc, blogPost.blogPostViews.size desc")
+            "order by blogPost.likes.size desc, blogPost.blogPostViews.size desc"
+    )
     List<BlogPost> searchSortByPopularityDesc(@Param("query") String query, Pageable pageable);
+
+    @Query("select blogPost from BlogPost blogPost " +
+            "join blogPost.tags tags " +
+            "where (lower(blogPost.title) like concat('%', lower(:#{#query}), '%') " +
+            "or lower(blogPost.plainText) like concat('%', lower(:#{#query}), '%'))" +
+            "and blogPost.deleted = false " +
+            "and tags in :#{#tags} " +
+            "order by blogPost.likes.size desc, blogPost.blogPostViews.size desc"
+    )
+    List<BlogPost> searchSortByPopularityDesc(
+            @Param("query") String query,
+            @Param("tags") List<Tag> tags,
+            Pageable pageable
+    );
 }

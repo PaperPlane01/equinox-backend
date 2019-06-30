@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.SQLDelete;
@@ -89,7 +88,7 @@ public class BlogPost {
             joinColumns = @JoinColumn(name = "blogPostId"),
             inverseJoinColumns = @JoinColumn(name = "tagId")
     )
-    private Collection<Tag> tags;
+    private List<Tag> tags;
 
     @OneToMany(cascade = CascadeType.MERGE, fetch = FetchType.LAZY, mappedBy = "blogPost")
     @LazyCollection(LazyCollectionOption.EXTRA)

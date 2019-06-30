@@ -43,6 +43,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -300,25 +301,37 @@ public class BlogPostServiceImpl implements BlogPostService {
 
     @Override
     @ValidatePaginationParameters
+    @ValidateCollectionSize
     public List<BlogPostDTO> search(
             String query,
+            @CollectionArgument(maxSize = 10) List<String> tagNames,
             @Page int page,
             @PageSize(max = 50) int pageSize,
             @SortingDirection String sortingDirection,
             @SortBy(allowed = {"id", "createdAt", "popularity"}) String sortBy) {
+        List<Tag> tags = tagNames.isEmpty()
+                ? Collections.emptyList()
+                : tagRepository.findAllByName(tagNames);
         List<BlogPost> blogPosts;
         PageRequest pageRequest;
         Sort.Direction direction = SortingDirectionUtils.convertFromString(sortingDirection);
         if ("popularity".equals(sortBy)) {
             pageRequest = PageRequest.of(page, pageSize);
+            System.out.println(tags.isEmpty());
             if (direction.equals(Sort.Direction.ASC)) {
-                blogPosts = blogPostRepository.searchSortByPopularityAsc(query, pageRequest);
+                blogPosts = tags.isEmpty()
+                        ? blogPostRepository.searchSortByPopularityAsc(query, pageRequest)
+                        : blogPostRepository.searchSortByPopularityAsc(query, tags, pageRequest);
             } else {
-                blogPosts = blogPostRepository.searchSortByPopularityDesc(query, pageRequest);
+                blogPosts = tags.isEmpty()
+                        ? blogPostRepository.searchSortByPopularityDesc(query, pageRequest)
+                        : blogPostRepository.searchSortByPopularityDesc(query, tags, pageRequest);
             }
         } else {
             pageRequest = PageRequest.of(page, pageSize, direction, sortBy);
-            blogPosts = blogPostRepository.search(query, pageRequest);
+            blogPosts = tags.isEmpty()
+                    ? blogPostRepository.search(query, pageRequest)
+                    : blogPostRepository.search(query, tags, pageRequest);
         }
 
         return blogPosts.stream()

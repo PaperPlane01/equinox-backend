@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -504,24 +505,26 @@ public class BlogPostController {
             @ApiResponse(code = 401, message = "Access token has expired"),
     })
     @IncreaseNumberOfViews(For.MULTIPLE_BLOG_POSTS)
-    @GetMapping(value = "/search", params = {"query"})
+    @GetMapping(value = "/search")
     public List<BlogPostDTO> search(
-            @ApiParam(value = "Query to search", required = true)
-            @RequestParam("query") String query,
+            @ApiParam(value = "Query to search")
+            @RequestParam Optional<String> query,
+            @RequestParam Optional<List<String>> tags,
             @ApiParam(value = "Page number", defaultValue = "0")
-            @RequestParam("page") Optional<Integer> page,
+            @RequestParam Optional<Integer> page,
             @ApiParam(value = "Page size. Max size is 50", defaultValue = "10")
-            @RequestParam("pageSize") Optional<Integer> pageSize,
+            @RequestParam Optional<Integer> pageSize,
             @ApiParam(value = "Direction of sorting", allowableValues = "asc, desc", defaultValue = "desc")
-            @RequestParam("sortingDirection") Optional<String> sortingDirection,
+            @RequestParam Optional<String> sortingDirection,
             @ApiParam(
                     value = "Sorting property",
                     allowableValues = "id, creationDate, popularity",
                     defaultValue = "popularity"
             )
-            @RequestParam("sortBy") Optional<String> sortBy) {
+            @RequestParam Optional<String> sortBy) {
         return blogPostService.search(
-                query,
+                query.orElse(""),
+                tags.orElse(new ArrayList<>()),
                 page.orElse(0),
                 pageSize.orElse(10),
                 sortingDirection.orElse("desc"),
