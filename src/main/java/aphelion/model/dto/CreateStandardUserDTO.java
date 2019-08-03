@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.annotation.Nullable;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
@@ -15,7 +17,6 @@ public class CreateStandardUserDTO {
     @Size(min = 3, max = 25)
     private String loginUsername;
 
-    @NotBlank
     @Size(min = 3, max = 25)
     private String displayedUsername;
 
@@ -25,4 +26,10 @@ public class CreateStandardUserDTO {
 
     @NotBlank
     private String repeatedPassword;
+
+    @Email
+    @Nullable
+    private String email;
+
+    private String confirmationEmailLanguage;
 }

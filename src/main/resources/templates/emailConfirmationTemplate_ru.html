@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body>
+    <div>
+        Вы успешно зарегистрировались в Aphelion. Для подтерждения вашего e-mail пройдите по ссылке ниже.
+    </div>
+    <div>
+        <a th:href="@{http://localhost:3000/confirm-email(confirmationId=${confirmationId})}">Подтвердить e-mail</a>
+    </div>
+    <div>
+        Эта ссылка действительна до <span th:text="${#dates.format(${expirationDate}, 'dd-MM-yyyy hh:mm:ss')} UTC"></span>
+    </div>
+</body>
+</html>

@@ -2,6 +2,10 @@ package aphelion.exceptionhandler;
 
 import aphelion.exception.BlogPostIsTooLongException;
 import aphelion.exception.BlogPostValidationException;
+import aphelion.exception.EmailConfirmationExpiredException;
+import aphelion.exception.EmailConfirmationHasAlreadyBeenActivatedException;
+import aphelion.exception.EmailIsAlreadyInUseException;
+import aphelion.exception.EmailSendingException;
 import aphelion.exception.EntityNotFoundException;
 import aphelion.exception.GoogleLoginException;
 import aphelion.exception.InvalidBlogPostContentException;
@@ -62,8 +66,11 @@ public class RestApiExceptionHandler extends ResponseEntityExceptionHandler {
                 webRequest);
     }
 
-    @ExceptionHandler(value = LoginUsernameIsAlreadyInUseException.class)
-    protected ResponseEntity<Object> handleLoginUsernameIsAlreadyInUseException(RuntimeException exception,
+    @ExceptionHandler({
+            LoginUsernameIsAlreadyInUseException.class,
+            EmailIsAlreadyInUseException.class
+    })
+    protected ResponseEntity<Object> handleConflictExceptions(RuntimeException exception,
                                                                                 WebRequest webRequest) {
         ErrorDTO errorDTO = createErrorDTO(HttpStatus.CONFLICT.value(), exception);
         return handleExceptionInternal(exception, errorDTO, new HttpHeaders(), HttpStatus.CONFLICT,
@@ -105,6 +112,32 @@ public class RestApiExceptionHandler extends ResponseEntityExceptionHandler {
         ErrorDTO errorDTO = createErrorDTO(HttpStatus.LOCKED.value(), exception);
         return handleExceptionInternal(exception, errorDTO, new HttpHeaders(), HttpStatus.LOCKED,
                 webRequest);
+    }
+
+    @ExceptionHandler(EmailConfirmationExpiredException.class)
+    protected ResponseEntity<?> handleEmailConfirmationExpiredException(
+            RuntimeException exception, WebRequest webRequest) {
+        ErrorDTO errorDTO = createErrorDTO(HttpStatus.GONE.value(), exception);
+        return handleExceptionInternal(exception, errorDTO, new HttpHeaders(), HttpStatus.GONE, webRequest);
+    }
+
+    @ExceptionHandler(EmailConfirmationHasAlreadyBeenActivatedException.class)
+    protected ResponseEntity<?> handleEmailConfirmationHasAlreadyBeenActivatedException(
+            RuntimeException exception, WebRequest webRequest) {
+        ErrorDTO errorDTO = createErrorDTO(HttpStatus.LOCKED.value(), exception);
+        return handleExceptionInternal(exception, errorDTO, new HttpHeaders(), HttpStatus.LOCKED, webRequest);
+    }
+
+    @ExceptionHandler(EmailSendingException.class)
+    protected ResponseEntity<?> handleEmailSendingException(
+            RuntimeException exception, WebRequest webRequest) {
+        ErrorDTO errorDTO = createErrorDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception);
+        return handleExceptionInternal(
+                exception, errorDTO,
+                new HttpHeaders(),
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                webRequest
+        );
     }
 
     private ErrorDTO createErrorDTO(Integer status, RuntimeException exception) {

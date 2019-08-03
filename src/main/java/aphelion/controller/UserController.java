@@ -101,6 +101,12 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/email/{email}/is-available")
+    public ResponseEntity<?> assertThatEmailIsNotInUse(@PathVariable @NotBlank String email) {
+        userService.assertThatEmailIsNotInUse(email);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping(params = "authType=usernameAndPassword")
     public UserDTO signUp(@RequestBody @Valid CreateStandardUserDTO createStandardUserDTO) {
         return userService.saveStandardUser(createStandardUserDTO);

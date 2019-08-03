@@ -1,5 +1,6 @@
 package aphelion.service;
 
+import aphelion.exception.EmailIsAlreadyInUseException;
 import aphelion.exception.LoginUsernameIsAlreadyInUseException;
 import aphelion.model.domain.User;
 import aphelion.model.dto.CreateStandardUserDTO;
@@ -28,5 +29,6 @@ public interface UserService extends UserDetailsService {
     UserDetails loadUserByUsername(String s) throws UsernameNotFoundException;
     UserDetails loadUserByLoginUsername(String username) throws UsernameNotFoundException;
     void assertThatUsernameIsNotInUse(String username) throws LoginUsernameIsAlreadyInUseException;
+    void assertThatEmailIsNotInUse(String email) throws EmailIsAlreadyInUseException;
     User registerGoogleUser(Userinfoplus userinfoplus);
 }

@@ -5,6 +5,8 @@ import aphelion.annotation.PageSize;
 import aphelion.annotation.SortBy;
 import aphelion.annotation.SortingDirection;
 import aphelion.annotation.ValidatePaginationParameters;
+import aphelion.async.executor.AsyncExecutor;
+import aphelion.exception.EmailIsAlreadyInUseException;
 import aphelion.exception.LoginUsernameIsAlreadyInUseException;
 import aphelion.exception.NoMatchFoundForGivenUsernameAndPasswordException;
 import aphelion.exception.UserNotFoundException;
@@ -23,10 +25,12 @@ import aphelion.model.dto.UserDTO;
 import aphelion.repository.AuthorityRepository;
 import aphelion.repository.UserRepository;
 import aphelion.security.AuthenticationFacade;
+import aphelion.service.EmailConfirmationService;
 import aphelion.service.UserService;
 import aphelion.util.ColorUtils;
 import aphelion.util.SortingDirectionUtils;
 import com.google.api.services.oauth2.model.Userinfoplus;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
 import org.springframework.data.domain.PageRequest;
@@ -38,6 +42,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -48,6 +53,8 @@ import java.util.stream.Collectors;
 @Transactional
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
+    private final EmailConfirmationService emailConfirmationService;
+    private final AsyncExecutor asyncExecutor;
     private final UserRepository userRepository;
     private final AuthorityRepository authorityRepository;
     private final UserToCurrentUserDTOMapper userToCurrentUserDTOMapper;
@@ -94,27 +101,49 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO saveStandardUser(CreateStandardUserDTO createStandardUserDTO) {
-        if (!userRepository.findByLoginUsername(createStandardUserDTO.getLoginUsername()).isPresent()) {
-            var authority = authorityRepository.findByName("ROLE_USER");
-            var displayedUserName = createStandardUserDTO.getDisplayedUsername() == null
-                    || createStandardUserDTO.getDisplayedUsername().isEmpty()
-                    ? createStandardUserDTO.getLoginUsername()
-                    : createStandardUserDTO.getDisplayedUsername();
+        if (userRepository.findByLoginUsername(createStandardUserDTO.getLoginUsername()).isPresent()) {
+            throw new LoginUsernameIsAlreadyInUseException("Username "
+                    + createStandardUserDTO.getLoginUsername() + " is already in use");
 
-            var user = User.builder()
-                    .loginUsername(createStandardUserDTO.getLoginUsername())
-                    .displayedName(displayedUserName)
-                    .password(passwordEncoder.encode(createStandardUserDTO.getPassword()))
-                    .roles(Collections.singletonList(authority))
-                    .authType(AuthType.USERNAME_AND_PASSWORD)
-                    .enabled(true)
-                    .locked(false)
-                    .letterAvatarColor(ColorUtils.getRandomColor())
-                    .build();
-            return userToUserDTOMapper.map(saveStandardUser(user));
-        } else {
-            throw new LoginUsernameIsAlreadyInUseException();
         }
+
+        var authority = authorityRepository.findByName("ROLE_USER");
+        var authorities = new ArrayList<Authority>();
+        authorities.add(authority);
+
+        var displayedUserName = createStandardUserDTO.getDisplayedUsername() == null
+                || createStandardUserDTO.getDisplayedUsername().isEmpty()
+                ? createStandardUserDTO.getLoginUsername()
+                : createStandardUserDTO.getDisplayedUsername();
+
+        var user = User.builder()
+                .loginUsername(createStandardUserDTO.getLoginUsername())
+                .displayedName(displayedUserName)
+                .password(passwordEncoder.encode(createStandardUserDTO.getPassword()))
+                .roles(authorities)
+                .authType(AuthType.USERNAME_AND_PASSWORD)
+                .enabled(true)
+                .locked(false)
+                .letterAvatarColor(ColorUtils.getRandomColor())
+                .build();
+        PersonalInformation personalInformation = PersonalInformation.builder()
+                .user(user)
+                .build();
+        if (createStandardUserDTO.getEmail() != null) {
+            personalInformation.setEmail(createStandardUserDTO.getEmail());
+        }
+        user.setPersonalInformation(personalInformation);
+        user = saveStandardUser(user);
+
+        if (createStandardUserDTO.getEmail() != null) {
+            asyncExecutor.execute(new SendConfirmationEmailTask(
+                    user,
+                    emailConfirmationService,
+                    createStandardUserDTO.getConfirmationEmailLanguage()
+            ));
+        }
+
+        return userToUserDTOMapper.map(saveStandardUser(user));
     }
 
     private User saveStandardUser(User user) {
@@ -203,6 +232,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void assertThatEmailIsNotInUse(String email) throws EmailIsAlreadyInUseException {
+        Optional<User> user = userRepository.findByEmail(email);
+
+        if (user.isPresent()) {
+            throw new EmailIsAlreadyInUseException("This email " + email + " is already in use.");
+        }
+    }
+
+    @Override
     public User registerGoogleUser(Userinfoplus userinfoplus) {
         Authority authority = authorityRepository.findByName("ROLE_USER");
         List<Authority> authorities = new ArrayList<>();
@@ -224,5 +262,17 @@ public class UserServiceImpl implements UserService {
         user = save(user);
         user.setGeneratedUsername(user.getDisplayedName() + "-" + user.getId() + "-" + UUID.randomUUID());
         return save(user);
+    }
+
+    @AllArgsConstructor
+    private final class SendConfirmationEmailTask implements Runnable {
+        private User user;
+        private EmailConfirmationService emailConfirmationService;
+        private String language;
+
+        @Override
+        public void run() {
+            emailConfirmationService.sendEmailConfirmationEmail(user, language);
+        }
     }
 }
