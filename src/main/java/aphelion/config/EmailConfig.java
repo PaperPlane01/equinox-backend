@@ -7,6 +7,8 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
+import java.nio.charset.StandardCharsets;
+
 @Configuration
 @PropertySource("classpath:email.properties")
 public class EmailConfig {
@@ -29,6 +31,7 @@ public class EmailConfig {
         javaMailSender.setProtocol(emailProtocol);
         javaMailSender.setHost(emailHost);
         javaMailSender.setPort(emailPort);
+        javaMailSender.setDefaultEncoding(StandardCharsets.UTF_8.name());
         return javaMailSender;
     }
 }

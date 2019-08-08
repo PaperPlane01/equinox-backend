@@ -7,6 +7,8 @@ import org.thymeleaf.spring5.SpringTemplateEngine;
 import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
+import java.nio.charset.StandardCharsets;
+
 @Configuration
 public class ThymeleafConfig {
     @Bean
@@ -14,6 +16,7 @@ public class ThymeleafConfig {
         ClassLoaderTemplateResolver classLoaderTemplateResolver = new ClassLoaderTemplateResolver();
         classLoaderTemplateResolver.setPrefix("templates/");
         classLoaderTemplateResolver.setSuffix(".html");
+        classLoaderTemplateResolver.setCharacterEncoding(StandardCharsets.UTF_8.name());
         return classLoaderTemplateResolver;
     }
 
@@ -28,6 +31,7 @@ public class ThymeleafConfig {
     public ViewResolver viewResolver() {
         ThymeleafViewResolver thymeleafViewResolver = new ThymeleafViewResolver();
         thymeleafViewResolver.setTemplateEngine(springTemplateEngine());
+        thymeleafViewResolver.setCharacterEncoding(StandardCharsets.UTF_8.name());
         return thymeleafViewResolver;
     }
 }

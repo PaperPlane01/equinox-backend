@@ -25,8 +25,11 @@ import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.TemplateSpec;
 import org.thymeleaf.context.Context;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Date;
@@ -88,15 +91,15 @@ public class EmailConfirmationServiceImpl implements EmailConfirmationService {
 
         String emailText;
 
-        if ("ru".equalsIgnoreCase(language)) {
+        if (isRussianLanguage) {
             emailText = templateEngine.process("emailConfirmationTemplate_ru.html", context);
         } else {
             emailText = templateEngine.process("emailConfirmationTemplate_en.html", context);
         }
 
         MimeMessagePreparator mimeMessagePreparator = mimeMessage -> {
+            mimeMessage.setContent(emailText, "text/html; charset=utf-8");
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
-            mimeMessageHelper.setText("", emailText);
             mimeMessageHelper.setFrom(aphelionEmailAddress);
             mimeMessageHelper.setTo(email);
             mimeMessageHelper.setSubject(isRussianLanguage ? "Подтверждение e-mail" : "Confirm your email");
