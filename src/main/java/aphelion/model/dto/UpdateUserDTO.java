@@ -17,10 +17,6 @@ public class UpdateUserDTO {
     private String displayedName;
     private String avatarUri;
 
-    @Email
-    @Size(max = 70)
-    private String email;
-
     @Size(max = 120)
     private String bio;
 

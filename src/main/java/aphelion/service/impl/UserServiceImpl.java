@@ -20,6 +20,8 @@ import aphelion.model.domain.User;
 import aphelion.model.dto.CreateStandardUserDTO;
 import aphelion.model.dto.CurrentUserDTO;
 import aphelion.model.dto.CurrentUserFullProfileDTO;
+import aphelion.model.dto.GetEmailDTO;
+import aphelion.model.dto.UpdateEmailDTO;
 import aphelion.model.dto.UpdateUserDTO;
 import aphelion.model.dto.UserDTO;
 import aphelion.repository.AuthorityRepository;
@@ -42,8 +44,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -157,7 +157,6 @@ public class UserServiceImpl implements UserService {
         User user = findUserById(id);
         user.setDisplayedName(updateUserDTO.getDisplayedName());
         user.setAvatarUri(updateUserDTO.getAvatarUri());
-        user.getPersonalInformation().setEmail(updateUserDTO.getEmail());
         user.getPersonalInformation().setBirthDate(updateUserDTO.getBirthDate());
         user.getPersonalInformation().setBio(updateUserDTO.getBio());
         user = userRepository.save(user);
@@ -197,7 +196,6 @@ public class UserServiceImpl implements UserService {
 
         currentUser.getPersonalInformation().setBio(updateUserDTO.getBio());
         currentUser.getPersonalInformation().setBirthDate(updateUserDTO.getBirthDate());
-        currentUser.getPersonalInformation().setEmail(updateUserDTO.getEmail());
 
         return userToCurrentUserFullProfileDTOMapper.map(userRepository.save(currentUser));
     }
@@ -262,6 +260,29 @@ public class UserServiceImpl implements UserService {
         user = save(user);
         user.setGeneratedUsername(user.getDisplayedName() + "-" + user.getId() + "-" + UUID.randomUUID());
         return save(user);
+    }
+
+    @Override
+    public void updateEmailOfCurrentUser(UpdateEmailDTO updateEmailDTO) {
+        User currentUser = authenticationFacade.getCurrentUser();
+        System.out.println(String.format("email: %s", updateEmailDTO.getEmail()));
+        currentUser.getPersonalInformation().setEmail(updateEmailDTO.getEmail());
+
+        if (updateEmailDTO.getEmail() != null) {
+            asyncExecutor.execute(new SendConfirmationEmailTask(
+                    currentUser,
+                    emailConfirmationService,
+                    updateEmailDTO.getEmailConfirmationLanguage()
+            ));
+        }
+
+        userRepository.save(currentUser);
+    }
+
+    @Override
+    public GetEmailDTO getEmailOfCurrentUser() {
+        User currentUser = authenticationFacade.getCurrentUser();
+        return new GetEmailDTO(currentUser.getPersonalInformation().getEmail());
     }
 
     @AllArgsConstructor

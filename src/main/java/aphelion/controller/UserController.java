@@ -5,9 +5,11 @@ import aphelion.model.dto.BlogPostLikeWithBlogPostDTO;
 import aphelion.model.dto.CreateStandardUserDTO;
 import aphelion.model.dto.CurrentUserDTO;
 import aphelion.model.dto.CurrentUserFullProfileDTO;
+import aphelion.model.dto.GetEmailDTO;
 import aphelion.model.dto.GlobalBlockingDTO;
 import aphelion.model.dto.ManagedBlogsOfUserDTO;
 import aphelion.model.dto.SubscriptionWithBlogDTO;
+import aphelion.model.dto.UpdateEmailDTO;
 import aphelion.model.dto.UpdateUserDTO;
 import aphelion.model.dto.UserDTO;
 import aphelion.service.BlogPostLikeService;
@@ -15,10 +17,12 @@ import aphelion.service.BlogService;
 import aphelion.service.GlobalBlockingService;
 import aphelion.service.SubscriptionService;
 import aphelion.service.UserService;
+import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -30,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -49,6 +54,13 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('USER')")
+    @PatchMapping("/current/email")
+    public Map<String, Boolean> updateEmail(@RequestBody @Valid UpdateEmailDTO updateEmailDTO) {
+        userService.updateEmailOfCurrentUser(updateEmailDTO);
+        return ImmutableMap.of("success", true);
+    }
+
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/current/full-profile")
     public CurrentUserFullProfileDTO getCurrentUserFullProfile() {
         return userService.getCurrentUserFullProfile();
@@ -64,6 +76,7 @@ public class UserController {
                 sortingDirection.orElse("desc"), sortBy.orElse("id"));
     }
 
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/current/subscriptions")
     public List<SubscriptionWithBlogDTO> findSubscriptionsOfCurrentUser(
             @RequestParam("page") Optional<Integer> page,
@@ -72,6 +85,12 @@ public class UserController {
             @RequestParam("sortBy") Optional<String> sortBy) {
         return subscriptionService.findByCurrentUser(page.orElse(0), pageSize.orElse(50),
                 sortingDirection.orElse("desc"), sortBy.orElse("id"));
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/current/email")
+    public GetEmailDTO getEmailOfCurrentUser() {
+        return userService.getEmailOfCurrentUser();
     }
 
     @GetMapping("/{id}")
